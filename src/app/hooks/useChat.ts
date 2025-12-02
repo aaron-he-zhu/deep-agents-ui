@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useStream } from "@langchain/langgraph-sdk/react";
 import {
   type Message,
@@ -10,8 +10,9 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import type { UseStreamThread } from "@langchain/langgraph-sdk/react";
 import type { TodoItem } from "@/app/types/types";
-import { useClient } from "@/providers/ClientProvider";
+import { useClient, useActiveProvider } from "@/providers/ClientProvider";
 import { useQueryState } from "nuqs";
+import { getAuthScheme } from "@/lib/config";
 
 export type StateType = {
   messages: Message[];
@@ -36,6 +37,9 @@ export function useChat({
 }) {
   const [threadId, setThreadId] = useQueryState("threadId");
   const client = useClient();
+  const activeProvider = useActiveProvider();
+  
+  const authScheme = useMemo(() => getAuthScheme(activeProvider), [activeProvider]);
 
   const stream = useStream<StateType>({
     assistantId: activeAssistant?.assistant_id || "",
@@ -43,7 +47,7 @@ export function useChat({
     reconnectOnMount: true,
     threadId: threadId ?? null,
     onThreadId: setThreadId,
-    defaultHeaders: { "x-auth-scheme": "langsmith" },
+    defaultHeaders: { "x-auth-scheme": authScheme },
     // Revalidate thread list when stream finishes, errors, or creates new thread
     onFinish: onHistoryRevalidate,
     onError: onHistoryRevalidate,

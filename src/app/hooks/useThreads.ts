@@ -1,7 +1,7 @@
 import useSWRInfinite from "swr/infinite";
 import type { Thread } from "@langchain/langgraph-sdk";
 import { Client } from "@langchain/langgraph-sdk";
-import { getConfig } from "@/lib/config";
+import { getConfig, getActiveApiKey } from "@/lib/config";
 
 export interface ThreadItem {
   id: string;
@@ -23,10 +23,7 @@ export function useThreads(props: {
   return useSWRInfinite(
     (pageIndex: number, previousPageData: ThreadItem[] | null) => {
       const config = getConfig();
-      const apiKey =
-        config?.langsmithApiKey ||
-        process.env.NEXT_PUBLIC_LANGSMITH_API_KEY ||
-        "";
+      const apiKey = getActiveApiKey(config);
 
       if (!config) {
         return null;
