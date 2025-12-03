@@ -18,6 +18,7 @@ import { ChatInterface } from "@/app/components/ChatInterface";
 import { LeftSidebar } from "@/app/components/LeftSidebar";
 import { RightSidebar } from "@/app/components/RightSidebar";
 import { ThemeToggle } from "@/app/components/ThemeToggle";
+import { BackendStatus } from "@/app/components/BackendStatus";
 
 interface HomePageInnerProps {
   config: StandaloneConfig;
@@ -163,6 +164,7 @@ function HomePageInner({
             <h1 className="text-lg font-semibold">SeenOS <span className="text-xs font-normal text-muted-foreground">v0.0.2</span></h1>
           </div>
           <div className="flex items-center gap-2">
+            <BackendStatus />
             <ThemeToggle />
             <Button
               variant="ghost"
