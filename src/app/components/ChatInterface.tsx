@@ -6,76 +6,63 @@ import React, {
   useCallback,
   useMemo,
   FormEvent,
-  Fragment,
+  useEffect,
 } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Square,
   ArrowUp,
-  CheckCircle,
-  Clock,
-  Circle,
-  FileIcon,
+  MessagesSquare,
+  MessageCircle,
+  Copy,
+  Plus,
+  Check,
+  RefreshCw,
+  ChevronRight,
 } from "lucide-react";
 import { ChatMessage } from "@/app/components/ChatMessage";
-import type {
-  TodoItem,
-  ToolCall,
-  ActionRequest,
-  ReviewConfig,
-} from "@/app/types/types";
+import type { ToolCall, ActionRequest, ReviewConfig } from "@/app/types/types";
 import { Assistant, Message } from "@langchain/langgraph-sdk";
-import { extractStringFromMessageContent } from "@/app/utils/utils";
+import {
+  extractStringFromMessageContent,
+  formatConversationForLLM,
+} from "@/app/utils/utils";
 import { useChatContext } from "@/providers/ChatProvider";
 import { cn } from "@/lib/utils";
 import { useStickToBottom } from "use-stick-to-bottom";
-import { FilesPopover } from "@/app/components/TasksFilesSidebar";
+import { ThreadsOverlay } from "@/app/components/ThreadsOverlay";
+import { useQueryState } from "nuqs";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { useSuggestions } from "@/app/hooks/useSuggestions";
 
 interface ChatInterfaceProps {
   assistant: Assistant | null;
 }
 
-const getStatusIcon = (status: TodoItem["status"], className?: string) => {
-  switch (status) {
-    case "completed":
-      return (
-        <CheckCircle
-          size={16}
-          className={cn("text-success/80", className)}
-        />
-      );
-    case "in_progress":
-      return (
-        <Clock
-          size={16}
-          className={cn("text-warning/80", className)}
-        />
-      );
-    default:
-      return (
-        <Circle
-          size={16}
-          className={cn("text-tertiary/70", className)}
-        />
-      );
-  }
-};
-
 export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
-  const [metaOpen, setMetaOpen] = useState<"tasks" | "files" | null>(null);
-  const tasksContainerRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const threadsButtonRef = useRef<HTMLButtonElement | null>(null);
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const [, setThreadId] = useQueryState("threadId");
+  const [threadsOverlayOpen, setThreadsOverlayOpen] = useState(false);
+  const [interruptCount, setInterruptCount] = useState(0);
+  const [chatContainerHeight, setChatContainerHeight] = useState(0);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const [input, setInput] = useState("");
+  const [visibleSuggestions, setVisibleSuggestions] = useState(3);
+  const [threadId] = useQueryState("threadId");
   const { scrollRef, contentRef } = useStickToBottom();
 
+  // Get chat context first
   const {
     stream,
     messages,
-    todos,
-    files,
     ui,
-    setFiles,
     isLoading,
     isThreadLoading,
     interrupt,
@@ -84,7 +71,26 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     resumeInterrupt,
   } = useChatContext();
 
+  // Use dynamic suggestions hook (after useChatContext)
+  const { suggestions: allSuggestions, isRefreshing } = useSuggestions({
+    threadId,
+    messages,
+    isLoading: isLoading || false,
+  });
+
   const submitDisabled = isLoading || !assistant;
+
+  // Track chat container height for overlay
+  useEffect(() => {
+    const updateHeight = () => {
+      if (chatContainerRef.current) {
+        setChatContainerHeight(chatContainerRef.current.offsetHeight);
+      }
+    };
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   const handleSubmit = useCallback(
     (e?: FormEvent) => {
@@ -110,13 +116,58 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     [handleSubmit, submitDisabled]
   );
 
-  // TODO: can we make this part of the hook?
+  const handleThreadSelect = useCallback(
+    async (id: string) => {
+      await setThreadId(id);
+    },
+    [setThreadId]
+  );
+
+  const handleNewChat = useCallback(async () => {
+    await setThreadId(null);
+  }, [setThreadId]);
+
+  // Reset input and visible suggestions count when thread changes
+  useEffect(() => {
+    setInput("");
+    setVisibleSuggestions(3);
+  }, [threadId]);
+
+  // Handle suggestion click - use full prompt
+  const handleSuggestionClick = useCallback((fullPrompt: string) => {
+    setInput(fullPrompt);
+    textareaRef.current?.focus();
+  }, []);
+
+  // Show more suggestions
+  const handleShowMore = useCallback(() => {
+    setVisibleSuggestions((prev) => Math.min(prev + 3, 12));
+  }, []);
+
+  // Reset visible suggestions when thread changes or suggestions refresh
+  const prevIsRefreshingRef = useRef(isRefreshing);
+  useEffect(() => {
+    if (!prevIsRefreshingRef.current && isRefreshing) {
+      // Suggestions are being refreshed, reset visible count
+      setVisibleSuggestions(3);
+    }
+    prevIsRefreshingRef.current = isRefreshing;
+  }, [isRefreshing]);
+
+  // Copy chat to markdown (includes tool calls and results)
+  const handleCopyChat = useCallback(async () => {
+    const markdownContent = formatConversationForLLM(messages);
+
+    try {
+      await navigator.clipboard.writeText(markdownContent);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  }, [messages]);
+
   const processedMessages = useMemo(() => {
-    /*
-     1. Loop through all messages
-     2. For each AI message, add the AI message, and any tool calls to the messageMap
-     3. For each tool message, find the corresponding tool call in the messageMap and update the status and output
-    */
     const messageMap = new Map<
       string,
       { message: Message; toolCalls: ToolCall[] }
@@ -215,16 +266,6 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     });
   }, [messages, interrupt]);
 
-  const groupedTodos = {
-    in_progress: todos.filter((t) => t.status === "in_progress"),
-    pending: todos.filter((t) => t.status === "pending"),
-    completed: todos.filter((t) => t.status === "completed"),
-  };
-
-  const hasTasks = todos.length > 0;
-  const hasFiles = Object.keys(files).length > 0;
-
-  // Parse out any action requests or review configs from the interrupt
   const actionRequestsMap: Map<string, ActionRequest> | null = useMemo(() => {
     const actionRequests =
       interrupt?.value && (interrupt.value as any)["action_requests"];
@@ -242,303 +283,238 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   }, [interrupt]);
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
-      <div
-        className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
-        ref={scrollRef}
-      >
+    <>
+      <div className="flex flex-1 flex-col overflow-hidden p-4">
+        {/* Chat container with border */}
         <div
-          className="mx-auto w-full max-w-[1024px] px-6 pb-6 pt-4"
-          ref={contentRef}
+          ref={chatContainerRef}
+          className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background"
         >
-          {isThreadLoading ? (
-            <div className="flex items-center justify-center p-8">
-              <p className="text-muted-foreground">Loading...</p>
+          {/* Top border with Chat label on left and buttons on right */}
+          <div className="flex h-10 flex-shrink-0 items-center justify-between border-b border-border px-3">
+            {/* Left: Chat label */}
+            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <MessageCircle size={16} />
+              <span>Chat</span>
             </div>
-          ) : (
-            <>
-              {processedMessages.map((data, index) => {
-                const messageUi = ui?.filter(
-                  (u: any) => u.metadata?.message_id === data.message.id
-                );
-                const isLastMessage = index === processedMessages.length - 1;
-                return (
-                  <ChatMessage
-                    key={data.message.id}
-                    message={data.message}
-                    toolCalls={data.toolCalls}
-                    isLoading={isLoading}
-                    actionRequestsMap={
-                      isLastMessage ? actionRequestsMap : undefined
-                    }
-                    reviewConfigsMap={
-                      isLastMessage ? reviewConfigsMap : undefined
-                    }
-                    ui={messageUi}
-                    stream={stream}
-                    onResumeInterrupt={resumeInterrupt}
-                    graphId={assistant?.graph_id}
-                  />
-                );
-              })}
-            </>
-          )}
-        </div>
-      </div>
 
-      <div className="flex-shrink-0 bg-background">
-        <div
-          className={cn(
-            "mx-4 mb-6 flex flex-shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-background",
-            "mx-auto w-[calc(100%-32px)] max-w-[1024px] transition-colors duration-200 ease-in-out"
-          )}
-        >
-          {(hasTasks || hasFiles) && (
-            <div className="flex max-h-72 flex-col overflow-y-auto border-b border-border bg-sidebar empty:hidden">
-              {!metaOpen && (
-                <>
-                  {(() => {
-                    const activeTask = todos.find(
-                      (t) => t.status === "in_progress"
-                    );
+            {/* Right: Copy, All Chats, +New Chat buttons */}
+            <div className="flex items-center gap-1">
+              {/* Copy Chat button with text */}
+              <button
+                type="button"
+                onClick={handleCopyChat}
+                disabled={messages.length === 0}
+                className="flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50 disabled:hover:bg-transparent"
+                title="Copy chat as Markdown"
+              >
+                {copySuccess ? (
+                  <Check size={16} className="text-green-500" />
+                ) : (
+                  <Copy size={16} />
+                )}
+                <span>Copy</span>
+              </button>
 
-                    const totalTasks = todos.length;
-                    const remainingTasks =
-                      totalTasks - groupedTodos.pending.length;
-                    const isCompleted = totalTasks === remainingTasks;
+              {/* All Chats button */}
+              <button
+                ref={threadsButtonRef}
+                type="button"
+                onClick={() => setThreadsOverlayOpen(true)}
+                className="flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                <MessagesSquare size={16} />
+                <span>All Chats</span>
+                {interruptCount > 0 && (
+                  <span className="inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] text-destructive-foreground">
+                    {interruptCount}
+                  </span>
+                )}
+              </button>
 
-                    const tasksTrigger = (() => {
-                      if (!hasTasks) return null;
-                      return (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setMetaOpen((prev) =>
-                              prev === "tasks" ? null : "tasks"
-                            )
-                          }
-                          className="grid w-full cursor-pointer grid-cols-[auto_auto_1fr] items-center gap-3 px-[18px] py-3 text-left"
-                          aria-expanded={metaOpen === "tasks"}
-                        >
-                          {(() => {
-                            if (isCompleted) {
-                              return [
-                                <CheckCircle
-                                  key="icon"
-                                  size={16}
-                                  className="text-success/80"
-                                />,
-                                <span
-                                  key="label"
-                                  className="ml-[1px] min-w-0 truncate text-sm"
-                                >
-                                  All tasks completed
-                                </span>,
-                              ];
-                            }
-
-                            if (activeTask != null) {
-                              return [
-                                <div key="icon">
-                                  {getStatusIcon(activeTask.status)}
-                                </div>,
-                                <span
-                                  key="label"
-                                  className="ml-[1px] min-w-0 truncate text-sm"
-                                >
-                                  Task{" "}
-                                  {totalTasks - groupedTodos.pending.length} of{" "}
-                                  {totalTasks}
-                                </span>,
-                                <span
-                                  key="content"
-                                  className="min-w-0 gap-2 truncate text-sm text-muted-foreground"
-                                >
-                                  {activeTask.content}
-                                </span>,
-                              ];
-                            }
-
-                            return [
-                              <Circle
-                                key="icon"
-                                size={16}
-                                className="text-tertiary/70"
-                              />,
-                              <span
-                                key="label"
-                                className="ml-[1px] min-w-0 truncate text-sm"
-                              >
-                                Task {totalTasks - groupedTodos.pending.length}{" "}
-                                of {totalTasks}
-                              </span>,
-                            ];
-                          })()}
-                        </button>
-                      );
-                    })();
-
-                    const filesTrigger = (() => {
-                      if (!hasFiles) return null;
-                      return (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setMetaOpen((prev) =>
-                              prev === "files" ? null : "files"
-                            )
-                          }
-                          className="flex flex-shrink-0 cursor-pointer items-center gap-2 px-[18px] py-3 text-left text-sm"
-                          aria-expanded={metaOpen === "files"}
-                        >
-                          <FileIcon size={16} />
-                          Files (State)
-                          <span className="h-4 min-w-4 rounded-full bg-[#2F6868] px-0.5 text-center text-[10px] leading-[16px] text-white">
-                            {Object.keys(files).length}
-                          </span>
-                        </button>
-                      );
-                    })();
-
-                    return (
-                      <div className="grid grid-cols-[1fr_auto_auto] items-center">
-                        {tasksTrigger}
-                        {filesTrigger}
-                      </div>
-                    );
-                  })()}
-                </>
-              )}
-
-              {metaOpen && (
-                <>
-                  <div className="sticky top-0 flex items-stretch bg-sidebar text-sm">
-                    {hasTasks && (
-                      <button
-                        type="button"
-                        className="py-3 pr-4 first:pl-[18px] aria-expanded:font-semibold"
-                        onClick={() =>
-                          setMetaOpen((prev) =>
-                            prev === "tasks" ? null : "tasks"
-                          )
-                        }
-                        aria-expanded={metaOpen === "tasks"}
-                      >
-                        Tasks
-                      </button>
-                    )}
-                    {hasFiles && (
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-2 py-3 pr-4 first:pl-[18px] aria-expanded:font-semibold"
-                        onClick={() =>
-                          setMetaOpen((prev) =>
-                            prev === "files" ? null : "files"
-                          )
-                        }
-                        aria-expanded={metaOpen === "files"}
-                      >
-                        Files (State)
-                        <span className="h-4 min-w-4 rounded-full bg-[#2F6868] px-0.5 text-center text-[10px] leading-[16px] text-white">
-                          {Object.keys(files).length}
-                        </span>
-                      </button>
-                    )}
-                    <button
-                      aria-label="Close"
-                      className="flex-1"
-                      onClick={() => setMetaOpen(null)}
-                    />
-                  </div>
-                  <div
-                    ref={tasksContainerRef}
-                    className="px-[18px]"
-                  >
-                    {metaOpen === "tasks" &&
-                      Object.entries(groupedTodos)
-                        .filter(([_, todos]) => todos.length > 0)
-                        .map(([status, todos]) => (
-                          <div
-                            key={status}
-                            className="mb-4"
-                          >
-                            <h3 className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-tertiary">
-                              {
-                                {
-                                  pending: "Pending",
-                                  in_progress: "In Progress",
-                                  completed: "Completed",
-                                }[status]
-                              }
-                            </h3>
-                            <div className="grid grid-cols-[auto_1fr] gap-3 rounded-sm p-1 pl-0 text-sm">
-                              {todos.map((todo, index) => (
-                                <Fragment key={`${status}_${todo.id}_${index}`}>
-                                  {getStatusIcon(todo.status, "mt-0.5")}
-                                  <span className="break-words text-inherit">
-                                    {todo.content}
-                                  </span>
-                                </Fragment>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-
-                    {metaOpen === "files" && (
-                      <div className="mb-6">
-                        <FilesPopover
-                          files={files}
-                          setFiles={setFiles}
-                          editDisabled={
-                            isLoading === true || interrupt !== undefined
-                          }
-                        />
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
+              {/* +New Chat button */}
+              <button
+                type="button"
+                onClick={handleNewChat}
+                className="flex items-center gap-1.5 rounded-md bg-[#2F6868] px-2 py-1 text-sm text-white transition-colors hover:bg-[#2F6868]/80"
+              >
+                <Plus size={16} />
+                <span>New Chat</span>
+              </button>
             </div>
-          )}
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col"
+          </div>
+
+          {/* Resizable Chat and Input areas */}
+          <ResizablePanelGroup
+            direction="vertical"
+            autoSaveId="chat-input-layout-v3"
+            className="flex-1"
           >
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={isLoading ? "Running..." : "Write your message..."}
-              className="font-inherit field-sizing-content flex-1 resize-none border-0 bg-transparent px-[18px] pb-[13px] pt-[14px] text-sm leading-7 text-primary outline-none placeholder:text-tertiary"
-              rows={1}
-            />
-            <div className="flex justify-between gap-2 p-3">
-              <div className="flex justify-end gap-2">
-                <Button
-                  type={isLoading ? "button" : "submit"}
-                  variant={isLoading ? "destructive" : "default"}
-                  onClick={isLoading ? stopStream : handleSubmit}
-                  disabled={!isLoading && (submitDisabled || !input.trim())}
+            {/* Messages area */}
+            <ResizablePanel
+              id="messages"
+              order={1}
+              defaultSize={75}
+              minSize={20}
+              className="group/chat flex flex-col"
+            >
+              <div
+                className="scrollbar-auto-hide flex-1 overflow-y-auto overflow-x-hidden overscroll-contain"
+                ref={scrollRef}
+              >
+                <div
+                  className="mx-auto w-full max-w-[1024px] px-6 pb-6 pt-4"
+                  ref={contentRef}
                 >
-                  {isLoading ? (
-                    <>
-                      <Square size={14} />
-                      <span>Stop</span>
-                    </>
+                  {isThreadLoading ? (
+                    <div className="flex items-center justify-center p-8">
+                      <p className="text-muted-foreground">Loading...</p>
+                    </div>
                   ) : (
                     <>
-                      <ArrowUp size={18} />
-                      <span>Send</span>
+                      {processedMessages.map((data, index) => {
+                        const messageUi = ui?.filter(
+                          (u: any) => u.metadata?.message_id === data.message.id
+                        );
+                        const isLastMessage =
+                          index === processedMessages.length - 1;
+                        return (
+                          <ChatMessage
+                            key={data.message.id}
+                            message={data.message}
+                            toolCalls={data.toolCalls}
+                            isLoading={isLoading}
+                            actionRequestsMap={
+                              isLastMessage ? actionRequestsMap : undefined
+                            }
+                            reviewConfigsMap={
+                              isLastMessage ? reviewConfigsMap : undefined
+                            }
+                            ui={messageUi}
+                            stream={stream}
+                            onResumeInterrupt={resumeInterrupt}
+                            graphId={assistant?.graph_id}
+                          />
+                        );
+                      })}
                     </>
                   )}
-                </Button>
+                </div>
               </div>
-            </div>
-          </form>
+            </ResizablePanel>
+
+            <ResizableHandle withHandle />
+
+            {/* Input area - default ~200px (25%), min ~200px, max 80% */}
+            <ResizablePanel
+              id="input"
+              order={2}
+              defaultSize={25}
+              minSize={15}
+              maxSize={80}
+              className="flex min-h-[200px] flex-col"
+            >
+              <div className="flex flex-1 flex-col bg-background px-4 pb-4 pt-2">
+                <form
+                  onSubmit={handleSubmit}
+                  className={cn(
+                    "flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card",
+                    "transition-colors duration-200 ease-in-out"
+                  )}
+                >
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={
+                      isLoading ? "Running..." : "Write your message..."
+                    }
+                    className="font-inherit flex-1 resize-none border-0 bg-transparent px-[18px] py-3 text-sm leading-6 text-primary outline-none placeholder:text-tertiary"
+                  />
+                  <div className="flex flex-shrink-0 items-end justify-between gap-2 px-3 pb-3">
+                    {/* Suggestion prompts - left side */}
+                    <div
+                      className={cn(
+                        "flex flex-wrap items-center gap-1.5",
+                        isRefreshing && "animate-pulse"
+                      )}
+                    >
+                      {allSuggestions.slice(0, visibleSuggestions).map((suggestion, index) => (
+                        <button
+                          key={`${suggestion.short}-${index}`}
+                          type="button"
+                          onClick={() => handleSuggestionClick(suggestion.full)}
+                          disabled={isLoading}
+                          title={suggestion.full}
+                          className={cn(
+                            "rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground",
+                            "transition-all duration-200 hover:border-primary/50 hover:bg-accent hover:text-foreground",
+                            "disabled:opacity-50 disabled:cursor-not-allowed",
+                            isRefreshing && "animate-in fade-in slide-in-from-left-2 duration-300"
+                          )}
+                          style={{ animationDelay: `${index * 50}ms` }}
+                        >
+                          {suggestion.short}
+                        </button>
+                      ))}
+                      {visibleSuggestions < 12 && allSuggestions.length > visibleSuggestions && (
+                        <button
+                          type="button"
+                          onClick={handleShowMore}
+                          disabled={isLoading}
+                          className={cn(
+                            "flex items-center gap-0.5 rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] text-muted-foreground",
+                            "transition-colors hover:border-primary/50 hover:text-foreground",
+                            "disabled:opacity-50 disabled:cursor-not-allowed"
+                          )}
+                        >
+                          <span>more</span>
+                          <ChevronRight size={10} />
+                        </button>
+                      )}
+                      {isRefreshing && (
+                        <RefreshCw size={12} className="animate-spin text-muted-foreground" />
+                      )}
+                    </div>
+
+                    {/* Send button - right side */}
+                    <Button
+                      type={isLoading ? "button" : "submit"}
+                      variant={isLoading ? "destructive" : "default"}
+                      onClick={isLoading ? stopStream : handleSubmit}
+                      disabled={!isLoading && (submitDisabled || !input.trim())}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Square size={14} />
+                          <span>Stop</span>
+                        </>
+                      ) : (
+                        <>
+                          <ArrowUp size={18} />
+                          <span>Send</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </div>
       </div>
-    </div>
+
+      {/* Threads Overlay - positioned as dropdown from All Chats button */}
+      <ThreadsOverlay
+        isOpen={threadsOverlayOpen}
+        onClose={() => setThreadsOverlayOpen(false)}
+        onThreadSelect={handleThreadSelect}
+        onInterruptCountChange={setInterruptCount}
+        anchorRef={threadsButtonRef}
+        chatContainerHeight={chatContainerHeight}
+      />
+    </>
   );
 });
 
