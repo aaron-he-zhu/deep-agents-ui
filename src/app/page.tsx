@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useQueryState } from "nuqs";
-import { getConfig, saveConfig, StandaloneConfig } from "@/lib/config";
+import { getConfig, saveConfig, StandaloneConfig, getActiveApiKey } from "@/lib/config";
 import { ConfigDialog } from "@/app/components/ConfigDialog";
 import { Button } from "@/components/ui/button";
 import { Assistant } from "@langchain/langgraph-sdk";
@@ -177,7 +177,7 @@ function HomePageInner({
           </div>
         </header>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden pt-2">
           <ChatProvider
             activeAssistant={assistant}
             onHistoryRevalidate={() => mutateThreads?.()}
@@ -219,8 +219,10 @@ function HomePageContent() {
     setConfig(newConfig);
   }, []);
 
-  const langsmithApiKey =
-    config?.langsmithApiKey || process.env.NEXT_PUBLIC_LANGSMITH_API_KEY || "";
+  // Get the active API key based on the selected provider
+  const activeApiKey = getActiveApiKey(config);
+  const activeProvider = config?.activeProvider || null;
+  const selectedModel = activeProvider ? (config?.selectedModels?.[activeProvider] || config?.selectedModel || "") : "";
 
   if (!config) {
     return (
@@ -248,7 +250,9 @@ function HomePageContent() {
   return (
     <ClientProvider
       deploymentUrl={config.deploymentUrl}
-      apiKey={langsmithApiKey}
+      apiKey={activeApiKey}
+      activeProvider={activeProvider}
+      selectedModel={selectedModel}
     >
       <HomePageInner
         config={config}

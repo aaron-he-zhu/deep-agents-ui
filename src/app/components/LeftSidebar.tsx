@@ -67,7 +67,7 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
     const activeTask = groupedTodos.in_progress[0];
 
     return (
-      <div className="flex h-full flex-col p-4 pr-0">
+      <div className="flex h-full flex-col p-2 pr-0">
         <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background">
           <ResizablePanelGroup direction="vertical" autoSaveId="left-sidebar">
             {/* Context Module - Top Section */}
@@ -76,9 +76,9 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
               order={1}
               defaultSize={50}
               minSize={30}
-              className="flex flex-col overflow-hidden"
+              className="group/context flex flex-col overflow-hidden"
             >
-              <div className="flex-shrink-0 flex items-center justify-between px-4 py-3">
+              <div className="flex-shrink-0 flex h-12 items-center justify-between px-4 border-b border-border bg-muted/30">
                 <div className="flex items-center gap-2">
                   <Database size={16} className="text-muted-foreground" />
                   <span className="text-sm font-semibold tracking-wide">
@@ -87,20 +87,16 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
                 </div>
                 <button
                   onClick={onAddContext}
-                  className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-all hover:bg-accent hover:text-foreground group-hover/context:opacity-100"
                   aria-label="Add context"
                 >
                   <Plus size={16} />
                 </button>
               </div>
-              <div className="flex-1 min-h-0 overflow-hidden">
-                <ScrollArea className="h-full px-4 pb-4">
-                  <div className="flex h-full items-center justify-center">
-                    <p className="text-xs text-muted-foreground">
-                      Context library coming soon
-                    </p>
-                  </div>
-                </ScrollArea>
+              <div className="flex-1 min-h-0 overflow-hidden flex items-center justify-center px-4 pb-4">
+                <p className="text-xs text-muted-foreground">
+                  No context added yet
+                </p>
               </div>
             </ResizablePanel>
 
@@ -114,7 +110,7 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
               minSize={30}
               className="flex flex-col overflow-hidden"
             >
-              <div className="flex-shrink-0 flex items-center gap-2 px-4 py-3">
+              <div className="flex-shrink-0 flex h-12 items-center gap-2 px-4 border-b border-border bg-muted/30">
                 <ListTodo size={16} className="text-muted-foreground" />
                 <span className="text-sm font-semibold tracking-wide">
                   Tasks
@@ -140,14 +136,14 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
               )}
 
               <div className="flex-1 min-h-0 overflow-hidden">
-                <ScrollArea className="h-full px-4 pb-4">
-                  {todos.length === 0 ? (
-                    <div className="flex h-full items-center justify-center">
-                      <p className="text-xs text-muted-foreground">
-                        No tasks created yet
-                      </p>
-                    </div>
-                  ) : (
+                {todos.length === 0 ? (
+                  <div className="flex h-full items-center justify-center px-4 pb-4">
+                    <p className="text-xs text-muted-foreground">
+                      No tasks created yet
+                    </p>
+                  </div>
+                ) : (
+                  <ScrollArea className="h-full px-4 pb-4">
                     <div className="space-y-4">
                       {(
                         Object.entries(groupedTodos) as [
@@ -186,8 +182,8 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
                           </div>
                         ))}
                     </div>
-                  )}
-                </ScrollArea>
+                  </ScrollArea>
+                )}
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

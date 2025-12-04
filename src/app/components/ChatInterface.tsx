@@ -54,7 +54,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   const [copySuccess, setCopySuccess] = useState(false);
 
   const [input, setInput] = useState("");
-  const [visibleSuggestions, setVisibleSuggestions] = useState(3);
+  const [visibleSuggestions, setVisibleSuggestions] = useState(4);
   const [threadId] = useQueryState("threadId");
   const { scrollRef, contentRef } = useStickToBottom();
 
@@ -69,16 +69,75 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
     sendMessage,
     stopStream,
     resumeInterrupt,
+    suggestions: agentSuggestions,
   } = useChatContext();
 
+  // Track if main AI response is complete (even if suggestions are still generating)
+  // This allows the UI to become interactive sooner
+  const lastMessageContentRef = useRef<string>("");
+  const stableCountRef = useRef(0);
+  const [isMainResponseComplete, setIsMainResponseComplete] = useState(false);
+  const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
+
+  // Detect when the main AI response is complete by monitoring content changes
+  useEffect(() => {
+    if (!isLoading) {
+      // Reset when loading is complete
+      setIsMainResponseComplete(false);
+      setIsGeneratingSuggestions(false);
+      stableCountRef.current = 0;
+      lastMessageContentRef.current = "";
+      return;
+    }
+
+    // Find the last AI message
+    const lastAIMessage = messages.filter(m => m.type === "ai").pop();
+    if (!lastAIMessage) {
+      stableCountRef.current = 0;
+      return;
+    }
+
+    const currentContent = extractStringFromMessageContent(lastAIMessage);
+    
+    // If content hasn't changed and has meaningful length
+    if (currentContent === lastMessageContentRef.current && currentContent.length > 100) {
+      stableCountRef.current++;
+    } else {
+      // Content changed, reset counter
+      stableCountRef.current = 0;
+      lastMessageContentRef.current = currentContent;
+    }
+  }, [isLoading, messages]);
+  
+  // Use a separate effect with a timer to check stability
+  useEffect(() => {
+    if (!isLoading || isMainResponseComplete) return;
+    
+    const timer = setTimeout(() => {
+      // If we have stable content for 500ms (5 ticks @ ~100ms per message update)
+      if (stableCountRef.current >= 3 && lastMessageContentRef.current.length > 100) {
+        console.log("Main response detected as complete, UI can be interactive now");
+        setIsMainResponseComplete(true);
+        setIsGeneratingSuggestions(true);
+      }
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [isLoading, messages, isMainResponseComplete]);
+
   // Use dynamic suggestions hook (after useChatContext)
+  // Pass agent suggestions from SuggestionsMiddleware if available
   const { suggestions: allSuggestions, isRefreshing } = useSuggestions({
     threadId,
     messages,
     isLoading: isLoading || false,
+    agentSuggestions,
   });
 
-  const submitDisabled = isLoading || !assistant;
+  // Determine if user can interact - either not loading OR main response is complete
+  const canInteract = !isLoading || isMainResponseComplete;
+  const showLoadingState = isLoading && !isMainResponseComplete;
+  const submitDisabled = showLoadingState || !assistant;
 
   // Track chat container height for overlay
   useEffect(() => {
@@ -98,11 +157,11 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
         e.preventDefault();
       }
       const messageText = input.trim();
-      if (!messageText || isLoading || submitDisabled) return;
+      if (!messageText || showLoadingState || submitDisabled) return;
       sendMessage(messageText);
       setInput("");
     },
-    [input, isLoading, sendMessage, setInput, submitDisabled]
+    [input, showLoadingState, sendMessage, setInput, submitDisabled]
   );
 
   const handleKeyDown = useCallback(
@@ -130,7 +189,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   // Reset input and visible suggestions count when thread changes
   useEffect(() => {
     setInput("");
-    setVisibleSuggestions(3);
+    setVisibleSuggestions(4);
   }, [threadId]);
 
   // Handle suggestion click - use full prompt
@@ -141,7 +200,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
   // Show more suggestions
   const handleShowMore = useCallback(() => {
-    setVisibleSuggestions((prev) => Math.min(prev + 3, 12));
+    setVisibleSuggestions((prev) => Math.min(prev + 4, 20));
   }, []);
 
   // Reset visible suggestions when thread changes or suggestions refresh
@@ -149,7 +208,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
   useEffect(() => {
     if (!prevIsRefreshingRef.current && isRefreshing) {
       // Suggestions are being refreshed, reset visible count
-      setVisibleSuggestions(3);
+      setVisibleSuggestions(4);
     }
     prevIsRefreshingRef.current = isRefreshing;
   }, [isRefreshing]);
@@ -284,14 +343,14 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
   return (
     <>
-      <div className="flex flex-1 flex-col overflow-hidden p-4">
+      <div className="flex flex-1 flex-col overflow-hidden p-2">
         {/* Chat container with border */}
         <div
           ref={chatContainerRef}
           className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-background"
         >
           {/* Top border with Chat label on left and buttons on right */}
-          <div className="flex h-10 flex-shrink-0 items-center justify-between border-b border-border px-3">
+          <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-border bg-muted/30 px-4">
             {/* Left: Chat label */}
             <div className="flex items-center gap-2 text-sm font-medium text-foreground">
               <MessageCircle size={16} />
@@ -313,7 +372,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                 ) : (
                   <Copy size={16} />
                 )}
-                <span>Copy</span>
+                <span>Copy All</span>
               </button>
 
               {/* All Chats button */}
@@ -336,7 +395,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
               <button
                 type="button"
                 onClick={handleNewChat}
-                className="flex items-center gap-1.5 rounded-md bg-[#2F6868] px-2 py-1 text-sm text-white transition-colors hover:bg-[#2F6868]/80"
+                className="flex h-8 items-center gap-1.5 rounded-md bg-[#2F6868] px-3 text-sm text-white transition-colors hover:bg-[#2F6868]/80"
               >
                 <Plus size={16} />
                 <span>New Chat</span>
@@ -428,7 +487,9 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder={
-                      isLoading ? "Running..." : "Write your message..."
+                      showLoadingState ? "Running..." : 
+                      isGeneratingSuggestions ? "Generating suggestions..." :
+                      "Write your message..."
                     }
                     className="font-inherit flex-1 resize-none border-0 bg-transparent px-[18px] py-3 text-sm leading-6 text-primary outline-none placeholder:text-tertiary"
                   />
@@ -445,7 +506,7 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                           key={`${suggestion.short}-${index}`}
                           type="button"
                           onClick={() => handleSuggestionClick(suggestion.full)}
-                          disabled={isLoading}
+                          disabled={showLoadingState}
                           title={suggestion.full}
                           className={cn(
                             "rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground",
@@ -458,18 +519,18 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
                           {suggestion.short}
                         </button>
                       ))}
-                      {visibleSuggestions < 12 && allSuggestions.length > visibleSuggestions && (
+                      {visibleSuggestions < 20 && allSuggestions.length > visibleSuggestions && (
                         <button
                           type="button"
                           onClick={handleShowMore}
-                          disabled={isLoading}
+                          disabled={showLoadingState}
                           className={cn(
                             "flex items-center gap-0.5 rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] text-muted-foreground",
                             "transition-colors hover:border-primary/50 hover:text-foreground",
                             "disabled:opacity-50 disabled:cursor-not-allowed"
                           )}
                         >
-                          <span>more</span>
+                          <span>More</span>
                           <ChevronRight size={10} />
                         </button>
                       )}
@@ -480,12 +541,12 @@ export const ChatInterface = React.memo<ChatInterfaceProps>(({ assistant }) => {
 
                     {/* Send button - right side */}
                     <Button
-                      type={isLoading ? "button" : "submit"}
-                      variant={isLoading ? "destructive" : "default"}
-                      onClick={isLoading ? stopStream : handleSubmit}
-                      disabled={!isLoading && (submitDisabled || !input.trim())}
+                      type={showLoadingState ? "button" : "submit"}
+                      variant={showLoadingState ? "destructive" : "default"}
+                      onClick={showLoadingState ? stopStream : handleSubmit}
+                      disabled={!showLoadingState && (submitDisabled || !input.trim())}
                     >
-                      {isLoading ? (
+                      {showLoadingState ? (
                         <>
                           <Square size={14} />
                           <span>Stop</span>

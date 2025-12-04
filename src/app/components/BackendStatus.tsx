@@ -73,13 +73,9 @@ export function BackendStatus() {
   const config = statusConfig[status];
 
   return (
-    <button
-      onClick={checkConnection}
-      className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors",
-        "hover:bg-accent hover:text-accent-foreground"
-      )}
-      title={`${config.label} - Click to refresh`}
+    <div
+      className="inline-flex h-8 w-8 items-center justify-center"
+      title={config.label}
     >
       <svg
         className={cn(
@@ -92,7 +88,7 @@ export function BackendStatus() {
       >
         <circle cx="12" cy="12" r="8" />
       </svg>
-    </button>
+    </div>
   );
 }
 
