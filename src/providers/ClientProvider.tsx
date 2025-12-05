@@ -44,6 +44,10 @@ export function ClientProvider({
         case "google":
           headers["X-Google-Api-Key"] = apiKey;
           break;
+        case "openrouter":
+          // OpenRouter uses OpenAI-compatible format
+          headers["X-OpenAI-Api-Key"] = apiKey;
+          break;
       }
     }
     

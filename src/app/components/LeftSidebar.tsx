@@ -94,9 +94,9 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
                 </button>
               </div>
               <div className="flex-1 min-h-0 overflow-hidden flex items-center justify-center px-4 pb-4">
-                <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                   No context added yet
-                </p>
+                    </p>
               </div>
             </ResizablePanel>
 
@@ -136,13 +136,13 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
               )}
 
               <div className="flex-1 min-h-0 overflow-hidden">
-                {todos.length === 0 ? (
+                  {todos.length === 0 ? (
                   <div className="flex h-full items-center justify-center px-4 pb-4">
-                    <p className="text-xs text-muted-foreground">
-                      No tasks created yet
-                    </p>
-                  </div>
-                ) : (
+                      <p className="text-xs text-muted-foreground">
+                        No tasks created yet
+                      </p>
+                    </div>
+                  ) : (
                   <ScrollArea className="h-full px-4 pb-4">
                     <div className="space-y-4">
                       {(
@@ -183,7 +183,7 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
                         ))}
                     </div>
                   </ScrollArea>
-                )}
+                  )}
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
