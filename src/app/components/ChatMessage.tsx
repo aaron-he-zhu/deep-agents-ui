@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState, useCallback } from "react";
-import { Copy, Check } from "lucide-react";
 import { SubAgentIndicator } from "@/app/components/SubAgentIndicator";
 import { ToolCallBox } from "@/app/components/ToolCallBox";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
@@ -74,8 +73,6 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     const [expandedSubAgents, setExpandedSubAgents] = useState<
       Record<string, boolean>
     >({});
-    const [copySuccess, setCopySuccess] = useState(false);
-
     const isSubAgentExpanded = useCallback(
       (id: string) => expandedSubAgents[id] ?? true,
       [expandedSubAgents]
@@ -86,16 +83,6 @@ export const ChatMessage = React.memo<ChatMessageProps>(
         [id]: prev[id] === undefined ? false : !prev[id],
       }));
     }, []);
-
-    const handleCopyMessage = useCallback(async () => {
-      try {
-        await navigator.clipboard.writeText(messageContent);
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 2000);
-      } catch (err) {
-        console.error("Failed to copy message:", err);
-      }
-    }, [messageContent]);
 
     return (
       <div
@@ -111,7 +98,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
           )}
         >
           {hasContent && (
-            <div className={cn("group/message relative flex items-end gap-0")}>
+            <div className={cn("relative flex items-end gap-0")}>
               <div
                 className={cn(
                   "mt-4 overflow-hidden break-words text-sm font-normal leading-[150%]",
@@ -133,21 +120,6 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                   <MarkdownContent content={messageContent} />
                 ) : null}
               </div>
-              <button
-                type="button"
-                onClick={handleCopyMessage}
-                className={cn(
-                  "absolute rounded p-1 opacity-0 transition-opacity hover:bg-muted group-hover/message:opacity-100",
-                  isUser ? "right-full mr-1 top-4" : "right-0 top-4"
-                )}
-                title="Copy message"
-              >
-                {copySuccess ? (
-                  <Check size={14} className="text-green-500" />
-                ) : (
-                  <Copy size={14} className="text-muted-foreground" />
-                )}
-              </button>
             </div>
           )}
           {hasToolCalls && (

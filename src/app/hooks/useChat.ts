@@ -14,11 +14,6 @@ import { useClient, useActiveProvider } from "@/providers/ClientProvider";
 import { useQueryState } from "nuqs";
 import { getAuthScheme } from "@/lib/config";
 
-export interface Suggestion {
-  short: string;
-  full: string;
-}
-
 export type StateType = {
   messages: Message[];
   todos: TodoItem[];
@@ -29,7 +24,6 @@ export type StateType = {
     page_content?: string;
   };
   ui?: any;
-  suggestions?: Suggestion[];
 };
 
 export function useChat({
@@ -64,58 +58,13 @@ export function useChat({
   const sendMessage = useCallback(
     (content: string) => {
       const newMessage: Message = { id: uuidv4(), type: "human", content };
-      
-      // Get model config from localStorage
-      const savedConfig = localStorage.getItem("standalone-config");
-      let modelConfig: Record<string, any> = {};
-      if (savedConfig) {
-        try {
-          const config = JSON.parse(savedConfig);
-          const provider = config.activeProvider;
-          const model = config.selectedModels?.[provider] || config.selectedModel;
-          if (provider && model) {
-            modelConfig = {
-              provider,
-              model,
-              // Pass API keys based on provider
-              ...(provider === "openai" && config.openaiApiKey ? { openai_api_key: config.openaiApiKey } : {}),
-              ...(provider === "anthropic" && config.anthropicApiKey ? { anthropic_api_key: config.anthropicApiKey } : {}),
-              ...(provider === "google" && config.googleApiKey ? { google_api_key: config.googleApiKey } : {}),
-              ...(provider === "openrouter" && config.openRouterConfig?.apiKey ? { 
-                openai_api_key: config.openRouterConfig.apiKey,
-                openai_base_url: config.openRouterConfig.baseUrl,
-              } : {}),
-              // Pass model overrides for suggestions and other components
-              ...(config.modelOverrides ? { model_overrides: config.modelOverrides } : {}),
-            };
-            
-            // Log model configuration for debugging
-            console.log("[MODEL CONFIG] Sending to backend:", {
-              provider,
-              model,
-              hasApiKey: !!(modelConfig.openai_api_key || modelConfig.anthropic_api_key || modelConfig.google_api_key),
-              hasBaseUrl: !!modelConfig.openai_base_url,
-              modelOverrides: config.modelOverrides || null,
-            });
-          }
-        } catch (e) {
-          console.warn("Failed to parse config:", e);
-        }
-      } else {
-        console.log("[MODEL CONFIG] No saved config found, using defaults");
-      }
-      
       stream.submit(
         { messages: [newMessage] },
         {
           optimisticValues: (prev) => ({
             messages: [...(prev.messages ?? []), newMessage],
           }),
-          config: { 
-            ...(activeAssistant?.config ?? {}), 
-            recursion_limit: 100,
-            configurable: modelConfig,
-          },
+          config: { ...(activeAssistant?.config ?? {}), recursion_limit: 100 },
         }
       );
       // Update thread list immediately when sending a message
@@ -204,7 +153,6 @@ export function useChat({
     files: stream.values.files ?? {},
     email: stream.values.email,
     ui: stream.values.ui,
-    suggestions: stream.values.suggestions ?? [],
     setFiles,
     messages: stream.messages,
     isLoading: stream.isLoading,

@@ -44,16 +44,6 @@ export function ClientProvider({
         case "google":
           headers["X-Google-Api-Key"] = apiKey;
           break;
-        case "azure":
-          headers["X-Azure-Api-Key"] = apiKey;
-          break;
-        case "bedrock":
-          headers["X-AWS-Api-Key"] = apiKey;
-          break;
-        case "openrouter":
-          // OpenRouter uses OpenAI-compatible format
-          headers["X-OpenAI-Api-Key"] = apiKey;
-          break;
       }
     }
     
