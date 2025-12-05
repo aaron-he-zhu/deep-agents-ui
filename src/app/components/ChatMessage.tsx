@@ -77,7 +77,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
     const [copySuccess, setCopySuccess] = useState(false);
 
     const isSubAgentExpanded = useCallback(
-      (id: string) => expandedSubAgents[id] ?? true,
+      (id: string) => expandedSubAgents[id] ?? false,
       [expandedSubAgents]
     );
     const toggleSubAgent = useCallback((id: string) => {
@@ -186,6 +186,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                     <div className="w-[calc(100%-100px)]">
                       <SubAgentIndicator
                         subAgent={subAgent}
+                        taskSummary={extractSubAgentContent(subAgent.input)}
                         onClick={() => toggleSubAgent(subAgent.id)}
                         isExpanded={isSubAgentExpanded(subAgent.id)}
                       />

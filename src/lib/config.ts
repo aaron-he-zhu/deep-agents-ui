@@ -28,12 +28,75 @@ export interface OpenRouterConfig {
   apiKey: string;
 }
 
+// Tool enable/disable configuration
+export interface EnabledTools {
+  // Built-in tools (always enabled: write_todos, task)
+  fetch_url?: boolean;
+  // SerpAPI tools (require API key)
+  serpapi_search?: boolean;
+  // Exa tools (require API key)
+  exa_search?: boolean;
+  exa_contents?: boolean;
+  exa_find_similar?: boolean;
+  exa_answer?: boolean;
+  exa_research?: boolean;
+  // Tavily tools (require API key)
+  tavily_search?: boolean;
+  tavily_extract?: boolean;
+  tavily_map?: boolean;
+  tavily_crawl?: boolean;
+  // Perplexity tools (require API key)
+  perplexity_search?: boolean;
+  perplexity_chat?: boolean;
+  // Semrush tools (require API key)
+  semrush_report?: boolean;
+  // Ahrefs tools (require API key) - 15 tools
+  ahrefs_domain_rating?: boolean;
+  ahrefs_url_rating?: boolean;
+  ahrefs_backlinks?: boolean;
+  ahrefs_referring_domains?: boolean;
+  ahrefs_anchors?: boolean;
+  ahrefs_organic_keywords?: boolean;
+  ahrefs_organic_competitors?: boolean;
+  ahrefs_keyword_metrics?: boolean;
+  ahrefs_matching_terms?: boolean;
+  ahrefs_related_terms?: boolean;
+  ahrefs_serp_overview?: boolean;
+  ahrefs_top_pages?: boolean;
+  ahrefs_health_score?: boolean;
+  ahrefs_brand_ai_responses?: boolean;
+  ahrefs_brand_impressions?: boolean;
+  // Similarweb tools (require API key) - 10 tools
+  similarweb_visits?: boolean;
+  similarweb_traffic_sources?: boolean;
+  similarweb_search_traffic?: boolean;
+  similarweb_referral_traffic?: boolean;
+  similarweb_keywords?: boolean;
+  similarweb_similar_sites?: boolean;
+  similarweb_global_rank?: boolean;
+  similarweb_category_rank?: boolean;
+  similarweb_audience_interests?: boolean;
+  similarweb_geography?: boolean;
+}
+
 export interface StandaloneConfig {
   deploymentUrl: string;
   assistantId: string;
   openaiApiKey?: string;
   anthropicApiKey?: string;
   googleApiKey?: string;
+  // SerpAPI for Google search
+  serpApiKey?: string;
+  // Exa API for neural search
+  exaApiKey?: string;
+  // Tavily API for web search
+  tavilyApiKey?: string;
+  // Perplexity API for AI-powered search
+  perplexityApiKey?: string;
+  // SEO & Analytics APIs
+  semrushApiKey?: string;
+  ahrefsApiKey?: string;
+  similarwebApiKey?: string;
   // OpenRouter / Custom OpenAI-compatible API
   openRouterConfig?: OpenRouterConfig;
   // Store API keys for each OpenAI Compatible provider separately
@@ -47,6 +110,8 @@ export interface StandaloneConfig {
   modelOverrides?: ModelOverrides;
   // Model overrides stored per provider (new, preferred)
   modelOverridesByProvider?: ModelOverridesByProvider;
+  // Tool enable/disable configuration
+  enabledTools?: EnabledTools;
 }
 
 // Function to fetch OpenAI models
@@ -120,40 +185,32 @@ export async function fetchGoogleModels(apiKey: string): Promise<string[]> {
 }
 
 // Function to validate OpenRouter / OpenAI-compatible API configuration
+// Uses a server-side proxy to avoid CORS issues
 export async function validateOpenRouter(config: OpenRouterConfig): Promise<{ valid: boolean; models: string[]; error?: string }> {
   if (!config.baseUrl || !config.apiKey) {
     return { valid: false, models: [], error: "Base URL and API Key are required" };
   }
 
   try {
-    // Normalize the base URL
-    let baseUrl = config.baseUrl.trim();
-    if (!baseUrl.startsWith("http://") && !baseUrl.startsWith("https://")) {
-      baseUrl = `https://${baseUrl}`;
-    }
-    if (baseUrl.endsWith("/")) {
-      baseUrl = baseUrl.slice(0, -1);
-    }
-
-    // OpenRouter and most OpenAI-compatible APIs support /v1/models endpoint
-    const response = await fetch(`${baseUrl}/models`, {
+    // Use the proxy API route to bypass CORS restrictions
+    const response = await fetch("/api/proxy/models", {
+      method: "POST",
       headers: {
-        "Authorization": `Bearer ${config.apiKey}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        baseUrl: config.baseUrl,
+        apiKey: config.apiKey,
+      }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API error: ${response.status} - ${errorText}`);
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      throw new Error(data.error || `API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    // Extract model IDs - compatible with OpenAI format
-    const models = data.data
-      ?.map((m: { id: string }) => m.id)
-      .sort() || [];
-
-    return { valid: true, models };
+    return { valid: true, models: data.models || [] };
   } catch (error) {
     console.error("Failed to validate OpenRouter:", error);
     return {

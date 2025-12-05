@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -27,7 +28,7 @@ import {
   OpenRouterConfig,
   validateAndFetchModels,
 } from "@/lib/config";
-import { CheckCircle, XCircle, Loader2, Link, Key, Cpu, ExternalLink, RefreshCw, Power } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Link, Key, Cpu, ExternalLink, Power, Wrench } from "lucide-react";
 
 interface ConfigDialogProps {
   open: boolean;
@@ -174,7 +175,7 @@ function ApiKeyField({
   );
 }
 
-type TabId = "general" | "api-keys" | "model-config";
+type TabId = "general" | "api-keys" | "model-config" | "tools";
 
 export function ConfigDialog({
   open,
@@ -188,8 +189,8 @@ export function ConfigDialog({
   const [assistantId, setAssistantId] = useState(
     initialConfig?.assistantId || "agent"
   );
-  const [isReloading, setIsReloading] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
+  const [isBackendRunning, setIsBackendRunning] = useState(false);
   const [openaiApiKey, setOpenaiApiKey] = useState(
     initialConfig?.openaiApiKey || ""
   );
@@ -199,6 +200,77 @@ export function ConfigDialog({
   const [googleApiKey, setGoogleApiKey] = useState(
     initialConfig?.googleApiKey || ""
   );
+  const [serpApiKey, setSerpApiKey] = useState(
+    initialConfig?.serpApiKey || ""
+  );
+  const [exaApiKey, setExaApiKey] = useState(
+    initialConfig?.exaApiKey || ""
+  );
+  const [tavilyApiKey, setTavilyApiKey] = useState(
+    initialConfig?.tavilyApiKey || ""
+  );
+  const [perplexityApiKey, setPerplexityApiKey] = useState(
+    initialConfig?.perplexityApiKey || ""
+  );
+  // SEO & Analytics APIs
+  const [semrushApiKey, setSemrushApiKey] = useState(
+    initialConfig?.semrushApiKey || ""
+  );
+  const [ahrefsApiKey, setAhrefsApiKey] = useState(
+    initialConfig?.ahrefsApiKey || ""
+  );
+  const [similarwebApiKey, setSimilarwebApiKey] = useState(
+    initialConfig?.similarwebApiKey || ""
+  );
+  
+  // Tool enable/disable state (default all to true)
+  const [enabledTools, setEnabledTools] = useState({
+    fetch_url: initialConfig?.enabledTools?.fetch_url ?? true,
+    // SerpAPI tools
+    serp_search: initialConfig?.enabledTools?.serp_search ?? true,
+    // Exa tools
+    exa_search: initialConfig?.enabledTools?.exa_search ?? true,
+    exa_contents: initialConfig?.enabledTools?.exa_contents ?? true,
+    exa_find_similar: initialConfig?.enabledTools?.exa_find_similar ?? true,
+    exa_answer: initialConfig?.enabledTools?.exa_answer ?? true,
+    exa_research: initialConfig?.enabledTools?.exa_research ?? true,
+    // Tavily tools
+    tavily_search: initialConfig?.enabledTools?.tavily_search ?? true,
+    tavily_extract: initialConfig?.enabledTools?.tavily_extract ?? true,
+    tavily_map: initialConfig?.enabledTools?.tavily_map ?? true,
+    tavily_crawl: initialConfig?.enabledTools?.tavily_crawl ?? true,
+    perplexity_search: initialConfig?.enabledTools?.perplexity_search ?? true,
+    perplexity_chat: initialConfig?.enabledTools?.perplexity_chat ?? true,
+    // Semrush tools
+    semrush_report: initialConfig?.enabledTools?.semrush_report ?? true,
+    // Ahrefs tools - 15 tools
+    ahrefs_domain_rating: initialConfig?.enabledTools?.ahrefs_domain_rating ?? true,
+    ahrefs_url_rating: initialConfig?.enabledTools?.ahrefs_url_rating ?? true,
+    ahrefs_backlinks: initialConfig?.enabledTools?.ahrefs_backlinks ?? true,
+    ahrefs_referring_domains: initialConfig?.enabledTools?.ahrefs_referring_domains ?? true,
+    ahrefs_anchors: initialConfig?.enabledTools?.ahrefs_anchors ?? true,
+    ahrefs_organic_keywords: initialConfig?.enabledTools?.ahrefs_organic_keywords ?? true,
+    ahrefs_organic_competitors: initialConfig?.enabledTools?.ahrefs_organic_competitors ?? true,
+    ahrefs_keyword_metrics: initialConfig?.enabledTools?.ahrefs_keyword_metrics ?? true,
+    ahrefs_matching_terms: initialConfig?.enabledTools?.ahrefs_matching_terms ?? true,
+    ahrefs_related_terms: initialConfig?.enabledTools?.ahrefs_related_terms ?? true,
+    ahrefs_serp_overview: initialConfig?.enabledTools?.ahrefs_serp_overview ?? true,
+    ahrefs_top_pages: initialConfig?.enabledTools?.ahrefs_top_pages ?? true,
+    ahrefs_health_score: initialConfig?.enabledTools?.ahrefs_health_score ?? true,
+    ahrefs_brand_ai_responses: initialConfig?.enabledTools?.ahrefs_brand_ai_responses ?? true,
+    ahrefs_brand_impressions: initialConfig?.enabledTools?.ahrefs_brand_impressions ?? true,
+    // Similarweb tools - 10 tools
+    similarweb_visits: initialConfig?.enabledTools?.similarweb_visits ?? true,
+    similarweb_traffic_sources: initialConfig?.enabledTools?.similarweb_traffic_sources ?? true,
+    similarweb_search_traffic: initialConfig?.enabledTools?.similarweb_search_traffic ?? true,
+    similarweb_referral_traffic: initialConfig?.enabledTools?.similarweb_referral_traffic ?? true,
+    similarweb_keywords: initialConfig?.enabledTools?.similarweb_keywords ?? true,
+    similarweb_similar_sites: initialConfig?.enabledTools?.similarweb_similar_sites ?? true,
+    similarweb_global_rank: initialConfig?.enabledTools?.similarweb_global_rank ?? true,
+    similarweb_category_rank: initialConfig?.enabledTools?.similarweb_category_rank ?? true,
+    similarweb_audience_interests: initialConfig?.enabledTools?.similarweb_audience_interests ?? true,
+    similarweb_geography: initialConfig?.enabledTools?.similarweb_geography ?? true,
+  });
   // OpenAI Compatible API configuration (OpenRouter, Together, Groq, etc.)
   const [openRouterConfig, setOpenRouterConfig] = useState<OpenRouterConfig>(
     initialConfig?.openRouterConfig || { baseUrl: "", apiKey: "" }
@@ -210,6 +282,13 @@ export function ConfigDialog({
   
   // Focus states for API key fields (show plaintext when focused, password when not)
   const [openRouterKeyFocused, setOpenRouterKeyFocused] = useState(false);
+  const [serpKeyFocused, setSerpKeyFocused] = useState(false);
+  const [exaKeyFocused, setExaKeyFocused] = useState(false);
+  const [tavilyKeyFocused, setTavilyKeyFocused] = useState(false);
+  const [perplexityKeyFocused, setPerplexityKeyFocused] = useState(false);
+  const [semrushKeyFocused, setSemrushKeyFocused] = useState(false);
+  const [ahrefsKeyFocused, setAhrefsKeyFocused] = useState(false);
+  const [similarwebKeyFocused, setSimilarwebKeyFocused] = useState(false);
   // Preset providers for OpenAI Compatible API
   const openAICompatiblePresets = [
     { name: "OpenRouter", url: "https://openrouter.ai/api/v1", keyUrl: "https://openrouter.ai/settings/keys" },
@@ -342,12 +421,14 @@ export function ConfigDialog({
   const generalRef = useRef<HTMLDivElement>(null);
   const apiKeysRef = useRef<HTMLDivElement>(null);
   const modelConfigRef = useRef<HTMLDivElement>(null);
+  const toolsRef = useRef<HTMLDivElement>(null);
 
   const scrollToSection = useCallback((tabId: TabId) => {
     const refs: Record<TabId, React.RefObject<HTMLDivElement | null>> = {
       "general": generalRef,
       "api-keys": apiKeysRef,
       "model-config": modelConfigRef,
+      "tools": toolsRef,
     };
     const targetRef = refs[tabId];
     if (targetRef.current && contentRef.current) {
@@ -368,6 +449,7 @@ export function ConfigDialog({
       { id: "general", ref: generalRef },
       { id: "api-keys", ref: apiKeysRef },
       { id: "model-config", ref: modelConfigRef },
+      { id: "tools", ref: toolsRef },
     ];
 
     let currentSection: TabId = "general";
@@ -390,6 +472,11 @@ export function ConfigDialog({
       setOpenaiApiKey(initialConfig?.openaiApiKey || "");
       setAnthropicApiKey(initialConfig?.anthropicApiKey || "");
       setGoogleApiKey(initialConfig?.googleApiKey || "");
+      setTavilyApiKey(initialConfig?.tavilyApiKey || "");
+      setPerplexityApiKey(initialConfig?.perplexityApiKey || "");
+      setSemrushApiKey(initialConfig?.semrushApiKey || "");
+      setAhrefsApiKey(initialConfig?.ahrefsApiKey || "");
+      setSimilarwebApiKey(initialConfig?.similarwebApiKey || "");
       setActiveProvider(initialConfig?.activeProvider || null);
       setSelectedModels(initialConfig?.selectedModels || {});
       
@@ -412,6 +499,24 @@ export function ConfigDialog({
       setModelOverridesByProvider(newOverrides);
     }
   }, [open, initialConfig]);
+
+  // Check backend status
+  const checkBackendStatus = useCallback(async () => {
+    try {
+      const response = await fetch("/api/backend/restart", { method: "GET" });
+      const data = await response.json();
+      setIsBackendRunning(data.running);
+    } catch {
+      setIsBackendRunning(false);
+    }
+  }, []);
+
+  // Check backend status when dialog opens
+  useEffect(() => {
+    if (open) {
+      checkBackendStatus();
+    }
+  }, [open, checkBackendStatus]);
 
   const handleToggleProvider = (provider: ApiProvider) => {
     if (activeProvider === provider) {
@@ -584,30 +689,39 @@ export function ConfigDialog({
   // Check if API is validated (models loaded)
   const isApiValidated = getActiveProviderModels().length > 0;
 
-  // Save config to backend config server (for hot reload)
+  // Save config to backend model_config.json (via local API route)
   const saveToConfigServer = async (config: {
     provider: string;
     model: string;
     api_key: string;
     base_url: string | null;
     model_overrides: ModelOverrides | null;
+    serp_api_key?: string;
+    exa_api_key?: string;
+    tavily_api_key?: string;
+    perplexity_api_key?: string;
+    semrush_api_key?: string;
+    ahrefs_api_key?: string;
+    similarweb_api_key?: string;
+    enabled_tools?: typeof enabledTools;
   }) => {
     try {
-      // Config server runs on port 2025
-      const response = await fetch("http://127.0.0.1:2025/config", {
+      // Use local API route to save directly to model_config.json
+      const response = await fetch("/api/backend/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
       });
       
       if (response.ok) {
-        console.log("[CONFIG] Saved to backend config server - agent will reload");
+        const data = await response.json();
+        console.log("[CONFIG] Saved to model_config.json:", data.config?.provider, data.config?.model);
       } else {
-        console.warn("[CONFIG] Failed to save to config server:", await response.text());
+        const errorData = await response.json();
+        console.warn("[CONFIG] Failed to save config:", errorData.error);
       }
     } catch (error) {
-      // Config server might not be running - that's ok
-      console.log("[CONFIG] Config server not available (optional for hot reload)");
+      console.error("[CONFIG] Error saving config:", error);
     }
   };
 
@@ -615,19 +729,21 @@ export function ConfigDialog({
   const handleRestart = async () => {
     setIsRestarting(true);
     try {
-      const response = await fetch("http://127.0.0.1:2025/restart", {
+      // Use local API route to start/restart backend
+      const response = await fetch("/api/backend/restart", {
         method: "POST",
       });
       const data = await response.json();
       if (data.success) {
         console.log(`[CONFIG] Backend ${data.action || 'restarted'} successfully`);
+        setIsBackendRunning(true);
       } else {
         console.warn("[CONFIG] Failed to start/restart backend:", data.message);
         alert(data.message || "Failed to start backend. Please start manually.");
       }
     } catch (error) {
       console.error("[CONFIG] Error triggering restart:", error);
-      alert("Config server not running. Please start backend manually:\ncd deepagents && langgraph dev --port 2024");
+      alert("Failed to start backend. Please start manually:\ncd deepagents && source .venv/bin/activate && langgraph dev --port 2024");
     } finally {
       setIsRestarting(false);
     }
@@ -649,6 +765,13 @@ export function ConfigDialog({
       openaiApiKey,
       anthropicApiKey,
       googleApiKey,
+      serpApiKey,
+      exaApiKey,
+      tavilyApiKey,
+      perplexityApiKey,
+      semrushApiKey,
+      ahrefsApiKey,
+      similarwebApiKey,
       openRouterConfig,
       // Save all OpenAI Compatible provider API keys (including current one)
       openAICompatibleApiKeys: {
@@ -659,6 +782,7 @@ export function ConfigDialog({
       selectedModel: currentSelectedModel,
       selectedModels,
       modelOverridesByProvider,
+      enabledTools,
     });
 
     // Also save to backend config server for hot reload
@@ -683,30 +807,28 @@ export function ConfigDialog({
         api_key: apiKey,
         base_url: baseUrl,
         model_overrides: modelOverrides,
+        serp_api_key: serpApiKey || undefined,
+        exa_api_key: exaApiKey || undefined,
+        tavily_api_key: tavilyApiKey || undefined,
+        perplexity_api_key: perplexityApiKey || undefined,
+        semrush_api_key: semrushApiKey || undefined,
+        ahrefs_api_key: ahrefsApiKey || undefined,
+        similarweb_api_key: similarwebApiKey || undefined,
+        enabled_tools: enabledTools,
       });
     }
 
-    // Trigger hot reload after saving
-    setIsReloading(true);
-    try {
-      await fetch(`${deploymentUrl}/reload`, {
-        method: "POST",
-      });
-      console.log("[CONFIG] Backend reload triggered after save");
-    } catch (error) {
-      console.warn("[CONFIG] Failed to trigger reload:", error);
-    } finally {
-      setTimeout(() => {
-        setIsReloading(false);
-        onOpenChange(false);
-      }, 1500);
-    }
+    // Close dialog after saving
+    // Note: Backend restart is needed to apply model changes (use Restart button)
+    console.log("[CONFIG] Config saved. Restart backend to apply model changes.");
+    onOpenChange(false);
   };
 
   const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
     { id: "general", label: "Backend", icon: <Link className="h-4 w-4" /> },
     { id: "api-keys", label: "API Keys", icon: <Key className="h-4 w-4" /> },
     { id: "model-config", label: "Models", icon: <Cpu className="h-4 w-4" /> },
+    { id: "tools", label: "Tools", icon: <Wrench className="h-4 w-4" /> },
   ];
 
   return (
@@ -764,17 +886,21 @@ export function ConfigDialog({
                       size="sm"
                       onClick={handleRestart}
                       disabled={isRestarting}
-                      className="gap-1.5 shrink-0 text-red-600 hover:text-red-700 border-red-300 hover:border-red-400 hover:bg-red-50"
+                      className={`gap-1.5 shrink-0 ${
+                        isBackendRunning
+                          ? "text-red-600 hover:text-red-700 border-red-300 hover:border-red-400 hover:bg-red-50"
+                          : "text-green-600 hover:text-green-700 border-green-300 hover:border-green-400 hover:bg-green-50"
+                      }`}
                     >
                       {isRestarting ? (
                         <>
                           <Power className="h-3.5 w-3.5 animate-pulse" />
-                          Restarting...
+                          {isBackendRunning ? "Restarting..." : "Starting..."}
                         </>
                       ) : (
                         <>
                           <Power className="h-3.5 w-3.5" />
-                          Restart
+                          {isBackendRunning ? "Restart" : "Start"}
                         </>
                       )}
                     </Button>
@@ -787,6 +913,9 @@ export function ConfigDialog({
               API Keys
             </Label>
             <div className="grid gap-3">
+              {/* Model API Section */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-muted-foreground">Model API</Label>
               <ApiKeyField
                 id="openaiApiKey"
                 provider="openai"
@@ -982,6 +1111,207 @@ export function ConfigDialog({
                         <p className="text-xs text-red-500">{validationErrors["openrouter"]}</p>
                       )}
                     </div>
+              </div>
+
+              {/* Other API Section */}
+              <div className="space-y-3 mt-2">
+                <Label className="text-sm font-medium text-muted-foreground">Other API</Label>
+                    {/* SerpAPI Key for Google Search */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="serpApiKey" className="flex items-center gap-2">
+                          SerpAPI Key
+                          <a
+                            href="https://serpapi.com/manage-api-key"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            title="Get SerpAPI Key"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                          <span className="text-xs text-muted-foreground">(Google Search)</span>
+                        </Label>
+                      </div>
+                      <Input
+                        id="serpApiKey"
+                        type={serpKeyFocused ? "text" : "password"}
+                        placeholder="your-serpapi-key"
+                        value={serpApiKey}
+                        onChange={(e) => setSerpApiKey(e.target.value)}
+                        onFocus={() => setSerpKeyFocused(true)}
+                        onBlur={() => setSerpKeyFocused(false)}
+                      />
+                    </div>
+
+                    {/* Exa API Key for Neural Search */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="exaApiKey" className="flex items-center gap-2">
+                          Exa API Key
+                          <a
+                            href="https://dashboard.exa.ai/api-keys"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            title="Get Exa API Key"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                          <span className="text-xs text-muted-foreground">(Neural Search)</span>
+                        </Label>
+                      </div>
+                      <Input
+                        id="exaApiKey"
+                        type={exaKeyFocused ? "text" : "password"}
+                        placeholder="exa-..."
+                        value={exaApiKey}
+                        onChange={(e) => setExaApiKey(e.target.value)}
+                        onFocus={() => setExaKeyFocused(true)}
+                        onBlur={() => setExaKeyFocused(false)}
+                      />
+                    </div>
+
+                    {/* Tavily API Key for Web Search */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="tavilyApiKey" className="flex items-center gap-2">
+                          Tavily API Key
+                          <a
+                            href="https://app.tavily.com/home"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            title="Get Tavily API Key"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                          <span className="text-xs text-muted-foreground">(Web Search)</span>
+                        </Label>
+                      </div>
+                      <Input
+                        id="tavilyApiKey"
+                        type={tavilyKeyFocused ? "text" : "password"}
+                        placeholder="tvly-..."
+                        value={tavilyApiKey}
+                        onChange={(e) => setTavilyApiKey(e.target.value)}
+                        onFocus={() => setTavilyKeyFocused(true)}
+                        onBlur={() => setTavilyKeyFocused(false)}
+                      />
+                    </div>
+
+                    {/* Perplexity API Key for AI-powered Search */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="perplexityApiKey" className="flex items-center gap-2">
+                          Perplexity API Key
+                          <a
+                            href="https://www.perplexity.ai/settings/api"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            title="Get Perplexity API Key"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                          <span className="text-xs text-muted-foreground">(AI Search)</span>
+                        </Label>
+                      </div>
+                      <Input
+                        id="perplexityApiKey"
+                        type={perplexityKeyFocused ? "text" : "password"}
+                        placeholder="pplx-..."
+                        value={perplexityApiKey}
+                        onChange={(e) => setPerplexityApiKey(e.target.value)}
+                        onFocus={() => setPerplexityKeyFocused(true)}
+                        onBlur={() => setPerplexityKeyFocused(false)}
+                      />
+                    </div>
+
+                    {/* Semrush API Key for SEO Analytics */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="semrushApiKey" className="flex items-center gap-2">
+                          Semrush API Key
+                          <a
+                            href="https://www.semrush.com/api-analytics/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            title="Get Semrush API Key"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                          <span className="text-xs text-muted-foreground">(SEO Analytics)</span>
+                        </Label>
+                      </div>
+                      <Input
+                        id="semrushApiKey"
+                        type={semrushKeyFocused ? "text" : "password"}
+                        placeholder="Enter your Semrush API key"
+                        value={semrushApiKey}
+                        onChange={(e) => setSemrushApiKey(e.target.value)}
+                        onFocus={() => setSemrushKeyFocused(true)}
+                        onBlur={() => setSemrushKeyFocused(false)}
+                      />
+                    </div>
+
+                    {/* Ahrefs API Key for Backlink Analysis */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="ahrefsApiKey" className="flex items-center gap-2">
+                          Ahrefs API Key
+                          <a
+                            href="https://ahrefs.com/api"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            title="Get Ahrefs API Key"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                          <span className="text-xs text-muted-foreground">(Backlink Analysis)</span>
+                        </Label>
+                      </div>
+                      <Input
+                        id="ahrefsApiKey"
+                        type={ahrefsKeyFocused ? "text" : "password"}
+                        placeholder="Enter your Ahrefs API key"
+                        value={ahrefsApiKey}
+                        onChange={(e) => setAhrefsApiKey(e.target.value)}
+                        onFocus={() => setAhrefsKeyFocused(true)}
+                        onBlur={() => setAhrefsKeyFocused(false)}
+                      />
+                    </div>
+
+                    {/* Similarweb API Key for Traffic Analysis */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="similarwebApiKey" className="flex items-center gap-2">
+                          Similarweb API Key
+                          <a
+                            href="https://developer.similarweb.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-foreground transition-colors"
+                            title="Get Similarweb API Key"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+                          <span className="text-xs text-muted-foreground">(Traffic Analysis)</span>
+                        </Label>
+                      </div>
+                      <Input
+                        id="similarwebApiKey"
+                        type={similarwebKeyFocused ? "text" : "password"}
+                        placeholder="Enter your Similarweb API key"
+                        value={similarwebApiKey}
+                        onChange={(e) => setSimilarwebApiKey(e.target.value)}
+                        onFocus={() => setSimilarwebKeyFocused(true)}
+                        onBlur={() => setSimilarwebKeyFocused(false)}
+                      />
+                    </div>
+              </div>
                   </div>
                 </div>
 
@@ -1124,20 +1454,383 @@ export function ConfigDialog({
                         </div>
                       </div>
                     </div>
+                  </div>
+                </div>
 
-                    {/* Tool Configuration (Reserved) */}
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Label className="text-sm font-medium">Tool</Label>
+                {/* Tools Section */}
+                <div ref={toolsRef} className="scroll-mt-4">
+                  <Label className="text-base font-semibold mb-3 block">
+                    Tools
+                  </Label>
+                  <div className="space-y-3">
+                    {/* Filesystem Tools */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <Label className="text-sm font-medium">Filesystem</Label>
+                      <div className="space-y-3">
+                        {/* Read & Write */}
+                        <div>
+                          <div className="text-[10px] text-muted-foreground mb-1">Read & Write</div>
+                          <div className="space-y-2">
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className="text-[10px] bg-muted px-1.5 py-0.5 rounded cursor-help">ls</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">List directory contents</TooltipContent></Tooltip>
+                                <Switch checked={true} disabled className="opacity-50" />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className="text-[10px] bg-muted px-1.5 py-0.5 rounded cursor-help">read_file</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Read file contents</TooltipContent></Tooltip>
+                                <Switch checked={true} disabled className="opacity-50" />
+                              </div>
+                            </div>
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className="text-[10px] bg-muted px-1.5 py-0.5 rounded cursor-help">write_file</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Write content to file</TooltipContent></Tooltip>
+                                <Switch checked={true} disabled className="opacity-50" />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className="text-[10px] bg-muted px-1.5 py-0.5 rounded cursor-help">edit_file</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Edit file with search/replace</TooltipContent></Tooltip>
+                                <Switch checked={true} disabled className="opacity-50" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Search & Execute */}
+                        <div>
+                          <div className="text-[10px] text-muted-foreground mb-1">Search & Execute</div>
+                          <div className="space-y-2">
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className="text-[10px] bg-muted px-1.5 py-0.5 rounded cursor-help">glob</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Find files by pattern</TooltipContent></Tooltip>
+                                <Switch checked={true} disabled className="opacity-50" />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className="text-[10px] bg-muted px-1.5 py-0.5 rounded cursor-help">grep</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Search text in files</TooltipContent></Tooltip>
+                                <Switch checked={true} disabled className="opacity-50" />
+                              </div>
+                            </div>
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className="text-[10px] bg-muted px-1.5 py-0.5 rounded cursor-help">execute</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Run shell commands</TooltipContent></Tooltip>
+                                <Switch checked={true} disabled className="opacity-50" />
+                              </div>
+                              <div className="flex-1 pl-2"></div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="rounded-lg border p-3">
-                        <p className="text-sm text-muted-foreground italic">
-                          No tool requires model configuration (reserved)
-                        </p>
+                    </div>
+
+                    {/* Built-in Tools */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <Label className="text-sm font-medium">Built-in</Label>
+                      <div className="space-y-2">
+                        <div className="flex divide-x">
+                          <div className="flex-1 flex items-center justify-between pr-2">
+                            <Tooltip><TooltipTrigger asChild><code className="text-[10px] bg-muted px-1.5 py-0.5 rounded cursor-help">write_todos</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Create and manage task list</TooltipContent></Tooltip>
+                            <Switch checked={true} disabled className="opacity-50" />
+                          </div>
+                          <div className="flex-1 flex items-center justify-between pl-2">
+                            <Tooltip><TooltipTrigger asChild><code className="text-[10px] bg-muted px-1.5 py-0.5 rounded cursor-help">task</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Launch subagent for isolated tasks</TooltipContent></Tooltip>
+                            <Switch checked={true} disabled className="opacity-50" />
+                          </div>
+                        </div>
+                        <div className="flex divide-x">
+                          <div className="flex-1 flex items-center justify-between pr-2">
+                            <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${enabledTools.fetch_url ? 'bg-muted' : 'bg-muted/50 text-muted-foreground line-through'}`}>fetch_url</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Fetch URL content as markdown</TooltipContent></Tooltip>
+                            <Switch checked={enabledTools.fetch_url} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, fetch_url: checked }))} />
+                          </div>
+                          <div className="flex-1 pl-2"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* SerpAPI Tools */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <Label className="text-sm font-medium">SerpAPI</Label>
+                      <div className="flex divide-x">
+                        <div className="flex-1 flex items-center justify-between pr-2">
+                          <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${serpApiKey && enabledTools.serp_search ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.serp_search ? 'line-through' : ''}`}>search</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Google/Bing/YouTube search via engine parameter</TooltipContent></Tooltip>
+                          <Switch checked={serpApiKey ? enabledTools.serp_search : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, serp_search: checked }))} disabled={!serpApiKey} className={!serpApiKey ? 'opacity-50' : ''} />
+                        </div>
+                        <div className="flex-1 pl-2"></div>
+                      </div>
+                    </div>
+
+                    {/* Exa Tools */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <Label className="text-sm font-medium">Exa</Label>
+                      <div className="space-y-2">
+                        <div className="flex divide-x">
+                          <div className="flex-1 flex items-center justify-between pr-2">
+                            <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${exaApiKey && enabledTools.exa_search ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.exa_search ? 'line-through' : ''}`}>search</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Neural/keyword search for web pages</TooltipContent></Tooltip>
+                            <Switch checked={exaApiKey ? enabledTools.exa_search : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, exa_search: checked }))} disabled={!exaApiKey} className={!exaApiKey ? 'opacity-50' : ''} />
+                          </div>
+                          <div className="flex-1 flex items-center justify-between pl-2">
+                            <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${exaApiKey && enabledTools.exa_contents ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.exa_contents ? 'line-through' : ''}`}>contents</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Get clean content from URLs</TooltipContent></Tooltip>
+                            <Switch checked={exaApiKey ? enabledTools.exa_contents : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, exa_contents: checked }))} disabled={!exaApiKey} className={!exaApiKey ? 'opacity-50' : ''} />
+                          </div>
+                        </div>
+                        <div className="flex divide-x">
+                          <div className="flex-1 flex items-center justify-between pr-2">
+                            <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${exaApiKey && enabledTools.exa_find_similar ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.exa_find_similar ? 'line-through' : ''}`}>find_similar</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Find semantically similar pages</TooltipContent></Tooltip>
+                            <Switch checked={exaApiKey ? enabledTools.exa_find_similar : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, exa_find_similar: checked }))} disabled={!exaApiKey} className={!exaApiKey ? 'opacity-50' : ''} />
+                          </div>
+                          <div className="flex-1 flex items-center justify-between pl-2">
+                            <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${exaApiKey && enabledTools.exa_answer ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.exa_answer ? 'line-through' : ''}`}>answer</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Get direct answers with citations</TooltipContent></Tooltip>
+                            <Switch checked={exaApiKey ? enabledTools.exa_answer : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, exa_answer: checked }))} disabled={!exaApiKey} className={!exaApiKey ? 'opacity-50' : ''} />
+                          </div>
+                        </div>
+                        <div className="flex divide-x">
+                          <div className="flex-1 flex items-center justify-between pr-2">
+                            <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${exaApiKey && enabledTools.exa_research ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.exa_research ? 'line-through' : ''}`}>research</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Automate in-depth web research with citations</TooltipContent></Tooltip>
+                            <Switch checked={exaApiKey ? enabledTools.exa_research : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, exa_research: checked }))} disabled={!exaApiKey} className={!exaApiKey ? 'opacity-50' : ''} />
+                          </div>
+                          <div className="flex-1 pl-2"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tavily Tools */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <Label className="text-sm font-medium">Tavily</Label>
+                      <div className="space-y-2">
+                        <div className="flex divide-x">
+                          <div className="flex-1 flex items-center justify-between pr-2">
+                            <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${tavilyApiKey && enabledTools.tavily_search ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.tavily_search ? 'line-through' : ''}`}>search</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">/search - Search the web</TooltipContent></Tooltip>
+                            <Switch checked={tavilyApiKey ? enabledTools.tavily_search : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, tavily_search: checked }))} disabled={!tavilyApiKey} className={!tavilyApiKey ? 'opacity-50' : ''} />
+                          </div>
+                          <div className="flex-1 flex items-center justify-between pl-2">
+                            <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${tavilyApiKey && enabledTools.tavily_extract ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.tavily_extract ? 'line-through' : ''}`}>extract</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">/extract - Extract content from URLs</TooltipContent></Tooltip>
+                            <Switch checked={tavilyApiKey ? enabledTools.tavily_extract : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, tavily_extract: checked }))} disabled={!tavilyApiKey} className={!tavilyApiKey ? 'opacity-50' : ''} />
+                          </div>
+                        </div>
+                        <div className="flex divide-x">
+                          <div className="flex-1 flex items-center justify-between pr-2">
+                            <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${tavilyApiKey && enabledTools.tavily_map ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.tavily_map ? 'line-through' : ''}`}>map</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">/map - Discover site URLs</TooltipContent></Tooltip>
+                            <Switch checked={tavilyApiKey ? enabledTools.tavily_map : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, tavily_map: checked }))} disabled={!tavilyApiKey} className={!tavilyApiKey ? 'opacity-50' : ''} />
+                          </div>
+                          <div className="flex-1 flex items-center justify-between pl-2">
+                            <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${tavilyApiKey && enabledTools.tavily_crawl ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.tavily_crawl ? 'line-through' : ''}`}>crawl</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">/crawl - Crawl site, extract pages</TooltipContent></Tooltip>
+                            <Switch checked={tavilyApiKey ? enabledTools.tavily_crawl : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, tavily_crawl: checked }))} disabled={!tavilyApiKey} className={!tavilyApiKey ? 'opacity-50' : ''} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Perplexity Tools */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <Label className="text-sm font-medium">Perplexity</Label>
+                      <div className="flex divide-x">
+                        <div className="flex-1 flex items-center justify-between pr-2">
+                          <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${perplexityApiKey && enabledTools.perplexity_search ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.perplexity_search ? 'line-through' : ''}`}>search</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">/search - Raw search results (URLs)</TooltipContent></Tooltip>
+                          <Switch checked={perplexityApiKey ? enabledTools.perplexity_search : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, perplexity_search: checked }))} disabled={!perplexityApiKey} className={!perplexityApiKey ? 'opacity-50' : ''} />
+                        </div>
+                        <div className="flex-1 flex items-center justify-between pl-2">
+                          <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${perplexityApiKey && enabledTools.perplexity_chat ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.perplexity_chat ? 'line-through' : ''}`}>chat</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">/chat/completions - AI answer with model param</TooltipContent></Tooltip>
+                          <Switch checked={perplexityApiKey ? enabledTools.perplexity_chat : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, perplexity_chat: checked }))} disabled={!perplexityApiKey} className={!perplexityApiKey ? 'opacity-50' : ''} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Semrush Tools */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <Label className="text-sm font-medium">Semrush</Label>
+                      <div className="flex divide-x">
+                        <div className="flex-1 flex items-center justify-between pr-2">
+                          <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${semrushApiKey && enabledTools.semrush_report ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.semrush_report ? 'line-through' : ''}`}>report</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">/?type=xxx - SEO reports (domain, keywords, backlinks)</TooltipContent></Tooltip>
+                          <Switch checked={semrushApiKey ? enabledTools.semrush_report : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, semrush_report: checked }))} disabled={!semrushApiKey} className={!semrushApiKey ? 'opacity-50' : ''} />
+                        </div>
+                        <div className="flex-1 pl-2"></div>
+                      </div>
+                    </div>
+
+                    {/* Ahrefs Tools */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <Label className="text-sm font-medium">Ahrefs</Label>
+                      <div className="space-y-3">
+                        {/* Site Metrics */}
+                        <div>
+                          <div className="text-[10px] text-muted-foreground mb-1">Site Metrics</div>
+                          <div className="space-y-2">
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_domain_rating ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_domain_rating ? 'line-through' : ''}`}>domain_rating</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Domain Rating (DR) score</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_domain_rating : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_domain_rating: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_url_rating ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_url_rating ? 'line-through' : ''}`}>url_rating</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">URL Rating (UR) score</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_url_rating : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_url_rating: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_health_score ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_health_score ? 'line-through' : ''}`}>health_score</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Site health audit score</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_health_score : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_health_score: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_top_pages ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_top_pages ? 'line-through' : ''}`}>top_pages</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Top pages by traffic</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_top_pages : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_top_pages: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Backlinks */}
+                        <div>
+                          <div className="text-[10px] text-muted-foreground mb-1">Backlinks</div>
+                          <div className="space-y-2">
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_backlinks ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_backlinks ? 'line-through' : ''}`}>backlinks</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Detailed backlinks list</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_backlinks : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_backlinks: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_referring_domains ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_referring_domains ? 'line-through' : ''}`}>referring_domains</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Referring domains list</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_referring_domains : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_referring_domains: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_anchors ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_anchors ? 'line-through' : ''}`}>anchors</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Anchor text analysis</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_anchors : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_anchors: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 pl-2"></div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Keywords */}
+                        <div>
+                          <div className="text-[10px] text-muted-foreground mb-1">Keywords</div>
+                          <div className="space-y-2">
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_organic_keywords ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_organic_keywords ? 'line-through' : ''}`}>organic_keywords</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Organic keyword rankings</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_organic_keywords : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_organic_keywords: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_keyword_metrics ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_keyword_metrics ? 'line-through' : ''}`}>keyword_metrics</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Keyword search metrics</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_keyword_metrics : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_keyword_metrics: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_matching_terms ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_matching_terms ? 'line-through' : ''}`}>matching_terms</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Matching keyword terms</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_matching_terms : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_matching_terms: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_related_terms ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_related_terms ? 'line-through' : ''}`}>related_terms</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Related keyword suggestions</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_related_terms : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_related_terms: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* SERP & Brand */}
+                        <div>
+                          <div className="text-[10px] text-muted-foreground mb-1">SERP & Brand</div>
+                          <div className="space-y-2">
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_serp_overview ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_serp_overview ? 'line-through' : ''}`}>serp_overview</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">SERP Top 100 analysis</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_serp_overview : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_serp_overview: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_organic_competitors ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_organic_competitors ? 'line-through' : ''}`}>organic_competitors</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Organic search competitors</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_organic_competitors : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_organic_competitors: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_brand_ai_responses ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_brand_ai_responses ? 'line-through' : ''}`}>brand_ai_responses</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">GEO: Brand in AI answers</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_brand_ai_responses : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_brand_ai_responses: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${ahrefsApiKey && enabledTools.ahrefs_brand_impressions ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.ahrefs_brand_impressions ? 'line-through' : ''}`}>brand_impressions</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">GEO: Brand AI impressions</TooltipContent></Tooltip>
+                                <Switch checked={ahrefsApiKey ? enabledTools.ahrefs_brand_impressions : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, ahrefs_brand_impressions: checked }))} disabled={!ahrefsApiKey} className={!ahrefsApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Similarweb Tools */}
+                    <div className="grid gap-2 rounded-lg border p-3">
+                      <Label className="text-sm font-medium">Similarweb</Label>
+                      <div className="space-y-3">
+                        {/* Traffic */}
+                        <div>
+                          <div className="text-[10px] text-muted-foreground mb-1">Traffic</div>
+                          <div className="space-y-2">
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${similarwebApiKey && enabledTools.similarweb_visits ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.similarweb_visits ? 'line-through' : ''}`}>visits</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Total visits & engagement</TooltipContent></Tooltip>
+                                <Switch checked={similarwebApiKey ? enabledTools.similarweb_visits : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, similarweb_visits: checked }))} disabled={!similarwebApiKey} className={!similarwebApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${similarwebApiKey && enabledTools.similarweb_traffic_sources ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.similarweb_traffic_sources ? 'line-through' : ''}`}>traffic_sources</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Traffic sources breakdown</TooltipContent></Tooltip>
+                                <Switch checked={similarwebApiKey ? enabledTools.similarweb_traffic_sources : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, similarweb_traffic_sources: checked }))} disabled={!similarwebApiKey} className={!similarwebApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${similarwebApiKey && enabledTools.similarweb_search_traffic ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.similarweb_search_traffic ? 'line-through' : ''}`}>search_traffic</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Search traffic details</TooltipContent></Tooltip>
+                                <Switch checked={similarwebApiKey ? enabledTools.similarweb_search_traffic : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, similarweb_search_traffic: checked }))} disabled={!similarwebApiKey} className={!similarwebApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${similarwebApiKey && enabledTools.similarweb_referral_traffic ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.similarweb_referral_traffic ? 'line-through' : ''}`}>referral_traffic</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">GEO: Referral traffic (AI sources)</TooltipContent></Tooltip>
+                                <Switch checked={similarwebApiKey ? enabledTools.similarweb_referral_traffic : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, similarweb_referral_traffic: checked }))} disabled={!similarwebApiKey} className={!similarwebApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Keywords & Competitors */}
+                        <div>
+                          <div className="text-[10px] text-muted-foreground mb-1">Keywords & Competitors</div>
+                          <div className="space-y-2">
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${similarwebApiKey && enabledTools.similarweb_keywords ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.similarweb_keywords ? 'line-through' : ''}`}>keywords</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Top organic & paid keywords</TooltipContent></Tooltip>
+                                <Switch checked={similarwebApiKey ? enabledTools.similarweb_keywords : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, similarweb_keywords: checked }))} disabled={!similarwebApiKey} className={!similarwebApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${similarwebApiKey && enabledTools.similarweb_similar_sites ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.similarweb_similar_sites ? 'line-through' : ''}`}>similar_sites</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Similar/competing websites</TooltipContent></Tooltip>
+                                <Switch checked={similarwebApiKey ? enabledTools.similarweb_similar_sites : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, similarweb_similar_sites: checked }))} disabled={!similarwebApiKey} className={!similarwebApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${similarwebApiKey && enabledTools.similarweb_audience_interests ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.similarweb_audience_interests ? 'line-through' : ''}`}>audience_interests</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Audience interest categories</TooltipContent></Tooltip>
+                                <Switch checked={similarwebApiKey ? enabledTools.similarweb_audience_interests : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, similarweb_audience_interests: checked }))} disabled={!similarwebApiKey} className={!similarwebApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 pl-2"></div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Rankings */}
+                        <div>
+                          <div className="text-[10px] text-muted-foreground mb-1">Rankings</div>
+                          <div className="space-y-2">
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${similarwebApiKey && enabledTools.similarweb_global_rank ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.similarweb_global_rank ? 'line-through' : ''}`}>global_rank</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Global traffic rank</TooltipContent></Tooltip>
+                                <Switch checked={similarwebApiKey ? enabledTools.similarweb_global_rank : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, similarweb_global_rank: checked }))} disabled={!similarwebApiKey} className={!similarwebApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 flex items-center justify-between pl-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${similarwebApiKey && enabledTools.similarweb_category_rank ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.similarweb_category_rank ? 'line-through' : ''}`}>category_rank</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Category/industry rank</TooltipContent></Tooltip>
+                                <Switch checked={similarwebApiKey ? enabledTools.similarweb_category_rank : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, similarweb_category_rank: checked }))} disabled={!similarwebApiKey} className={!similarwebApiKey ? 'opacity-50' : ''} />
+                              </div>
+                            </div>
+                            <div className="flex divide-x">
+                              <div className="flex-1 flex items-center justify-between pr-2">
+                                <Tooltip><TooltipTrigger asChild><code className={`text-[10px] px-1.5 py-0.5 rounded cursor-help ${similarwebApiKey && enabledTools.similarweb_geography ? 'bg-muted' : 'bg-muted/50 text-muted-foreground'} ${!enabledTools.similarweb_geography ? 'line-through' : ''}`}>geography</code></TooltipTrigger><TooltipContent className="bg-zinc-900 text-white shadow-lg">Traffic by country</TooltipContent></Tooltip>
+                                <Switch checked={similarwebApiKey ? enabledTools.similarweb_geography : false} onCheckedChange={(checked) => setEnabledTools(prev => ({ ...prev, similarweb_geography: checked }))} disabled={!similarwebApiKey} className={!similarwebApiKey ? 'opacity-50' : ''} />
+                              </div>
+                              <div className="flex-1 pl-2"></div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-            </div>
+                </div>
           </div>
         </div>
 
@@ -1145,15 +1838,8 @@ export function ConfigDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isReloading}>
-            {isReloading ? (
-              <>
-                <RefreshCw className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save"
-            )}
+          <Button onClick={handleSave}>
+            Save
           </Button>
         </DialogFooter>
         </div>

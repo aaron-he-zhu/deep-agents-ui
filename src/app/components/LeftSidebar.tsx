@@ -49,23 +49,8 @@ const getStatusIcon = (status: TodoItem["status"], className?: string) => {
   }
 };
 
-const groupedLabels = {
-  in_progress: "In Progress",
-  pending: "Pending",
-  completed: "Completed",
-};
-
 export const LeftSidebar = React.memo<LeftSidebarProps>(
   ({ todos, onAddContext }) => {
-    const groupedTodos = {
-      in_progress: todos.filter((t) => t.status === "in_progress"),
-      pending: todos.filter((t) => t.status === "pending"),
-      completed: todos.filter((t) => t.status === "completed"),
-    };
-
-    // Get the current active task (first in_progress task)
-    const activeTask = groupedTodos.in_progress[0];
-
     return (
       <div className="flex h-full flex-col p-2 pr-0">
         <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background">
@@ -122,68 +107,40 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
                 )}
               </div>
 
-              {/* Active task summary - second row */}
-              {activeTask && (
-                <div className="flex-shrink-0 mx-4 mb-2 flex items-start gap-2 rounded-md bg-warning/10 p-2 text-sm">
-                  <Clock
-                    size={14}
-                    className="mt-0.5 flex-shrink-0 text-warning"
-                  />
-                  <span className="flex-1 truncate text-warning-foreground">
-                    {activeTask.content}
-                  </span>
-                </div>
-              )}
-
               <div className="flex-1 min-h-0 overflow-hidden">
-                  {todos.length === 0 ? (
+                {todos.length === 0 ? (
                   <div className="flex h-full items-center justify-center px-4 pb-4">
-                      <p className="text-xs text-muted-foreground">
-                        No tasks created yet
-                      </p>
-                    </div>
-                  ) : (
-                  <ScrollArea className="h-full px-4 pb-4">
-                    <div className="space-y-4">
-                      {(
-                        Object.entries(groupedTodos) as [
-                          keyof typeof groupedTodos,
-                          TodoItem[],
-                        ][]
-                      )
-                        .filter(([, items]) => items.length > 0)
-                        .map(([status, items]) => (
-                          <div key={status}>
-                            <h3 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                              {groupedLabels[status]}
-                            </h3>
-                            <div className="space-y-1.5">
-                              {items.map((todo, index) => (
-                                <div
-                                  key={`${status}_${todo.id}_${index}`}
-                                  className={cn(
-                                    "flex items-start gap-2 rounded-md p-2 text-sm",
-                                    status === "in_progress" && "bg-warning/5",
-                                    status === "completed" && "opacity-60"
-                                  )}
-                                >
-                                  {getStatusIcon(todo.status, "mt-0.5")}
-                                  <span
-                                    className={cn(
-                                      "flex-1 break-words leading-relaxed",
-                                      status === "completed" && "line-through"
-                                    )}
-                                  >
-                                    {todo.content}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
+                    <p className="text-xs text-muted-foreground">
+                      No tasks created yet
+                    </p>
+                  </div>
+                ) : (
+                  <ScrollArea className="h-full px-4 py-2">
+                    <div className="space-y-1.5">
+                      {todos.map((todo, index) => (
+                        <div
+                          key={`${todo.id}_${index}`}
+                          className={cn(
+                            "flex items-start gap-2 rounded-md p-2 text-sm transition-colors",
+                            todo.status === "in_progress" && "bg-amber-500/20",
+                            todo.status === "completed" && "opacity-50"
+                          )}
+                        >
+                          {getStatusIcon(todo.status, "mt-0.5")}
+                          <span
+                            className={cn(
+                              "flex-1 break-words leading-relaxed",
+                              todo.status === "completed" && "line-through",
+                              todo.status === "in_progress" && "font-medium text-warning-foreground"
+                            )}
+                          >
+                            {todo.content}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </ScrollArea>
-                  )}
+                )}
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
