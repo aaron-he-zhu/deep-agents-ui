@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, CheckCircle, AlertCircle, Circle } from "lucide-react";
 import type { SubAgent } from "@/app/types/types";
 
 interface SubAgentIndicatorProps {
@@ -12,46 +12,55 @@ interface SubAgentIndicatorProps {
   isExpanded?: boolean;
 }
 
-// Extract first line or first sentence as task summary
-function getTaskSummary(content: string, maxLength: number = 60): string {
+// Extract first line as task summary (no character truncation, let CSS handle it)
+function getTaskSummary(content: string): string {
   if (!content) return "";
   // Get first line
   const firstLine = content.split("\n")[0].trim();
   // Remove markdown formatting
-  const cleaned = firstLine.replace(/^#+\s*/, "").replace(/\*\*/g, "").trim();
-  if (cleaned.length <= maxLength) return cleaned;
-  return cleaned.slice(0, maxLength) + "...";
+  return firstLine.replace(/^#+\s*/, "").replace(/\*\*/g, "").trim();
 }
 
 export const SubAgentIndicator = React.memo<SubAgentIndicatorProps>(
   ({ subAgent, taskSummary, onClick, isExpanded = false }) => {
-    const summary = taskSummary ? getTaskSummary(taskSummary, 160) : "";
+    const summary = taskSummary ? getTaskSummary(taskSummary) : "";
+    const isLoading = subAgent.status === "pending" || subAgent.status === "active";
+    const isCompleted = subAgent.status === "completed";
+    const isError = subAgent.status === "error";
+    
+    // Status icon (left side, like tool status)
+    const statusIcon = isLoading ? (
+      <Loader2 size={14} className="shrink-0 text-amber-500 animate-spin" />
+    ) : isCompleted ? (
+      <CheckCircle size={14} className="shrink-0 text-emerald-500" />
+    ) : isError ? (
+      <AlertCircle size={14} className="shrink-0 text-destructive" />
+    ) : (
+      <Circle size={14} className="shrink-0 text-muted-foreground/50" />
+    );
     
     return (
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="shrink-0 overflow-hidden rounded-lg border-none bg-card shadow-none outline-none">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClick}
-            className="flex items-center gap-2 border-none px-3 py-2 text-left shadow-none outline-none transition-colors duration-200"
-          >
-            <span className="font-sans text-[15px] font-bold leading-[140%] tracking-[-0.6px] text-[#3F3F46]">
-              {subAgent.subAgentName}
-            </span>
-            {isExpanded ? (
-              <ChevronUp size={14} className="shrink-0 text-[#70707B]" />
-            ) : (
-              <ChevronDown size={14} className="shrink-0 text-[#70707B]" />
-            )}
-          </Button>
-        </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onClick}
+        className="flex w-full items-center gap-2 min-w-0 border-none px-3 py-2 text-left shadow-none outline-none transition-colors duration-200 hover:bg-accent justify-start"
+      >
+        {statusIcon}
+        <span className="shrink-0 font-sans text-[15px] font-bold leading-[140%] tracking-[-0.6px] text-[#3F3F46]">
+          {subAgent.subAgentName}
+        </span>
         {summary && (
-          <span className="text-[13px] text-muted-foreground truncate min-w-0">
+          <span className="flex-1 text-[13px] font-normal text-muted-foreground truncate">
             {summary}
           </span>
         )}
-      </div>
+        {isExpanded ? (
+          <ChevronUp size={14} className="shrink-0 text-muted-foreground" />
+        ) : (
+          <ChevronDown size={14} className="shrink-0 text-muted-foreground" />
+        )}
+      </Button>
     );
   }
 );

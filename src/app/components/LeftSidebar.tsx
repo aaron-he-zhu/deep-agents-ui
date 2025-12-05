@@ -4,9 +4,9 @@ import React from "react";
 import {
   CheckCircle,
   Circle,
-  Clock,
   Database,
   ListTodo,
+  Loader2,
   Plus,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -29,21 +29,21 @@ const getStatusIcon = (status: TodoItem["status"], className?: string) => {
       return (
         <CheckCircle
           size={14}
-          className={cn("flex-shrink-0 text-success/80", className)}
+          className={cn("flex-shrink-0 text-emerald-500", className)}
         />
       );
     case "in_progress":
       return (
-        <Clock
+        <Loader2
           size={14}
-          className={cn("flex-shrink-0 text-warning/80", className)}
+          className={cn("flex-shrink-0 text-amber-500 animate-spin", className)}
         />
       );
     default:
       return (
         <Circle
           size={14}
-          className={cn("flex-shrink-0 text-tertiary/70", className)}
+          className={cn("flex-shrink-0 text-muted-foreground/50", className)}
         />
       );
   }
@@ -122,7 +122,6 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
                           key={`${todo.id}_${index}`}
                           className={cn(
                             "flex items-start gap-2 rounded-md p-2 text-sm transition-colors",
-                            todo.status === "in_progress" && "bg-amber-500/20",
                             todo.status === "completed" && "opacity-50"
                           )}
                         >
@@ -130,8 +129,7 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
                           <span
                             className={cn(
                               "flex-1 break-words leading-relaxed",
-                              todo.status === "completed" && "line-through",
-                              todo.status === "in_progress" && "font-medium text-warning-foreground"
+                              todo.status === "completed" && "line-through text-muted-foreground"
                             )}
                           >
                             {todo.content}

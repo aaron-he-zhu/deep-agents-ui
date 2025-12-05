@@ -48,35 +48,6 @@ export interface EnabledTools {
   // Perplexity tools (require API key)
   perplexity_search?: boolean;
   perplexity_chat?: boolean;
-  // Semrush tools (require API key)
-  semrush_report?: boolean;
-  // Ahrefs tools (require API key) - 15 tools
-  ahrefs_domain_rating?: boolean;
-  ahrefs_url_rating?: boolean;
-  ahrefs_backlinks?: boolean;
-  ahrefs_referring_domains?: boolean;
-  ahrefs_anchors?: boolean;
-  ahrefs_organic_keywords?: boolean;
-  ahrefs_organic_competitors?: boolean;
-  ahrefs_keyword_metrics?: boolean;
-  ahrefs_matching_terms?: boolean;
-  ahrefs_related_terms?: boolean;
-  ahrefs_serp_overview?: boolean;
-  ahrefs_top_pages?: boolean;
-  ahrefs_health_score?: boolean;
-  ahrefs_brand_ai_responses?: boolean;
-  ahrefs_brand_impressions?: boolean;
-  // Similarweb tools (require API key) - 10 tools
-  similarweb_visits?: boolean;
-  similarweb_traffic_sources?: boolean;
-  similarweb_search_traffic?: boolean;
-  similarweb_referral_traffic?: boolean;
-  similarweb_keywords?: boolean;
-  similarweb_similar_sites?: boolean;
-  similarweb_global_rank?: boolean;
-  similarweb_category_rank?: boolean;
-  similarweb_audience_interests?: boolean;
-  similarweb_geography?: boolean;
 }
 
 export interface StandaloneConfig {
@@ -93,10 +64,6 @@ export interface StandaloneConfig {
   tavilyApiKey?: string;
   // Perplexity API for AI-powered search
   perplexityApiKey?: string;
-  // SEO & Analytics APIs
-  semrushApiKey?: string;
-  ahrefsApiKey?: string;
-  similarwebApiKey?: string;
   // OpenRouter / Custom OpenAI-compatible API
   openRouterConfig?: OpenRouterConfig;
   // Store API keys for each OpenAI Compatible provider separately

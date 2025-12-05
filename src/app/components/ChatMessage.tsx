@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useCallback } from "react";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Loader2 } from "lucide-react";
 import { SubAgentIndicator } from "@/app/components/SubAgentIndicator";
 import { ToolCallBox } from "@/app/components/ToolCallBox";
 import { MarkdownContent } from "@/app/components/MarkdownContent";
@@ -151,7 +151,7 @@ export const ChatMessage = React.memo<ChatMessageProps>(
             </div>
           )}
           {hasToolCalls && (
-            <div className="mt-4 flex w-full flex-col">
+            <div className="mt-4 flex w-full flex-col gap-1">
               {toolCalls.map((toolCall: ToolCall) => {
                 if (toolCall.name === "task") return null;
                 const toolCallGenUiComponent = ui?.find(
@@ -176,14 +176,16 @@ export const ChatMessage = React.memo<ChatMessageProps>(
             </div>
           )}
           {!isUser && subAgents.length > 0 && (
-            <div className="flex w-fit max-w-full flex-col gap-4">
-              {subAgents.map((subAgent) => (
+            <div className="mt-4 flex w-full flex-col gap-1">
+              {subAgents.map((subAgent) => {
+                const isLoading = subAgent.status === "pending" || subAgent.status === "active";
+                return (
                 <div
                   key={subAgent.id}
-                  className="flex w-full flex-col gap-2"
+                  className="flex w-full flex-col"
                 >
-                  <div className="flex items-end gap-2">
-                    <div className="w-[calc(100%-100px)]">
+                  <div className="flex items-end w-full">
+                    <div className="flex-1 min-w-0">
                       <SubAgentIndicator
                         subAgent={subAgent}
                         taskSummary={extractSubAgentContent(subAgent.input)}
@@ -203,21 +205,27 @@ export const ChatMessage = React.memo<ChatMessageProps>(
                             content={extractSubAgentContent(subAgent.input)}
                           />
                         </div>
-                        {subAgent.output && (
-                          <>
-                            <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
-                              Output
-                            </h4>
-                            <MarkdownContent
-                              content={extractSubAgentContent(subAgent.output)}
-                            />
-                          </>
+                        <h4 className="text-primary/70 mb-2 text-xs font-semibold uppercase tracking-wider">
+                          Output
+                        </h4>
+                        {subAgent.output ? (
+                          <MarkdownContent
+                            content={extractSubAgentContent(subAgent.output)}
+                          />
+                        ) : isLoading ? (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Loader2 size={14} className="animate-spin text-amber-500" />
+                            <span className="text-sm">Running...</span>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No output yet</p>
                         )}
                       </div>
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

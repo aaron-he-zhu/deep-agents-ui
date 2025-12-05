@@ -109,31 +109,40 @@ export const RightSidebar = React.memo<RightSidebarProps>(
           </div>
 
           {/* Artefacts Module - Bottom Section (fills remaining space) */}
+          {(() => {
+            // Filter out internal large_tool_results files
+            const visibleFiles = Object.keys(files).filter(
+              (f) => !f.startsWith("/large_tool_results/")
+            );
+            
+            const getFileContent = (filePath: string): string => {
+              const rawContent = files[filePath];
+              if (typeof rawContent === "object" && rawContent !== null && "content" in rawContent) {
+                const contentArray = (rawContent as { content: unknown }).content;
+                return Array.isArray(contentArray) ? contentArray.join("\n") : String(contentArray || "");
+              }
+              return String(rawContent || "");
+            };
+            
+            return (
           <div className="group/artefacts flex min-h-0 flex-1 flex-col">
             <div className="flex h-12 flex-shrink-0 items-center gap-2 px-4 border-b border-border bg-muted/30">
               <FileText size={16} className="text-muted-foreground" />
               <span className="text-sm font-semibold tracking-wide">
                 Artefacts
               </span>
-              {Object.keys(files).length > 0 && (
+              {visibleFiles.length > 0 && (
                 <span className="rounded-full bg-[#2F6868] px-2 py-0.5 text-xs font-medium text-white">
-                  {Object.keys(files).length}
+                  {visibleFiles.length}
                 </span>
               )}
-              {Object.keys(files).length > 0 && (
+              {visibleFiles.length > 0 && (
                 <button
                   type="button"
                   onClick={() => {
-                    // Download all files as a zip or individually
-                    Object.keys(files).forEach((filePath) => {
-                      const rawContent = files[filePath];
-                      let fileContent: string;
-                      if (typeof rawContent === "object" && rawContent !== null && "content" in rawContent) {
-                        const contentArray = (rawContent as { content: unknown }).content;
-                        fileContent = Array.isArray(contentArray) ? contentArray.join("\n") : String(contentArray || "");
-                      } else {
-                        fileContent = String(rawContent || "");
-                      }
+                    // Download all visible files
+                    visibleFiles.forEach((filePath) => {
+                      const fileContent = getFileContent(filePath);
                       const fileName = filePath.split("/").pop() || filePath;
                       const blob = new Blob([fileContent], { type: "text/plain" });
                       const url = URL.createObjectURL(blob);
@@ -155,7 +164,7 @@ export const RightSidebar = React.memo<RightSidebarProps>(
             </div>
 
             <div className="min-h-0 flex-1 overflow-hidden">
-              {Object.keys(files).length === 0 ? (
+              {visibleFiles.length === 0 ? (
                 <div className="flex h-full items-center justify-center px-4 pb-4">
                   <p className="text-xs text-muted-foreground">
                     No artefacts created yet
@@ -164,27 +173,8 @@ export const RightSidebar = React.memo<RightSidebarProps>(
               ) : (
                 <ScrollArea className="h-full px-4 py-4">
                   <div className="space-y-1">
-                    {Object.keys(files).map((file) => {
-                      const filePath = String(file);
-                      const rawContent = files[file];
-                      let fileContent: string;
-                      if (
-                        typeof rawContent === "object" &&
-                        rawContent !== null &&
-                        "content" in rawContent
-                      ) {
-                        const contentArray = (rawContent as { content: unknown })
-                          .content;
-                        if (Array.isArray(contentArray)) {
-                          fileContent = contentArray.join("\n");
-                        } else {
-                          fileContent = String(contentArray || "");
-                        }
-                      } else {
-                        fileContent = String(rawContent || "");
-                      }
-
-                      // Extract filename from path
+                    {visibleFiles.map((filePath) => {
+                      const fileContent = getFileContent(filePath);
                       const fileName = filePath.split("/").pop() || filePath;
 
                       const handleDownload = (e: React.MouseEvent) => {
@@ -206,19 +196,19 @@ export const RightSidebar = React.memo<RightSidebarProps>(
                           className="group relative flex w-full items-center gap-3 rounded-md border border-transparent px-3 py-2 text-left transition-colors hover:border-border hover:bg-accent"
                         >
                           <button
-                          type="button"
-                          onClick={() =>
-                            setSelectedFile({
-                              path: filePath,
-                              content: fileContent,
-                            })
-                          }
+                            type="button"
+                            onClick={() =>
+                              setSelectedFile({
+                                path: filePath,
+                                content: fileContent,
+                              })
+                            }
                             className="flex flex-1 items-center gap-3 min-w-0"
-                        >
-                          <FileText
-                            size={16}
-                            className="flex-shrink-0 text-muted-foreground"
-                          />
+                          >
+                            <FileText
+                              size={16}
+                              className="flex-shrink-0 text-muted-foreground"
+                            />
                             <p className="min-w-0 flex-1 truncate text-sm font-medium text-left">
                               {fileName}
                             </p>
@@ -231,7 +221,7 @@ export const RightSidebar = React.memo<RightSidebarProps>(
                           >
                             <Download size={16} className="text-muted-foreground" />
                           </button>
-                          </div>
+                        </div>
                       );
                     })}
                   </div>
@@ -239,6 +229,8 @@ export const RightSidebar = React.memo<RightSidebarProps>(
               )}
             </div>
           </div>
+            );
+          })()}
         </div>
 
         {selectedFile && (

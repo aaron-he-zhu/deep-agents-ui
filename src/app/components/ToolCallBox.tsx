@@ -54,10 +54,50 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
       };
     }, [toolCall]);
 
+    // Get summary for specific tools to display inline
+    const toolSummary = useMemo(() => {
+      const toolArgs = toolCall.args || {};
+      switch (toolCall.name) {
+        case "write_file":
+        case "read_file":
+        case "edit_file":
+        case "ls":
+        case "glob":
+        case "grep":
+          return toolArgs.path || toolArgs.file_path || toolArgs.filename || toolArgs.directory || null;
+        case "fetch_url":
+          return toolArgs.url || null;
+        case "serp_search":
+        case "serpapi_search":
+        case "exa_search":
+        case "tavily_search":
+        case "tavily_crawl":
+        case "perplexity_search":
+        case "perplexity_chat":
+          return toolArgs.query || toolArgs.q || toolArgs.message || toolArgs.messages?.[0]?.content || null;
+        case "write_todos": {
+          const todos = toolArgs.todos as Array<{ status?: string }> | undefined;
+          if (todos && Array.isArray(todos)) {
+            const completed = todos.filter(t => t.status === "completed").length;
+            const total = todos.length;
+            return `(${completed}/${total})`;
+          }
+          return null;
+        }
+        default:
+          return null;
+      }
+    }, [toolCall]);
+
     const statusIcon = useMemo(() => {
       switch (status) {
         case "completed":
-          return <CircleCheckBigIcon />;
+          return (
+            <CircleCheckBigIcon
+              size={14}
+              className="text-emerald-500"
+            />
+          );
         case "error":
           return (
             <AlertCircle
@@ -69,7 +109,7 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
           return (
             <Loader2
               size={14}
-              className="animate-spin"
+              className="text-amber-500 animate-spin"
             />
           );
         case "interrupted":
@@ -83,7 +123,7 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
           return (
             <Terminal
               size={14}
-              className="text-muted-foreground"
+              className="text-muted-foreground/50"
             />
           );
       }
@@ -114,30 +154,33 @@ export const ToolCallBox = React.memo<ToolCallBoxProps>(
           size="sm"
           onClick={toggleExpanded}
           className={cn(
-            "flex w-full items-center justify-between gap-2 border-none px-2 py-2 text-left shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-default"
+            "flex w-full items-center gap-2 border-none px-3 py-2 text-left shadow-none outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-default justify-start"
           )}
           disabled={!hasContent}
         >
-          <div className="flex w-full items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              {statusIcon}
-              <span className="text-[15px] font-medium tracking-[-0.6px] text-foreground">
-                {name}
-              </span>
-            </div>
-            {hasContent &&
-              (isExpanded ? (
-                <ChevronUp
-                  size={14}
-                  className="shrink-0 text-muted-foreground"
-                />
-              ) : (
-                <ChevronDown
-                  size={14}
-                  className="shrink-0 text-muted-foreground"
-                />
-              ))}
+          <div className="flex items-center gap-2 shrink-0">
+            {statusIcon}
+            <span className="text-[15px] font-medium tracking-[-0.6px] text-foreground">
+              {name}
+            </span>
           </div>
+          {toolSummary && (
+            <span className="flex-1 text-[13px] text-muted-foreground truncate min-w-0">
+              {toolSummary}
+            </span>
+          )}
+          {hasContent &&
+            (isExpanded ? (
+              <ChevronUp
+                size={14}
+                className="shrink-0 text-muted-foreground ml-auto"
+              />
+            ) : (
+              <ChevronDown
+                size={14}
+                className="shrink-0 text-muted-foreground ml-auto"
+              />
+            ))}
         </Button>
 
         {isExpanded && hasContent && (
