@@ -12,18 +12,24 @@ export interface BrandAsset {
   id: string;
   name: string;
   type:
-    | "logo"
-    | "color_palette"
-    | "typography"
-    | "icon"
-    | "image"
-    | "video"
-    | "guideline"
-    | "other";
+  | "logo"
+  | "color_palette"
+  | "typography"
+  | "icon"
+  | "image"
+  | "video"
+  | "guideline"
+  | "other";
   url?: string;
   description?: string;
   tags?: string[];
   createdAt: string;
+}
+
+export interface PricingPlan {
+  name: string;      // e.g. "Free", "Pro", "Enterprise"
+  price: string;     // e.g. "$0", "$29/mo", "Custom"
+  features?: string[]; // Features included in this plan
 }
 
 export interface ProductService {
@@ -32,8 +38,11 @@ export interface ProductService {
   type: "product" | "service" | "subscription";
   url?: string;
   description?: string;
-  price?: string;
+  price?: string;           // Simple single price (legacy/simple use)
+  pricingPlans?: PricingPlan[]; // Multiple pricing tiers
   features?: string[];
+  benefits?: string[];
+  howItWorks?: string[];
 }
 
 export interface LandingPage {
@@ -61,16 +70,16 @@ export interface WebsiteContent {
   name: string;
   url: string;
   type:
-    | "home"
-    | "about"
-    | "pricing"
-    | "faq"
-    | "case_study"
-    | "testimonial"
-    | "documentation"
-    | "career"
-    | "legal"
-    | "other";
+  | "home"
+  | "about"
+  | "pricing"
+  | "faq"
+  | "case_study"
+  | "testimonial"
+  | "documentation"
+  | "career"
+  | "legal"
+  | "other";
   description?: string;
 }
 
@@ -121,19 +130,19 @@ export interface PressRelease {
 export interface OfficialAccount {
   id: string;
   platform:
-    | "wechat"
-    | "weibo"
-    | "douyin"
-    | "xiaohongshu"
-    | "bilibili"
-    | "zhihu"
-    | "linkedin"
-    | "twitter"
-    | "facebook"
-    | "instagram"
-    | "youtube"
-    | "tiktok"
-    | "other";
+  | "wechat"
+  | "weibo"
+  | "douyin"
+  | "xiaohongshu"
+  | "bilibili"
+  | "zhihu"
+  | "linkedin"
+  | "twitter"
+  | "facebook"
+  | "instagram"
+  | "youtube"
+  | "tiktok"
+  | "other";
   accountName: string;
   url: string;
   followerCount?: number;
@@ -157,13 +166,13 @@ export interface Partnership {
   id: string;
   name: string;
   type:
-    | "distributor"
-    | "reseller"
-    | "affiliate"
-    | "integration"
-    | "media_partner"
-    | "technology"
-    | "other";
+  | "distributor"
+  | "reseller"
+  | "affiliate"
+  | "integration"
+  | "media_partner"
+  | "technology"
+  | "other";
   url?: string;
   description?: string;
   status: "active" | "inactive" | "pending";
@@ -207,14 +216,14 @@ export interface UserUpload {
   fileName: string;
   fileType: "pdf" | "doc" | "ppt" | "xls" | "image" | "video" | "csv" | "txt" | "md" | "other";
   category:
-    | "market_research"
-    | "user_research"
-    | "brand_guideline"
-    | "competitor_analysis"
-    | "internal_doc"
-    | "report"
-    | "data_set"
-    | "other";
+  | "market_research"
+  | "user_research"
+  | "brand_guideline"
+  | "competitor_analysis"
+  | "internal_doc"
+  | "report"
+  | "data_set"
+  | "other";
   description?: string;
   uploadedAt: string;
   url?: string;
@@ -306,5 +315,6 @@ export const initialContextData: ContextData = {
     version: "2.0.0",
   },
 };
+
 
 

@@ -15,14 +15,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useContextMenu } from "@/providers/ContextProvider";
-import { Plus, X, Link, Briefcase, ShoppingBag, Layout, Users, Megaphone, Share2, MessageSquare, TrendingUp, Target, Globe, FileText } from "lucide-react";
+import { Plus, X, Link, Briefcase, ShoppingBag, Layout, Users, Megaphone, Share2, MessageSquare, TrendingUp, Target, Globe, FileText, Rss, Map, Palette, BookOpen, Flag, AlertTriangle, Zap, Building2, Star, UserCircle, Info, HelpCircle, BarChart3, Database, Folder, Monitor, Handshake, Twitter, Instagram, Linkedin, Youtube, Github, Facebook, Newspaper, Network } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
-import { 
-  LandingPage, 
+import {
+  LandingPage,
   ProductService,
+  PricingPlan,
   TeamMember,
   WebsiteContent,
-  OfficialAccount, 
+  OfficialAccount,
   Partnership,
   CustomerReview,
   Competitor,
@@ -46,18 +47,21 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
 
   // --- Helper Components ---
 
-  const SimpleArrayInput = ({ 
+  // Unified Simple Array Input - for simple string lists
+  const SimpleArrayInput = ({
     label,
-    values, 
-    onChange, 
+    values,
+    onChange,
     placeholder,
-    icon: Icon = Link
-  }: { 
+    icon: Icon = Link,
+    maxHeight = "150px"
+  }: {
     label: string,
-    values: string[], 
+    values: string[],
     onChange: (values: string[]) => void,
     placeholder?: string,
-    icon?: any
+    icon?: any,
+    maxHeight?: string
   }) => {
     const add = () => onChange([...values, ""]);
     const remove = (idx: number) => onChange(values.filter((_, i) => i !== idx));
@@ -68,38 +72,55 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
     };
 
     return (
-      <div className="space-y-2 pt-2">
-        <Label className="text-sm font-semibold">{label}</Label>
-        {values.map((val, idx) => (
-          <div key={idx} className="flex gap-2">
-            <div className="relative flex-1">
-              <Icon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input 
-                className="pl-9"
-                value={val} 
-                onChange={(e) => update(idx, e.target.value)} 
-                placeholder={placeholder}
-              />
-            </div>
-            <Button variant="ghost" size="icon" onClick={() => remove(idx)}>
-              <X className="h-4 w-4" />
+      <div className="space-y-2">
+        {label && (
+          <div className="flex items-center justify-between">
+            <Label className="text-xs text-muted-foreground">{label}</Label>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={add}>
+              <Plus className="h-3.5 w-3.5" />
             </Button>
           </div>
-        ))}
-        <Button type="button" variant="outline" size="sm" onClick={add} className="w-full border-dashed">
-          <Plus className="h-4 w-4 mr-2" /> Add Item
-        </Button>
+        )}
+        <div className="space-y-1.5" style={maxHeight === "none" ? {} : { maxHeight, overflowY: "auto" }}>
+          {values.length === 0 ? (
+            <div
+              className="flex items-center justify-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50 transition-colors text-xs text-muted-foreground"
+              onClick={add}
+            >
+              Click + to add
+            </div>
+          ) : (
+            values.map((val, idx) => (
+              <div key={idx} className="flex gap-1.5 group">
+                <div className="relative flex-1">
+                  <Icon className="absolute left-2 top-2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    className="pl-7 h-8 text-xs"
+                    value={val}
+                    onChange={(e) => update(idx, e.target.value)}
+                    placeholder={placeholder}
+                  />
+                </div>
+                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => remove(idx)}>
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     );
   };
 
+  // Unified Complex List Input - for objects with multiple fields
   const ComplexListInput = <T extends { id: string, [key: string]: any }>({
     label,
     items,
     renderItem,
     onAdd,
     onRemove,
-    onChange
+    onChange,
+    maxHeight = "300px"
   }: {
     label: string;
     items: T[];
@@ -107,93 +128,210 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
     onAdd: () => void;
     onRemove: (id: string) => void;
     onChange: (updatedItems: T[]) => void;
+    maxHeight?: string;
   }) => {
     return (
-      <div className="space-y-3 pt-4 border-t first:border-t-0 first:pt-0">
-        <div className="flex items-center justify-between">
-          <Label className="text-base font-semibold flex items-center gap-2">
-            {label}
-          </Label>
-          <span className="text-xs text-muted-foreground">{items.length} items</span>
-        </div>
-        <div className="space-y-3">
-          {items.map((item, idx) => (
-            <div key={item.id} className="relative group rounded-lg border bg-card p-3 shadow-sm">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="absolute right-2 top-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => onRemove(item.id)}
-              >
-                <X className="h-3 w-3" />
+      <div className="space-y-2">
+        {label && (
+          <div className="flex items-center justify-between">
+            <Label className="text-xs text-muted-foreground">{label}</Label>
+            <div className="flex items-center gap-2">
+              {items.length > 0 && <span className="text-xs text-muted-foreground/60">{items.length}</span>}
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onAdd}>
+                <Plus className="h-3.5 w-3.5" />
               </Button>
-              {renderItem(item, (updated) => {
-                const newItems = [...items];
-                newItems[idx] = updated;
-                onChange(newItems);
-              })}
             </div>
-          ))}
-          <Button type="button" variant="outline" size="sm" onClick={onAdd} className="w-full border-dashed">
-            <Plus className="h-4 w-4 mr-2" /> Add {label}
-          </Button>
-        </div>
-      </div>
+          </div>
+        )}
+        <div className="space-y-2" style={maxHeight === "none" ? {} : { maxHeight, overflowY: "auto" }}>
+          {
+            items.length === 0 ? (
+              <div
+                className="flex items-center justify-center py-4 border border-dashed rounded-md cursor-pointer hover:bg-accent/50 transition-colors text-xs text-muted-foreground"
+                onClick={onAdd}
+              >
+                Click + to add
+              </div>
+            ) : (
+              items.map((item, idx) => (
+                <div key={item.id} className="relative group rounded-lg border bg-card/50 p-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1.5 top-1.5 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => onRemove(item.id)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                  {renderItem(item, (updated) => {
+                    const newItems = [...items];
+                    newItems[idx] = updated;
+                    onChange(newItems);
+                  })}
+                </div>
+              ))
+            )
+          }
+        </div >
+      </div >
     );
   };
 
   // --- Render Functions for Complex Types ---
 
-  const renderProductService = (item: ProductService, onChange: (i: ProductService) => void) => (
-    <div className="grid gap-3">
-      <Input 
-        placeholder="Product/Service Name" 
-        value={item.name} 
-        onChange={(e) => onChange({ ...item, name: e.target.value })}
-        className="font-medium"
-      />
-      <div className="flex gap-2">
-        <select 
-          className="h-9 w-32 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
-          value={item.type}
-          onChange={(e) => onChange({ ...item, type: e.target.value as any })}
-        >
-          <option value="product">Product</option>
-          <option value="service">Service</option>
-          <option value="subscription">Subscription</option>
-        </select>
-        <Input 
-          placeholder="Price (e.g. $99/mo)" 
-          value={item.price || ""} 
-          onChange={(e) => onChange({ ...item, price: e.target.value })}
-          className="flex-1 text-xs"
+  const renderProductService = (item: ProductService, onChange: (i: ProductService) => void) => {
+    const addFeature = () => onChange({ ...item, features: [...(item.features || []), ""] });
+    const removeFeature = (idx: number) => onChange({ ...item, features: (item.features || []).filter((_, i) => i !== idx) });
+    const updateFeature = (idx: number, val: string) => {
+      const newFeatures = [...(item.features || [])];
+      newFeatures[idx] = val;
+      onChange({ ...item, features: newFeatures });
+    };
+
+    const addBenefit = () => onChange({ ...item, benefits: [...(item.benefits || []), ""] });
+    const removeBenefit = (idx: number) => onChange({ ...item, benefits: (item.benefits || []).filter((_, i) => i !== idx) });
+    const updateBenefit = (idx: number, val: string) => {
+      const newBenefits = [...(item.benefits || [])];
+      newBenefits[idx] = val;
+      onChange({ ...item, benefits: newBenefits });
+    };
+
+    const addStep = () => onChange({ ...item, howItWorks: [...(item.howItWorks || []), ""] });
+    const removeStep = (idx: number) => onChange({ ...item, howItWorks: (item.howItWorks || []).filter((_, i) => i !== idx) });
+    const updateStep = (idx: number, val: string) => {
+      const newSteps = [...(item.howItWorks || [])];
+      newSteps[idx] = val;
+      onChange({ ...item, howItWorks: newSteps });
+    };
+
+    const addPlan = () => onChange({ ...item, pricingPlans: [...(item.pricingPlans || []), { name: "", price: "" }] });
+    const removePlan = (idx: number) => onChange({ ...item, pricingPlans: (item.pricingPlans || []).filter((_, i) => i !== idx) });
+    const updatePlan = (idx: number, field: keyof PricingPlan, val: string) => {
+      const newPlans = [...(item.pricingPlans || [])];
+      newPlans[idx] = { ...newPlans[idx], [field]: val };
+      onChange({ ...item, pricingPlans: newPlans });
+    };
+
+    return (
+      <div className="space-y-3">
+        {/* Basic Info */}
+        <div className="flex gap-2">
+          <Input
+            placeholder="Product/Service Name"
+            value={item.name}
+            onChange={(e) => onChange({ ...item, name: e.target.value })}
+            className="font-medium text-sm flex-1"
+          />
+          <Input
+            placeholder="URL"
+            value={item.url || ""}
+            onChange={(e) => onChange({ ...item, url: e.target.value })}
+            className="text-xs h-9 flex-1"
+          />
+        </div>
+
+        <Textarea
+          placeholder="Description..."
+          value={item.description || ""}
+          onChange={(e) => onChange({ ...item, description: e.target.value })}
+          className="text-xs min-h-[50px]"
         />
+
+        {/* Sub-sections in a grid */}
+        <div className="grid grid-cols-4 gap-2 pt-2 border-t">
+          {/* Features */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Features <span className="text-muted-foreground/60">({(item.features || []).length})</span></span>
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={addFeature}><Plus className="h-3 w-3" /></Button>
+            </div>
+            <div className="space-y-1">
+              {(item.features || []).length === 0 ? (
+                <div className="text-xs text-muted-foreground/60 text-center py-1 border border-dashed rounded cursor-pointer hover:bg-accent/30" onClick={addFeature}>+</div>
+              ) : (item.features || []).map((f, idx) => (
+                <div key={idx} className="flex gap-1 group">
+                  <Input value={f} onChange={(e) => updateFeature(idx, e.target.value)} placeholder="Feature..." className="text-xs h-6 px-2" />
+                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removeFeature(idx)}><X className="h-2.5 w-2.5" /></Button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Benefits */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Benefits <span className="text-muted-foreground/60">({(item.benefits || []).length})</span></span>
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={addBenefit}><Plus className="h-3 w-3" /></Button>
+            </div>
+            <div className="space-y-1">
+              {(item.benefits || []).length === 0 ? (
+                <div className="text-xs text-muted-foreground/60 text-center py-1 border border-dashed rounded cursor-pointer hover:bg-accent/30" onClick={addBenefit}>+</div>
+              ) : (item.benefits || []).map((b, idx) => (
+                <div key={idx} className="flex gap-1 group">
+                  <Input value={b} onChange={(e) => updateBenefit(idx, e.target.value)} placeholder="Benefit..." className="text-xs h-6 px-2" />
+                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removeBenefit(idx)}><X className="h-2.5 w-2.5" /></Button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* How It Works */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">How It Works <span className="text-muted-foreground/60">({(item.howItWorks || []).length})</span></span>
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={addStep}><Plus className="h-3 w-3" /></Button>
+            </div>
+            <div className="space-y-1">
+              {(item.howItWorks || []).length === 0 ? (
+                <div className="text-xs text-muted-foreground/60 text-center py-1 border border-dashed rounded cursor-pointer hover:bg-accent/30" onClick={addStep}>+</div>
+              ) : (item.howItWorks || []).map((s, idx) => (
+                <div key={idx} className="flex gap-1 group">
+                  <Input value={s} onChange={(e) => updateStep(idx, e.target.value)} placeholder={`Step ${idx + 1}...`} className="text-xs h-6 px-2" />
+                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removeStep(idx)}><X className="h-2.5 w-2.5" /></Button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pricing Plans */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Pricing <span className="text-muted-foreground/60">({(item.pricingPlans || []).length})</span></span>
+              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={addPlan}><Plus className="h-3 w-3" /></Button>
+            </div>
+            <div className="space-y-1">
+              {(item.pricingPlans || []).length === 0 ? (
+                <div className="text-xs text-muted-foreground/60 text-center py-1 border border-dashed rounded cursor-pointer hover:bg-accent/30" onClick={addPlan}>+</div>
+              ) : (item.pricingPlans || []).map((plan, idx) => (
+                <div key={idx} className="flex gap-1 group">
+                  <Input value={plan.name} onChange={(e) => updatePlan(idx, "name", e.target.value)} placeholder="Plan..." className="text-xs h-6 px-1 w-1/2" />
+                  <Input value={plan.price} onChange={(e) => updatePlan(idx, "price", e.target.value)} placeholder="$0/mo" className="text-xs h-6 px-1 w-1/2" />
+                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removePlan(idx)}><X className="h-2.5 w-2.5" /></Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-      <Textarea 
-        placeholder="Key features and description..." 
-        value={item.description || ""}
-        onChange={(e) => onChange({ ...item, description: e.target.value })}
-        className="text-xs min-h-[60px]"
-      />
-    </div>
-  );
+    );
+  };
 
   const renderLandingPage = (item: LandingPage, onChange: (i: LandingPage) => void) => (
     <div className="grid gap-3">
-      <Input 
-        placeholder="Page Name (e.g. Summer Campaign)" 
-        value={item.name} 
+      <Input
+        placeholder="Page Name (e.g. Summer Campaign)"
+        value={item.name}
         onChange={(e) => onChange({ ...item, name: e.target.value })}
         className="font-medium"
       />
       <div className="flex gap-2">
-        <Input 
-          placeholder="https://..." 
-          value={item.url} 
+        <Input
+          placeholder="https://..."
+          value={item.url}
           onChange={(e) => onChange({ ...item, url: e.target.value })}
           className="flex-1 text-xs"
         />
-        <select 
+        <select
           className="h-9 w-24 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
           value={item.type}
           onChange={(e) => onChange({ ...item, type: e.target.value as any })}
@@ -210,7 +348,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
   const renderWebsiteContent = (item: WebsiteContent, onChange: (i: WebsiteContent) => void) => (
     <div className="grid gap-3">
       <div className="flex gap-2">
-        <select 
+        <select
           className="h-9 w-32 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
           value={item.type}
           onChange={(e) => onChange({ ...item, type: e.target.value as any })}
@@ -221,16 +359,16 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
           <option value="faq">FAQ</option>
           <option value="other">Other</option>
         </select>
-        <Input 
-          placeholder="Page Name" 
-          value={item.name} 
+        <Input
+          placeholder="Page Name"
+          value={item.name}
           onChange={(e) => onChange({ ...item, name: e.target.value })}
           className="flex-1"
         />
       </div>
-      <Input 
-        placeholder="https://..." 
-        value={item.url} 
+      <Input
+        placeholder="https://..."
+        value={item.url}
         onChange={(e) => onChange({ ...item, url: e.target.value })}
         className="text-xs"
       />
@@ -240,22 +378,22 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
   const renderTeamMember = (item: TeamMember, onChange: (i: TeamMember) => void) => (
     <div className="grid gap-3">
       <div className="flex gap-2">
-        <Input 
-          placeholder="Name" 
-          value={item.name} 
+        <Input
+          placeholder="Name"
+          value={item.name}
           onChange={(e) => onChange({ ...item, name: e.target.value })}
           className="font-medium flex-1"
         />
-        <Input 
-          placeholder="Role" 
-          value={item.role} 
+        <Input
+          placeholder="Role"
+          value={item.role}
           onChange={(e) => onChange({ ...item, role: e.target.value })}
           className="flex-1"
         />
       </div>
-      <Input 
-        placeholder="LinkedIn URL" 
-        value={item.linkedin || ""} 
+      <Input
+        placeholder="LinkedIn URL"
+        value={item.linkedin || ""}
         onChange={(e) => onChange({ ...item, linkedin: e.target.value })}
         className="text-xs"
       />
@@ -265,7 +403,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
   const renderOfficialAccount = (item: OfficialAccount, onChange: (i: OfficialAccount) => void) => (
     <div className="grid gap-3">
       <div className="flex gap-2">
-        <select 
+        <select
           className="h-9 w-32 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
           value={item.platform}
           onChange={(e) => onChange({ ...item, platform: e.target.value as any })}
@@ -279,16 +417,16 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
           <option value="wechat">WeChat</option>
           <option value="other">Other</option>
         </select>
-        <Input 
-          placeholder="Account Name / Handle" 
-          value={item.accountName} 
+        <Input
+          placeholder="Account Name / Handle"
+          value={item.accountName}
           onChange={(e) => onChange({ ...item, accountName: e.target.value })}
           className="flex-1"
         />
       </div>
-      <Input 
-        placeholder="Profile URL" 
-        value={item.url} 
+      <Input
+        placeholder="Profile URL"
+        value={item.url}
         onChange={(e) => onChange({ ...item, url: e.target.value })}
         className="text-xs"
       />
@@ -297,14 +435,14 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
 
   const renderPartnership = (item: Partnership, onChange: (i: Partnership) => void) => (
     <div className="grid gap-3">
-      <Input 
-        placeholder="Partner Name" 
-        value={item.name} 
+      <Input
+        placeholder="Partner Name"
+        value={item.name}
         onChange={(e) => onChange({ ...item, name: e.target.value })}
         className="font-medium"
       />
       <div className="flex gap-2">
-        <select 
+        <select
           className="h-9 w-32 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
           value={item.type}
           onChange={(e) => onChange({ ...item, type: e.target.value as any })}
@@ -315,7 +453,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
           <option value="affiliate">Affiliate</option>
           <option value="other">Other</option>
         </select>
-        <select 
+        <select
           className="h-9 w-24 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
           value={item.status}
           onChange={(e) => onChange({ ...item, status: e.target.value as any })}
@@ -331,22 +469,22 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
   const renderCustomerReview = (item: CustomerReview, onChange: (i: CustomerReview) => void) => (
     <div className="grid gap-3">
       <div className="flex gap-2">
-        <Input 
-          placeholder="Review Source (e.g. G2)" 
-          value={item.source} 
+        <Input
+          placeholder="Review Source (e.g. G2)"
+          value={item.source}
           onChange={(e) => onChange({ ...item, source: e.target.value })}
           className="flex-1"
         />
-        <Input 
-          placeholder="Rating (1-5)" 
+        <Input
+          placeholder="Rating (1-5)"
           type="number"
-          value={item.rating || ""} 
+          value={item.rating || ""}
           onChange={(e) => onChange({ ...item, rating: parseFloat(e.target.value) })}
           className="w-24"
         />
       </div>
-      <Textarea 
-        placeholder="Review content..." 
+      <Textarea
+        placeholder="Review content..."
         value={item.content}
         onChange={(e) => onChange({ ...item, content: e.target.value })}
         className="text-xs min-h-[60px]"
@@ -356,20 +494,20 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
 
   const renderCompetitor = (item: Competitor, onChange: (i: Competitor) => void) => (
     <div className="grid gap-3">
-      <Input 
-        placeholder="Competitor Name" 
-        value={item.name} 
+      <Input
+        placeholder="Competitor Name"
+        value={item.name}
         onChange={(e) => onChange({ ...item, name: e.target.value })}
         className="font-medium"
       />
       <div className="flex gap-2">
-        <Input 
-          placeholder="Website URL" 
-          value={item.website} 
+        <Input
+          placeholder="Website URL"
+          value={item.website}
           onChange={(e) => onChange({ ...item, website: e.target.value })}
           className="flex-1 text-xs"
         />
-        <select 
+        <select
           className="h-9 w-24 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
           value={item.category}
           onChange={(e) => onChange({ ...item, category: e.target.value as any })}
@@ -379,8 +517,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
           <option value="potential">Potential</option>
         </select>
       </div>
-      <Textarea 
-        placeholder="Strengths, weaknesses, or notes..." 
+      <Textarea
+        placeholder="Strengths, weaknesses, or notes..."
         value={item.description || ""}
         onChange={(e) => onChange({ ...item, description: e.target.value })}
         className="text-xs min-h-[60px]"
@@ -390,20 +528,20 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
 
   const renderPersona = (item: AudiencePersona, onChange: (i: AudiencePersona) => void) => (
     <div className="grid gap-3">
-      <Input 
-        placeholder="Persona Name (e.g. Tech-Savvy Tina)" 
-        value={item.name} 
+      <Input
+        placeholder="Persona Name (e.g. Tech-Savvy Tina)"
+        value={item.name}
         onChange={(e) => onChange({ ...item, name: e.target.value })}
         className="font-medium"
       />
-      <Textarea 
-        placeholder="Description and key traits..." 
+      <Textarea
+        placeholder="Description and key traits..."
         value={item.description}
         onChange={(e) => onChange({ ...item, description: e.target.value })}
         className="text-xs min-h-[60px]"
       />
-      <Input 
-        placeholder="Key demographics..." 
+      <Input
+        placeholder="Key demographics..."
         value={item.demographics || ""}
         onChange={(e) => onChange({ ...item, demographics: e.target.value })}
         className="text-xs"
@@ -413,14 +551,14 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
 
   const renderMarketIntel = (item: MarketIntelligence, onChange: (i: MarketIntelligence) => void) => (
     <div className="grid gap-3">
-      <Input 
-        placeholder="Report Title / Trend" 
-        value={item.title} 
+      <Input
+        placeholder="Report Title / Trend"
+        value={item.title}
         onChange={(e) => onChange({ ...item, title: e.target.value })}
         className="font-medium"
       />
       <div className="flex gap-2">
-        <select 
+        <select
           className="h-9 w-32 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
           value={item.type}
           onChange={(e) => onChange({ ...item, type: e.target.value as any })}
@@ -429,27 +567,179 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
           <option value="market_trend">Trend</option>
           <option value="news">News</option>
           <option value="statistics">Stats</option>
+          <option value="regulation">Regulation</option>
         </select>
-        <Input 
-          placeholder="Source" 
-          value={item.source} 
+        <Input
+          placeholder="Source"
+          value={item.source}
           onChange={(e) => onChange({ ...item, source: e.target.value })}
           className="flex-1 text-xs"
         />
       </div>
-      <Input 
-        placeholder="URL" 
+      <div className="flex gap-2">
+        <Input
+          placeholder="URL"
+          value={item.url || ""}
+          onChange={(e) => onChange({ ...item, url: e.target.value })}
+          className="text-xs flex-1"
+        />
+        <Input
+          placeholder="Year/Date"
+          value={item.year || ""}
+          onChange={(e) => onChange({ ...item, year: e.target.value })}
+          className="text-xs w-24"
+        />
+      </div>
+      <Textarea
+        placeholder="Key takeaways or summary..."
+        value={item.summary || ""}
+        onChange={(e) => onChange({ ...item, summary: e.target.value })}
+        className="text-xs min-h-[50px]"
+      />
+    </div>
+  );
+
+  const renderPressRelease = (item: PressRelease, onChange: (i: PressRelease) => void) => (
+    <div className="grid gap-3">
+      <Input
+        placeholder="Title / Headline"
+        value={item.title}
+        onChange={(e) => onChange({ ...item, title: e.target.value })}
+        className="font-medium"
+      />
+      <div className="flex gap-2">
+        <select
+          className="h-9 w-32 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
+          value={item.type}
+          onChange={(e) => onChange({ ...item, type: e.target.value as any })}
+        >
+          <option value="press_release">Press Release</option>
+          <option value="media_coverage">Media Coverage</option>
+          <option value="interview">Interview</option>
+          <option value="news_mention">Mention</option>
+        </select>
+        <Input
+          placeholder="Source (e.g. TechCrunch)"
+          value={item.source}
+          onChange={(e) => onChange({ ...item, source: e.target.value })}
+          className="flex-1 text-xs"
+        />
+      </div>
+      <div className="flex gap-2">
+        <Input
+          placeholder="URL"
+          value={item.url}
+          onChange={(e) => onChange({ ...item, url: e.target.value })}
+          className="flex-1 text-xs"
+        />
+        <Input
+          type="date"
+          value={item.publishDate ? item.publishDate.split('T')[0] : ""}
+          onChange={(e) => onChange({ ...item, publishDate: e.target.value })}
+          className="w-32 text-xs"
+        />
+      </div>
+      <Textarea
+        placeholder="Summary or key sentiment..."
+        value={item.summary || ""}
+        onChange={(e) => onChange({ ...item, summary: e.target.value })}
+        className="text-xs min-h-[40px]"
+      />
+    </div>
+  );
+
+  const renderSocialMediaContent = (item: SocialMediaContent, onChange: (i: SocialMediaContent) => void) => (
+    <div className="grid gap-3">
+      <div className="flex gap-2">
+        <select
+          className="h-9 w-28 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
+          value={item.platform}
+          onChange={(e) => onChange({ ...item, platform: e.target.value })}
+        >
+          <option value="instagram">Instagram</option>
+          <option value="twitter">Twitter</option>
+          <option value="tiktok">TikTok</option>
+          <option value="youtube">YouTube</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="other">Other</option>
+        </select>
+        <Input
+          placeholder="Creator / Account"
+          value={item.creatorName}
+          onChange={(e) => onChange({ ...item, creatorName: e.target.value })}
+          className="flex-1 font-medium text-xs"
+        />
+      </div>
+      <div className="flex gap-2">
+        <select
+          className="h-9 w-28 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
+          value={item.type}
+          onChange={(e) => onChange({ ...item, type: e.target.value as any })}
+        >
+          <option value="ugc">UGC</option>
+          <option value="kol">KOL (Influencer)</option>
+          <option value="koc">KOC</option>
+          <option value="paid_partnership">Paid Ad</option>
+        </select>
+        <Input
+          placeholder="Content URL"
+          value={item.contentUrl}
+          onChange={(e) => onChange({ ...item, contentUrl: e.target.value })}
+          className="flex-1 text-xs"
+        />
+      </div>
+      <Textarea
+        placeholder="Notes or description..."
+        value={item.description || ""}
+        onChange={(e) => onChange({ ...item, description: e.target.value })}
+        className="text-xs min-h-[40px]"
+      />
+    </div>
+  );
+
+  const renderUserUpload = (item: UserUpload, onChange: (i: UserUpload) => void) => (
+    <div className="grid gap-3">
+      <div className="flex gap-2">
+        <Input
+          placeholder="File Name / Link Title"
+          value={item.fileName}
+          onChange={(e) => onChange({ ...item, fileName: e.target.value })}
+          className="flex-1 font-medium text-sm"
+        />
+        <select
+          className="h-9 w-32 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
+          value={item.category}
+          onChange={(e) => onChange({ ...item, category: e.target.value as any })}
+        >
+          <option value="internal_doc">Internal Doc</option>
+          <option value="brand_guideline">Brand Guide</option>
+          <option value="market_research">Market Research</option>
+          <option value="user_research">User Research</option>
+          <option value="competitor_analysis">Competitor</option>
+          <option value="report">Report</option>
+          <option value="data_set">Data Set</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <Input
+        placeholder="URL / File Link"
         value={item.url || ""}
         onChange={(e) => onChange({ ...item, url: e.target.value })}
         className="text-xs"
+      />
+      <Textarea
+        placeholder="Description of contents..."
+        value={item.description || ""}
+        onChange={(e) => onChange({ ...item, description: e.target.value })}
+        className="text-xs min-h-[40px]"
       />
     </div>
   );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[1200px] h-[80vh] flex flex-col p-0 gap-0">
+        <DialogHeader className="px-6 py-4 border-b shrink-0 bg-muted/30">
           <DialogTitle>Context Wizard</DialogTitle>
           <DialogDescription>
             Provide comprehensive context to help the agent understand your brand, market, and assets.
@@ -459,312 +749,1174 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
         <div className="flex-1 overflow-hidden flex flex-col min-h-0">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 flex flex-col min-h-0">
             <TabsList className="grid w-full grid-cols-3 shrink-0">
-              <TabsTrigger value="onSite">On-site</TabsTrigger>
-              <TabsTrigger value="offSite">Off-site</TabsTrigger>
-              <TabsTrigger value="knowledge">Knowledge</TabsTrigger>
+              <TabsTrigger value="onSite" className="flex items-center gap-2"><Network className="h-4 w-4" /> On-site</TabsTrigger>
+              <TabsTrigger value="offSite" className="flex items-center gap-2"><Globe className="h-4 w-4" /> Off-site</TabsTrigger>
+              <TabsTrigger value="knowledge" className="flex items-center gap-2"><BookOpen className="h-4 w-4" /> Knowledge</TabsTrigger>
             </TabsList>
 
             <div className="flex-1 overflow-y-auto min-h-0">
               {/* On-site Tab */}
-              <TabsContent value="onSite" className="space-y-6 p-4 m-0">
-                {/* Brand Identity */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium flex items-center gap-2">
-                    <Briefcase className="h-5 w-5" /> Brand Identity
-                  </h3>
-                  <div className="grid gap-3">
-                    <Input 
-                      placeholder="Brand Name" 
-                      value={contextData.onSite.brandInfo.name}
-                      onChange={(e) => updateOnSite({ 
-                        brandInfo: { ...contextData.onSite.brandInfo, name: e.target.value } 
-                      })}
-                    />
-                    <Input 
-                      placeholder="Tagline / Slogan" 
-                      value={contextData.onSite.brandInfo.tagline || ""}
-                      onChange={(e) => updateOnSite({ 
-                        brandInfo: { ...contextData.onSite.brandInfo, tagline: e.target.value } 
-                      })}
-                    />
-                    <Textarea 
-                      placeholder="Mission, Vision, and Founding Story..." 
-                      value={contextData.onSite.brandInfo.mission || ""}
-                      onChange={(e) => updateOnSite({ 
-                        brandInfo: { ...contextData.onSite.brandInfo, mission: e.target.value } 
-                      })}
-                      className="min-h-[100px]"
-                    />
+              <TabsContent value="onSite" className="p-6 m-0 h-full overflow-y-auto">
+                <div className="flex gap-6 pb-10">
+                  {/* Left Column - 1/3 Width: Brand Assets & Pages */}
+                  <div className="w-1/3 shrink-0 space-y-4">
+                    {/* Brand Assets - Expanded */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-4">
+                      <h3 className="text-sm font-semibold flex items-center gap-2 border-b pb-2">
+                        <Palette className="h-5 w-5 text-purple-500" /> Brand Assets
+                      </h3>
+                      <div className="grid gap-3">
+                        {/* Homepage Meta Info */}
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Brand Name *</Label>
+                              <Input
+                                placeholder="Company or Product Name"
+                                value={contextData.onSite.brandInfo.name}
+                                onChange={(e) => updateOnSite({
+                                  brandInfo: { ...contextData.onSite.brandInfo, name: e.target.value }
+                                })}
+                                className="text-xs h-8"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Subtitle</Label>
+                              <Input
+                                placeholder="Your Tagline or Slogan"
+                                value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#meta-subtitle")?.name || ""}
+                                onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#meta-subtitle"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#meta-subtitle", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                                className="text-xs h-8"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Meta Description</Label>
+                            <Textarea
+                              placeholder="A compelling description of your website (150-160 characters)..."
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#meta-description")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#meta-description"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#meta-description", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs min-h-[50px]"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Open Graph Image</Label>
+                              <Input
+                                placeholder="https://... (1200x630)"
+                                value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#meta-og-image")?.name || ""}
+                                onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#meta-og-image"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#meta-og-image", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                                className="text-xs h-7"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Favicon</Label>
+                              <Input
+                                placeholder="https://... (32x32)"
+                                value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#meta-favicon")?.name || ""}
+                                onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#meta-favicon"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#meta-favicon", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                                className="text-xs h-7"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground mb-1 block">Logo URL</Label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              placeholder="Full Logo (Light)"
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-logo")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-logo"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-logo", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs h-7"
+                            />
+                            <Input
+                              placeholder="Full Logo (Dark)"
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-logo-dark")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-logo-dark"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-logo-dark", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs h-7"
+                            />
+                            <Input
+                              placeholder="Icon Only (Light)"
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-logo-icon")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-logo-icon"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-logo-icon", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs h-7"
+                            />
+                            <Input
+                              placeholder="Icon Only (Dark)"
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-logo-icon-dark")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-logo-icon-dark"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-logo-icon-dark", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs h-7"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground mb-1 block">Brand Colors</Label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              placeholder="Primary (Light): #3B82F6"
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-color-primary")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-color-primary"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-color-primary", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs h-7"
+                            />
+                            <Input
+                              placeholder="Primary (Dark): #60A5FA"
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-color-primary-dark")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-color-primary-dark"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-color-primary-dark", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs h-7"
+                            />
+                            <Input
+                              placeholder="Secondary (Light): #10B981"
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-color-secondary")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-color-secondary"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-color-secondary", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs h-7"
+                            />
+                            <Input
+                              placeholder="Secondary (Dark): #34D399"
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-color-secondary-dark")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-color-secondary-dark"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-color-secondary-dark", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs h-7"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1 block">Typography / Fonts</Label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              placeholder="Heading: Inter"
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-font-heading")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-font-heading"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-font-heading", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs h-8"
+                            />
+                            <Input
+                              placeholder="Body: Open Sans"
+                              value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-font-body")?.name || ""}
+                              onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-font-body"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-font-body", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                              className="text-xs h-8"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1 block">Tone of Voice</Label>
+                          <Input
+                            placeholder="Professional, Friendly, Bold..."
+                            value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-tone")?.name || ""}
+                            onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-tone"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-tone", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                            className="text-xs"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1 block">Supported Languages</Label>
+                          <Input
+                            placeholder="English, Spanish, Chinese..."
+                            value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-languages")?.name || ""}
+                            onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-languages"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-languages", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
+                            className="text-xs"
+                          />
+                        </div>
+
+                      </div>
+                    </div>
+
+                    {/* Key Website Pages */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-4">
+                      <h3 className="text-sm font-semibold flex items-center gap-2 border-b pb-2">
+                        <Layout className="h-4 w-4 text-slate-500" /> Key Website Pages
+                      </h3>
+
+                      {/* Row 1: Core Pages */}
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground font-medium">Core Pages</Label>
+                        <div className="grid grid-cols-4 gap-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Home</Label>
+                            <Input placeholder="https://..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "home")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "home"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Homepage", url: e.target.value, type: "home" as const }] }); }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">About</Label>
+                            <Input placeholder="/about" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "about")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "about"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "About", url: e.target.value, type: "about" as const }] }); }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Contact</Label>
+                            <Input placeholder="/contact" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-contact")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-contact"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-contact", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Careers</Label>
+                            <Input placeholder="/careers" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "career")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "career"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Careers", url: e.target.value, type: "career" as const }] }); }} className="text-xs h-7" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Row 2: Product Pages */}
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground font-medium">Product Pages</Label>
+                        <div className="grid grid-cols-4 gap-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Products</Label>
+                            <Input placeholder="/products" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-products")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-products"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-products", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Features</Label>
+                            <Input placeholder="/features" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-features")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-features"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-features", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Pricing</Label>
+                            <Input placeholder="/pricing" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "pricing")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "pricing"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Pricing", url: e.target.value, type: "pricing" as const }] }); }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Solutions</Label>
+                            <Input placeholder="/solutions" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-solutions")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-solutions"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-solutions", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Row 3: Resources */}
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground font-medium">Resources</Label>
+                        <div className="grid grid-cols-4 gap-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Blog</Label>
+                            <Input placeholder="/blog" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-blog")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-blog"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-blog", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Docs</Label>
+                            <Input placeholder="/docs" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "documentation")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "documentation"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Docs", url: e.target.value, type: "documentation" as const }] }); }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">FAQ</Label>
+                            <Input placeholder="/faq" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "faq")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "faq"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "FAQ", url: e.target.value, type: "faq" as const }] }); }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Cases</Label>
+                            <Input placeholder="/case-studies" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "case_study")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "case_study"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Case Studies", url: e.target.value, type: "case_study" as const }] }); }} className="text-xs h-7" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Row 4: Legal & Updates */}
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground font-medium">Legal & Updates</Label>
+                        <div className="grid grid-cols-4 gap-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Terms</Label>
+                            <Input placeholder="/terms" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "legal")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "legal"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Legal", url: e.target.value, type: "legal" as const }] }); }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Privacy</Label>
+                            <Input placeholder="/privacy" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-privacy")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-privacy"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-privacy", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Changes</Label>
+                            <Input placeholder="/changelog" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-changelog")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-changelog"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-changelog", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Status</Label>
+                            <Input placeholder="/status" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-status")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-status"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-status", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Landing Pages & Campaigns - Collapsible for large lists */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold flex items-center gap-2">
+                          <Megaphone className="h-4 w-4 text-orange-500" /> Landing Pages <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.landingPages || []).length})</span>
+                        </h3>
+                        <div className="flex items-center gap-1">
+                          <Button variant="ghost" size="icon" className="h-6 w-6" title="Import from Sitemap XML" onClick={() => {
+                            const url = prompt("Enter Sitemap XML URL:");
+                            if (url) {
+                              // Store the sitemap URL for later processing
+                              const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#sitemap-landing");
+                              updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: url, url: "#sitemap-landing", type: "other" as const }] });
+                              alert("Sitemap URL saved. Pages will be imported during processing.");
+                            }
+                          }}>
+                            <Map className="h-3 w-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateOnSite({ landingPages: [...contextData.onSite.landingPages, { id: uuidv4(), name: "", url: "", type: "campaign", status: "active", createdAt: new Date().toISOString() }] })}>
+                            <Plus className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                      {contextData.onSite.landingPages.length === 0 ? (
+                        <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ landingPages: [...contextData.onSite.landingPages, { id: uuidv4(), name: "", url: "", type: "campaign", status: "active", createdAt: new Date().toISOString() }] })}>
+                          Click + to add
+                        </div>
+                      ) : (
+                        <div className="space-y-1.5">
+                          {contextData.onSite.landingPages.map((page: LandingPage) => (
+                            <div key={page.id} className="flex gap-1.5 group">
+                              <Input placeholder="Page URL..." value={page.url} onChange={(e) => updateOnSite({ landingPages: contextData.onSite.landingPages.map((p: LandingPage) => p.id === page.id ? { ...p, url: e.target.value } : p) })} className="text-xs h-8" />
+                              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => updateOnSite({ landingPages: contextData.onSite.landingPages.filter((i: LandingPage) => i.id !== page.id) })}>
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Blog & Resources - Collapsible for large lists */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-emerald-500" /> Blog & Resources <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.blogPosts || []).length})</span>
+                        </h3>
+                        <div className="flex items-center gap-1">
+                          <Button variant="ghost" size="icon" className="h-6 w-6" title="Import from RSS Feed" onClick={() => {
+                            const url = prompt("Enter RSS Feed URL:");
+                            if (url) {
+                              // Store the RSS URL for later processing
+                              const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#rss-blog");
+                              updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: url, url: "#rss-blog", type: "other" as const }] });
+                              alert("RSS URL saved. Posts will be imported during processing.");
+                            }
+                          }}>
+                            <Rss className="h-3 w-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateOnSite({ blogPosts: [...contextData.onSite.blogPosts, { id: uuidv4(), url: "", title: "", status: "published" }] })}>
+                            <Plus className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                      {contextData.onSite.blogPosts.length === 0 ? (
+                        <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ blogPosts: [...contextData.onSite.blogPosts, { id: uuidv4(), url: "", title: "", status: "published" }] })}>
+                          Click + to add
+                        </div>
+                      ) : (
+                        <div className="space-y-1.5">
+                          {contextData.onSite.blogPosts.map((post: BlogPost) => (
+                            <div key={post.id} className="flex gap-1.5 group">
+                              <Input placeholder="Blog URL..." value={post.url} onChange={(e) => updateOnSite({ blogPosts: contextData.onSite.blogPosts.map((p: BlogPost) => p.id === post.id ? { ...p, url: e.target.value } : p) })} className="text-xs h-8" />
+                              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => updateOnSite({ blogPosts: contextData.onSite.blogPosts.filter((i: BlogPost) => i.id !== post.id) })}>
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ========== Right Column - 2/3 Width: One-Page Website Content ========== */}
+                  <div className="flex-1 space-y-4">
+
+                    {/* ===== SECTION 1: HERO & VALUE PROP ===== */}
+                    <div className="p-5 border rounded-lg bg-gradient-to-br from-primary/5 to-primary/10">
+                      <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-primary">
+                        <Flag className="h-5 w-5 text-indigo-500" /> Hero Section
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground mb-1 block">Headline / Value Proposition</Label>
+                            <Textarea placeholder="Your main headline - the #1 reason customers should choose you" value={contextData.onSite.brandInfo.uniqueSellingPoints?.[0] || ""} onChange={(e) => { const usps = [...(contextData.onSite.brandInfo.uniqueSellingPoints || [])]; usps[0] = e.target.value; updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, uniqueSellingPoints: usps.filter(Boolean) } }); }} className="min-h-[60px] bg-background/80" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground mb-1 block">Subheadline</Label>
+                            <Textarea placeholder="Supporting statement that expands on the headline..." value={contextData.onSite.brandInfo.tagline || ""} onChange={(e) => updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, tagline: e.target.value } })} className="min-h-[60px] bg-background/80" />
+                          </div>
+                          {/* CTA Buttons */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-xs text-muted-foreground">Call to Action (CTA) {(contextData.onSite.websiteContent || []).filter(c => c.url === "#cta").length > 0 && <span>({(contextData.onSite.websiteContent || []).filter(c => c.url === "#cta").length})</span>}</Label>
+                              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#cta", type: "other" as const, description: "" }] })}><Plus className="h-3 w-3" /></Button>
+                            </div>
+                            <div className="space-y-1.5">
+                              {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#cta").length === 0 ? (
+                                <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#cta", type: "other" as const, description: "" }] })}>
+                                  Click + to add CTA
+                                </div>
+                              ) : (
+                                (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#cta").map((item: WebsiteContent) => (
+                                  <div key={item.id} className="flex gap-1 group">
+                                    <Input placeholder="Button text..." value={item.name} onChange={(e) => {
+                                      const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                      updateOnSite({ websiteContent: updatedContent });
+                                    }} className="text-xs h-7 bg-background/80 w-1/3" />
+                                    <Input placeholder="URL: /signup or https://..." value={item.description || ""} onChange={(e) => {
+                                      const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, description: e.target.value } : c);
+                                      updateOnSite({ websiteContent: updatedContent });
+                                    }} className="text-xs h-7 bg-background/80 flex-1" />
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                      updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                    }}><X className="h-3 w-3" /></Button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          {/* Feature Image/Video - Multiple items, moved above Key Metrics */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-xs text-muted-foreground">Feature Images / Videos {(contextData.onSite.websiteContent || []).filter(c => c.url === "#hero-media").length > 0 && <span>({(contextData.onSite.websiteContent || []).filter(c => c.url === "#hero-media").length})</span>}</Label>
+                              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#hero-media", type: "other" as const }] })}><Plus className="h-3 w-3" /></Button>
+                            </div>
+                            <div className="space-y-1.5">
+                              {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#hero-media").length === 0 ? (
+                                <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#hero-media", type: "other" as const }] })}>
+                                  Click + to add
+                                </div>
+                              ) : (
+                                (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#hero-media").map((item: WebsiteContent) => (
+                                  <div key={item.id} className="flex gap-1.5 group">
+                                    <Input placeholder="https://... (image or video URL)" value={item.name} onChange={(e) => {
+                                      const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                      updateOnSite({ websiteContent: updatedContent });
+                                    }} className="text-xs h-7 bg-background/80" />
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                      updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                    }}><X className="h-3 w-3" /></Button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                          {/* Key Metrics - now line by line */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-xs text-muted-foreground">Key Metrics / Social Proof {(contextData.onSite.websiteContent || []).filter(c => c.url === "#metric").length > 0 && <span>({(contextData.onSite.websiteContent || []).filter(c => c.url === "#metric").length})</span>}</Label>
+                              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#metric", type: "other" as const }] })}><Plus className="h-3 w-3" /></Button>
+                            </div>
+                            <div className="space-y-1.5">
+                              {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#metric").length === 0 ? (
+                                <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#metric", type: "other" as const }] })}>
+                                  Click + to add
+                                </div>
+                              ) : (
+                                (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#metric").map((item: WebsiteContent) => (
+                                  <div key={item.id} className="flex gap-1.5 group">
+                                    <Input placeholder="e.g. 10K+ users / 99.9% uptime / $2M saved / 500+ reviews / 50+ countries" value={item.name} onChange={(e) => {
+                                      const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                      updateOnSite({ websiteContent: updatedContent });
+                                    }} className="text-xs h-7 bg-background/80" />
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                      updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                    }}><X className="h-3 w-3" /></Button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ===== SECTION 2: PROBLEM & TARGET ===== */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-red-500" /> Problem Statement {(contextData.onSite.websiteContent || []).filter(c => c.url === "#problem").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#problem").length})</span>}</h4>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
+                            updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#problem", type: "other" as const }] });
+                          }}>
+                            <Plus className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <div className="space-y-1.5">
+                          {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#problem").length === 0 ? (
+                            <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#problem", type: "other" as const }] })}>
+                              Click + to add pain points
+                            </div>
+                          ) : (
+                            (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#problem").map((item: WebsiteContent) => (
+                              <div key={item.id} className="flex gap-1.5 group">
+                                <Input placeholder="Customer pain point..." value={item.name} onChange={(e) => {
+                                  const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                  updateOnSite({ websiteContent: updatedContent });
+                                }} className="text-xs h-8" />
+                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                }}><X className="h-3 w-3" /></Button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4 text-blue-500" /> Who We Serve {(contextData.onSite.websiteContent || []).filter(c => c.url === "#audience").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#audience").length})</span>}</h4>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
+                            updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#audience", type: "other" as const }] });
+                          }}>
+                            <Plus className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <div className="space-y-1.5">
+                          {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#audience").length === 0 ? (
+                            <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#audience", type: "other" as const }] })}>
+                              Click + to add target audiences
+                            </div>
+                          ) : (
+                            (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#audience").map((item: WebsiteContent) => (
+                              <div key={item.id} className="flex gap-1.5 group">
+                                <Input placeholder="Target segment (e.g., SaaS startups, Enterprise CTOs...)" value={item.name} onChange={(e) => {
+                                  const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                  updateOnSite({ websiteContent: updatedContent });
+                                }} className="text-xs h-8" />
+                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                }}><X className="h-3 w-3" /></Button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ===== Use Cases / Industries ===== */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold flex items-center gap-2"><Zap className="h-4 w-4 text-yellow-500" /> Use Cases {(contextData.onSite.websiteContent || []).filter(c => c.url === "#use-case").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#use-case").length})</span>}</h4>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
+                            updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#use-case", type: "other" as const }] });
+                          }}>
+                            <Plus className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <div className="space-y-1.5">
+                          {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#use-case").length === 0 ? (
+                            <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#use-case", type: "other" as const }] })}>
+                              Click + to add use cases
+                            </div>
+                          ) : (
+                            (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#use-case").map((item: WebsiteContent) => (
+                              <div key={item.id} className="flex gap-1.5 group">
+                                <Input placeholder="Marketing automation, Sales CRM..." value={item.name} onChange={(e) => {
+                                  const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                  updateOnSite({ websiteContent: updatedContent });
+                                }} className="text-xs h-8" />
+                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                }}><X className="h-3 w-3" /></Button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4 text-cyan-500" /> Industries {(contextData.onSite.websiteContent || []).filter(c => c.url === "#industry").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#industry").length})</span>}</h4>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
+                            updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#industry", type: "other" as const }] });
+                          }}>
+                            <Plus className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <div className="space-y-1.5">
+                          {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#industry").length === 0 ? (
+                            <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#industry", type: "other" as const }] })}>
+                              Click + to add industries
+                            </div>
+                          ) : (
+                            (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#industry").map((item: WebsiteContent) => (
+                              <div key={item.id} className="flex gap-1.5 group">
+                                <Input placeholder="SaaS, E-commerce, Healthcare..." value={item.name} onChange={(e) => {
+                                  const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                  updateOnSite({ websiteContent: updatedContent });
+                                }} className="text-xs h-8" />
+                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                }}><X className="h-3 w-3" /></Button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ===== SECTION 3: SOLUTION / PRODUCTS ===== */}
+                    <div className="p-4 border rounded-lg bg-card/50">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><ShoppingBag className="h-4 w-4 text-green-600" /> Products & Services {contextData.onSite.productsServices.length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({contextData.onSite.productsServices.length})</span>}</h4>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateOnSite({ productsServices: [...contextData.onSite.productsServices, { id: uuidv4(), name: "", type: "product" }] })}>
+                            <Plus className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                      <ComplexListInput label="" items={contextData.onSite.productsServices} onChange={(items) => updateOnSite({ productsServices: items })} onRemove={(id) => updateOnSite({ productsServices: contextData.onSite.productsServices.filter((i: ProductService) => i.id !== id) })} onAdd={() => updateOnSite({ productsServices: [...contextData.onSite.productsServices, { id: uuidv4(), name: "", type: "product" }] })} renderItem={renderProductService} maxHeight="none" />
+                    </div>
+
+
+                    {/* ===== SECTION 6: SOCIAL PROOF & TRUST ===== */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-4">
+                      <h4 className="text-sm font-semibold flex items-center gap-2"><Star className="h-4 w-4 text-amber-500" /> Social Proof & Trust</h4>
+                      {/* Row 1: Testimonials, Case Studies, Trust Badges */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-muted-foreground">Testimonials {(contextData.onSite.websiteContent || []).filter(c => c.type === "testimonial").length > 0 && <span>({(contextData.onSite.websiteContent || []).filter(c => c.type === "testimonial").length})</span>}</Label>
+                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => {
+                              updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "", type: "testimonial" as const }] });
+                            }}><Plus className="h-3 w-3" /></Button>
+                          </div>
+                          <div className="space-y-1.5">
+                            {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "testimonial").length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "", type: "testimonial" as const }] })}>
+                                Click + to add
+                              </div>
+                            ) : (
+                              (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "testimonial").map((item: WebsiteContent) => (
+                                <div key={item.id} className="flex gap-1 group">
+                                  <Input placeholder='"Quote..."' value={item.name} onChange={(e) => {
+                                    const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                    updateOnSite({ websiteContent: updatedContent });
+                                  }} className="text-xs h-7" />
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                  }}><X className="h-3 w-3" /></Button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-muted-foreground">Case Studies {(contextData.onSite.websiteContent || []).filter(c => c.type === "case_study").length > 0 && <span>({(contextData.onSite.websiteContent || []).filter(c => c.type === "case_study").length})</span>}</Label>
+                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => {
+                              updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "Case Study", url: "", type: "case_study" as const }] });
+                            }}><Plus className="h-3 w-3" /></Button>
+                          </div>
+                          <div className="space-y-1.5">
+                            {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "case_study").length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "Case Study", url: "", type: "case_study" as const }] })}>
+                                Click + to add
+                              </div>
+                            ) : (
+                              (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "case_study").map((item: WebsiteContent) => (
+                                <div key={item.id} className="flex gap-1 group">
+                                  <Input placeholder="URL..." value={item.url} onChange={(e) => {
+                                    const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, url: e.target.value } : c);
+                                    updateOnSite({ websiteContent: updatedContent });
+                                  }} className="text-xs h-7" />
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                  }}><X className="h-3 w-3" /></Button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-muted-foreground">Trust Badges {(contextData.onSite.websiteContent || []).filter(c => c.url === "#logo").length > 0 && <span>({(contextData.onSite.websiteContent || []).filter(c => c.url === "#logo").length})</span>}</Label>
+                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => {
+                              updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#logo", type: "other" as const }] });
+                            }}><Plus className="h-3 w-3" /></Button>
+                          </div>
+                          <div className="space-y-1.5">
+                            {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#logo").length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#logo", type: "other" as const }] })}>
+                                Click + to add
+                              </div>
+                            ) : (
+                              (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#logo").map((item: WebsiteContent) => (
+                                <div key={item.id} className="flex gap-1 group">
+                                  <Input placeholder="Company..." value={item.name} onChange={(e) => {
+                                    const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                    updateOnSite({ websiteContent: updatedContent });
+                                  }} className="text-xs h-7" />
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                  }}><X className="h-3 w-3" /></Button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {/* Row 2: Awards, Guarantees, Integrations */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-muted-foreground">Awards & Certs {(contextData.onSite.websiteContent || []).filter(c => c.url === "#award").length > 0 && <span>({(contextData.onSite.websiteContent || []).filter(c => c.url === "#award").length})</span>}</Label>
+                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => {
+                              updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#award", type: "other" as const }] });
+                            }}><Plus className="h-3 w-3" /></Button>
+                          </div>
+                          <div className="space-y-1.5">
+                            {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#award").length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#award", type: "other" as const }] })}>
+                                Click + to add
+                              </div>
+                            ) : (
+                              (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#award").map((item: WebsiteContent) => (
+                                <div key={item.id} className="flex gap-1 group">
+                                  <Input placeholder="ISO 27001 / G2 Leader..." value={item.name} onChange={(e) => {
+                                    const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                    updateOnSite({ websiteContent: updatedContent });
+                                  }} className="text-xs h-7" />
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                  }}><X className="h-3 w-3" /></Button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-muted-foreground">Guarantees {(contextData.onSite.websiteContent || []).filter(c => c.url === "#guarantee").length > 0 && <span>({(contextData.onSite.websiteContent || []).filter(c => c.url === "#guarantee").length})</span>}</Label>
+                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => {
+                              updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#guarantee", type: "other" as const }] });
+                            }}><Plus className="h-3 w-3" /></Button>
+                          </div>
+                          <div className="space-y-1.5">
+                            {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#guarantee").length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#guarantee", type: "other" as const }] })}>
+                                Click + to add
+                              </div>
+                            ) : (
+                              (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#guarantee").map((item: WebsiteContent) => (
+                                <div key={item.id} className="flex gap-1 group">
+                                  <Input placeholder="30-day refund / 99.9% SLA..." value={item.name} onChange={(e) => {
+                                    const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                    updateOnSite({ websiteContent: updatedContent });
+                                  }} className="text-xs h-7" />
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                  }}><X className="h-3 w-3" /></Button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-muted-foreground">Integrations {(contextData.onSite.websiteContent || []).filter(c => c.url === "#integration").length > 0 && <span>({(contextData.onSite.websiteContent || []).filter(c => c.url === "#integration").length})</span>}</Label>
+                            <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => {
+                              updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#integration", type: "other" as const }] });
+                            }}><Plus className="h-3 w-3" /></Button>
+                          </div>
+                          <div className="space-y-1.5">
+                            {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#integration").length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#integration", type: "other" as const }] })}>
+                                Click + to add
+                              </div>
+                            ) : (
+                              (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#integration").map((item: WebsiteContent) => (
+                                <div key={item.id} className="flex gap-1 group">
+                                  <Input placeholder="Slack / Salesforce / Zapier..." value={item.name} onChange={(e) => {
+                                    const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
+                                    updateOnSite({ websiteContent: updatedContent });
+                                  }} className="text-xs h-7" />
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
+                                  }}><X className="h-3 w-3" /></Button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ===== SECTION 8: TEAM & COMPANY ===== */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 border rounded-lg bg-card/50">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-semibold flex items-center gap-2"><UserCircle className="h-4 w-4 text-violet-500" /> Leadership Team {contextData.onSite.team.length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({contextData.onSite.team.length})</span>}</h4>
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateOnSite({ team: [...contextData.onSite.team, { id: uuidv4(), name: "", role: "" }] })}>
+                              <Plus className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                        <ComplexListInput label="" items={contextData.onSite.team} onChange={(items) => updateOnSite({ team: items })} onRemove={(id) => updateOnSite({ team: contextData.onSite.team.filter((i: TeamMember) => i.id !== id) })} onAdd={() => updateOnSite({ team: [...contextData.onSite.team, { id: uuidv4(), name: "", role: "" }] })} renderItem={renderTeamMember} maxHeight="none" />
+                      </div>
+                      <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><Info className="h-4 w-4 text-teal-500" /> About Us</h4>
+                        <div className="space-y-2">
+                          <div>
+                            <Label className="text-xs text-muted-foreground mb-1 block">Company Story</Label>
+                            <Textarea placeholder="Founded in... Our story..." value={contextData.onSite.brandInfo.foundingStory || ""} onChange={(e) => updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, foundingStory: e.target.value } })} className="min-h-[50px]" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <Label className="text-xs text-muted-foreground mb-1 block">Mission</Label>
+                              <Textarea placeholder="We exist to..." value={contextData.onSite.brandInfo.mission || ""} onChange={(e) => updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, mission: e.target.value } })} className="min-h-[40px] text-xs" />
+                            </div>
+                            <div>
+                              <Label className="text-xs text-muted-foreground mb-1 block">Vision</Label>
+                              <Textarea placeholder="We envision a world where..." value={contextData.onSite.brandInfo.vision || ""} onChange={(e) => updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, vision: e.target.value } })} className="min-h-[40px] text-xs" />
+                            </div>
+                          </div>
+                          {/* Core Values */}
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-xs text-muted-foreground">Core Values {(contextData.onSite.brandInfo.coreValues || []).length > 0 && <span>({(contextData.onSite.brandInfo.coreValues || []).length})</span>}</Label>
+                              <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, coreValues: [...(contextData.onSite.brandInfo.coreValues || []), ""] } })}><Plus className="h-3 w-3" /></Button>
+                            </div>
+                            <div className="space-y-1">
+                              {(contextData.onSite.brandInfo.coreValues || []).length === 0 ? (
+                                <div className="text-xs text-muted-foreground/60 text-center py-1 border border-dashed rounded cursor-pointer hover:bg-accent/30" onClick={() => updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, coreValues: [""] } })}>
+                                  Click + to add
+                                </div>
+                              ) : (contextData.onSite.brandInfo.coreValues || []).map((val, idx) => (
+                                <div key={idx} className="flex gap-1 group">
+                                  <Input value={val} onChange={(e) => {
+                                    const newValues = [...(contextData.onSite.brandInfo.coreValues || [])];
+                                    newValues[idx] = e.target.value;
+                                    updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, coreValues: newValues } });
+                                  }} placeholder="e.g. Integrity, Innovation..." className="text-xs h-6" />
+                                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    const newValues = (contextData.onSite.brandInfo.coreValues || []).filter((_, i) => i !== idx);
+                                    updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, coreValues: newValues } });
+                                  }}><X className="h-2.5 w-2.5" /></Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ===== SECTION 9: FAQ ===== */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><HelpCircle className="h-4 w-4 text-rose-500" /> FAQ {(contextData.onSite.websiteContent || []).filter(c => c.type === "faq").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.type === "faq").length})</span>}</h4>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
+                          const faqContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "faq");
+                          const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "faq");
+                          updateOnSite({ websiteContent: [...otherContent, ...faqContent, { id: uuidv4(), name: "", url: "", type: "faq" as const }] });
+                        }}>
+                          <Plus className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                      <div className="space-y-3">
+                        {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "faq").length === 0 ? (
+                          <p className="text-xs text-muted-foreground text-center py-4">No FAQs added yet. Click "Add FAQ" to start.</p>
+                        ) : (
+                          (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "faq").map((faq: WebsiteContent, idx: number) => (
+                            <div key={faq.id} className="p-3 border rounded-lg bg-background/50 space-y-2 group">
+                              <div className="flex items-start gap-2">
+                                <span className="text-xs font-bold text-primary shrink-0 mt-2">Q:</span>
+                                <Input
+                                  placeholder="What is your question?"
+                                  value={faq.name}
+                                  onChange={(e) => {
+                                    const allFaqs = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "faq");
+                                    const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "faq");
+                                    allFaqs[idx] = { ...faq, name: e.target.value };
+                                    updateOnSite({ websiteContent: [...otherContent, ...allFaqs] });
+                                  }}
+                                  className="text-sm font-medium"
+                                />
+                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== faq.id);
+                                  updateOnSite({ websiteContent: otherContent });
+                                }}>
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              <div className="flex items-start gap-2">
+                                <span className="text-xs font-bold text-muted-foreground shrink-0 mt-2">A:</span>
+                                <Textarea
+                                  placeholder="Your answer..."
+                                  value={faq.description || ""}
+                                  onChange={(e) => {
+                                    const allFaqs = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "faq");
+                                    const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "faq");
+                                    allFaqs[idx] = { ...faq, description: e.target.value };
+                                    updateOnSite({ websiteContent: [...otherContent, ...allFaqs] });
+                                  }}
+                                  className="text-xs min-h-[60px]"
+                                />
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* ===== SECTION 10: CONTACT INFO ===== */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-4">
+                      <h4 className="text-sm font-semibold flex items-center gap-2"><MessageSquare className="h-4 w-4 text-primary" /> Contact Information</h4>
+
+                      {/* Row 1: Primary Contact Methods */}
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground font-medium">Primary Contact</Label>
+                        <div className="grid grid-cols-3 gap-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">General Email</Label>
+                            <Input placeholder="contact@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-email")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-email"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-email", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Sales Email</Label>
+                            <Input placeholder="sales@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-sales")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-sales"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-sales", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Phone</Label>
+                            <Input placeholder="+1 (555) 123-4567" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-phone")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-phone"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-phone", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Row 2: Location & Hours */}
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground font-medium">Location & Hours</Label>
+                        <div className="grid grid-cols-3 gap-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">HQ Address</Label>
+                            <Input placeholder="123 Main St, City, Country" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-address")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-address"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-address", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Business Hours</Label>
+                            <Input placeholder="Mon-Fri 9am-5pm EST" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-hours")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-hours"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-hours", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Timezone</Label>
+                            <Input placeholder="UTC-5 / EST / PST..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-timezone")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-timezone"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-timezone", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Row 3: Support Channels */}
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground font-medium">Support Channels</Label>
+                        <div className="grid grid-cols-4 gap-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Help Center</Label>
+                            <Input placeholder="help.company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-support")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-support"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-support", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Live Chat</Label>
+                            <Input placeholder="Intercom / Zendesk..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#support-chat")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#support-chat"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#support-chat", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Support Email</Label>
+                            <Input placeholder="support@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#support-ticket")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#support-ticket"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#support-ticket", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Community</Label>
+                            <Input placeholder="Discord / Slack..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#support-community")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#support-community"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#support-community", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Row 4: Additional Contact Options */}
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground font-medium">Additional</Label>
+                        <div className="grid grid-cols-4 gap-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Press / Media</Label>
+                            <Input placeholder="press@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-press")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-press"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-press", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Partnerships</Label>
+                            <Input placeholder="partners@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-partners")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-partners"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-partners", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Careers</Label>
+                            <Input placeholder="careers@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-careers")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-careers"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-careers", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Newsletter</Label>
+                            <Input placeholder="https://..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-newsletter")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-newsletter"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-newsletter", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                {/* Products & Services */}
-                <ComplexListInput 
-                  label="Products & Services"
-                  items={contextData.onSite.productsServices}
-                  onChange={(items) => updateOnSite({ productsServices: items })}
-                  onRemove={(id) => updateOnSite({ 
-                    productsServices: contextData.onSite.productsServices.filter((i: ProductService) => i.id !== id) 
-                  })}
-                  onAdd={() => updateOnSite({
-                    productsServices: [...contextData.onSite.productsServices, {
-                      id: uuidv4(),
-                      name: "",
-                      type: "product"
-                    }]
-                  })}
-                  renderItem={renderProductService}
-                />
-
-                {/* Website Content */}
-                <ComplexListInput 
-                  label="Website Content Structure"
-                  items={contextData.onSite.websiteContent}
-                  onChange={(items) => updateOnSite({ websiteContent: items })}
-                  onRemove={(id) => updateOnSite({ 
-                    websiteContent: contextData.onSite.websiteContent.filter((i: WebsiteContent) => i.id !== id) 
-                  })}
-                  onAdd={() => updateOnSite({
-                    websiteContent: [...contextData.onSite.websiteContent, {
-                      id: uuidv4(),
-                      name: "",
-                      url: "",
-                      type: "other"
-                    }]
-                  })}
-                  renderItem={renderWebsiteContent}
-                />
-
-                {/* Landing Pages */}
-                <ComplexListInput 
-                  label="Landing Pages"
-                  items={contextData.onSite.landingPages}
-                  onChange={(items) => updateOnSite({ landingPages: items })}
-                  onRemove={(id) => updateOnSite({ 
-                    landingPages: contextData.onSite.landingPages.filter((i: LandingPage) => i.id !== id) 
-                  })}
-                  onAdd={() => updateOnSite({
-                    landingPages: [...contextData.onSite.landingPages, {
-                      id: uuidv4(),
-                      name: "",
-                      url: "",
-                      type: "campaign",
-                      status: "active",
-                      createdAt: new Date().toISOString()
-                    }]
-                  })}
-                  renderItem={renderLandingPage}
-                />
-
-                {/* Team Members */}
-                <ComplexListInput 
-                  label="Team & Culture"
-                  items={contextData.onSite.team}
-                  onChange={(items) => updateOnSite({ team: items })}
-                  onRemove={(id) => updateOnSite({ 
-                    team: contextData.onSite.team.filter((i: TeamMember) => i.id !== id) 
-                  })}
-                  onAdd={() => updateOnSite({
-                    team: [...contextData.onSite.team, {
-                      id: uuidv4(),
-                      name: "",
-                      role: ""
-                    }]
-                  })}
-                  renderItem={renderTeamMember}
-                />
-
-                 <SimpleArrayInput
-                  label="Blog Post URLs"
-                  values={contextData.onSite.blogPosts.map((p: BlogPost) => p.url)}
-                  onChange={(urls) => updateOnSite({ 
-                    blogPosts: urls.map(url => ({ 
-                      id: uuidv4(), 
-                      url, 
-                      title: "New Post", 
-                      status: "published" 
-                    })) 
-                  })}
-                  placeholder="https://your-site.com/blog/..."
-                />
               </TabsContent>
 
               {/* Off-site Tab */}
-              <TabsContent value="offSite" className="space-y-6 p-4 m-0">
-                <ComplexListInput 
-                  label="Official Accounts"
-                  items={contextData.offSite.officialAccounts}
-                  onChange={(items) => updateOffSite({ officialAccounts: items })}
-                  onRemove={(id) => updateOffSite({ 
-                    officialAccounts: contextData.offSite.officialAccounts.filter((i: OfficialAccount) => i.id !== id) 
-                  })}
-                  onAdd={() => updateOffSite({
-                    officialAccounts: [...contextData.offSite.officialAccounts, {
-                      id: uuidv4(),
-                      platform: "twitter",
-                      accountName: "",
-                      url: ""
-                    }]
-                  })}
-                  renderItem={renderOfficialAccount}
-                />
+              <TabsContent value="offSite" className="p-6 m-0 h-full overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
+                  {/* Column 1: Presence & Social */}
+                  <div className="space-y-6">
+                    {/* Official Channels */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><Globe className="h-4 w-4 text-blue-500" /> Digital Presence</h4>
+                      </div>
+                      <ComplexListInput
+                        label="Official Accounts"
+                        items={contextData.offSite.officialAccounts}
+                        onChange={(items) => updateOffSite({ officialAccounts: items })}
+                        onRemove={(id) => updateOffSite({ officialAccounts: contextData.offSite.officialAccounts.filter((i: OfficialAccount) => i.id !== id) })}
+                        onAdd={() => updateOffSite({ officialAccounts: [...contextData.offSite.officialAccounts, { id: uuidv4(), platform: "twitter", accountName: "", url: "" }] })}
+                        renderItem={renderOfficialAccount}
+                        maxHeight="none"
+                      />
+                    </div>
 
-                <ComplexListInput 
-                  label="Partnerships"
-                  items={contextData.offSite.partnerships}
-                  onChange={(items) => updateOffSite({ partnerships: items })}
-                  onRemove={(id) => updateOffSite({ 
-                    partnerships: contextData.offSite.partnerships.filter((i: Partnership) => i.id !== id) 
-                  })}
-                  onAdd={() => updateOffSite({
-                    partnerships: [...contextData.offSite.partnerships, {
-                      id: uuidv4(),
-                      name: "",
-                      type: "technology",
-                      status: "active"
-                    }]
-                  })}
-                  renderItem={renderPartnership}
-                />
+                    {/* Social Media & UGC */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><Share2 className="h-4 w-4 text-pink-500" /> Social Listening & UGC</h4>
+                      </div>
+                      <ComplexListInput
+                        label="Tracked Content"
+                        items={contextData.offSite.socialMediaContent}
+                        onChange={(items) => updateOffSite({ socialMediaContent: items })}
+                        onRemove={(id) => updateOffSite({ socialMediaContent: contextData.offSite.socialMediaContent.filter((i: SocialMediaContent) => i.id !== id) })}
+                        onAdd={() => updateOffSite({ socialMediaContent: [...contextData.offSite.socialMediaContent, { id: uuidv4(), platform: "twitter", type: "ugc", creatorName: "", contentUrl: "", contentType: "post" }] })}
+                        renderItem={renderSocialMediaContent}
+                        maxHeight="none"
+                      />
+                    </div>
+                  </div>
 
-                 <ComplexListInput 
-                  label="Customer Reviews"
-                  items={contextData.offSite.customerReviews}
-                  onChange={(items) => updateOffSite({ customerReviews: items })}
-                  onRemove={(id) => updateOffSite({ 
-                    customerReviews: contextData.offSite.customerReviews.filter((i: CustomerReview) => i.id !== id) 
-                  })}
-                  onAdd={() => updateOffSite({
-                    customerReviews: [...contextData.offSite.customerReviews, {
-                      id: uuidv4(),
-                      source: "",
-                      content: ""
-                    }]
-                  })}
-                  renderItem={renderCustomerReview}
-                />
+                  {/* Column 2: PR & Reputation */}
+                  <div className="space-y-6">
+                    {/* PR & Media */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><Newspaper className="h-4 w-4 text-purple-500" /> Public Relations</h4>
+                      </div>
+                      <ComplexListInput
+                        label="Press & Media Coverage"
+                        items={contextData.offSite.pressReleases}
+                        onChange={(items) => updateOffSite({ pressReleases: items })}
+                        onRemove={(id) => updateOffSite({ pressReleases: contextData.offSite.pressReleases.filter((i: PressRelease) => i.id !== id) })}
+                        onAdd={() => updateOffSite({ pressReleases: [...contextData.offSite.pressReleases, { id: uuidv4(), title: "", url: "", source: "", type: "press_release" }] })}
+                        renderItem={renderPressRelease}
+                        maxHeight="none"
+                      />
+                    </div>
 
-                <SimpleArrayInput
-                  label="Press Releases / Media Coverage URLs"
-                  values={contextData.offSite.pressReleases.map((p: PressRelease) => p.url)}
-                  onChange={(urls) => updateOffSite({ 
-                    pressReleases: urls.map(url => ({ 
-                      id: uuidv4(), 
-                      url, 
-                      title: "New Press Release", 
-                      source: "Unknown", 
-                      type: "press_release" 
-                    })) 
-                  })}
-                  placeholder="https://news-site.com/..."
-                />
+                    {/* Reputation */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><MessageSquare className="h-4 w-4 text-orange-400" /> Reputation & Reviews</h4>
+                      </div>
+                      <ComplexListInput
+                        label="Customer Reviews"
+                        items={contextData.offSite.customerReviews}
+                        onChange={(items) => updateOffSite({ customerReviews: items })}
+                        onRemove={(id) => updateOffSite({ customerReviews: contextData.offSite.customerReviews.filter((i: CustomerReview) => i.id !== id) })}
+                        onAdd={() => updateOffSite({ customerReviews: [...contextData.offSite.customerReviews, { id: uuidv4(), source: "", content: "" }] })}
+                        renderItem={renderCustomerReview}
+                        maxHeight="none"
+                      />
+                    </div>
+                  </div>
 
-                <SimpleArrayInput
-                  label="Social Media Content (Influencer/UGC) URLs"
-                  values={contextData.offSite.socialMediaContent.map((p: SocialMediaContent) => p.contentUrl)}
-                  onChange={(urls) => updateOffSite({ 
-                    socialMediaContent: urls.map(url => ({ 
-                      id: uuidv4(), 
-                      contentUrl: url, 
-                      platform: "unknown", 
-                      type: "ugc", 
-                      creatorName: "Unknown",
-                      contentType: "post"
-                    })) 
-                  })}
-                  placeholder="https://instagram.com/p/..."
-                />
+                  {/* Column 3: Ecosystem */}
+                  <div className="space-y-6">
+                    {/* Partnerships */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><Handshake className="h-4 w-4 text-emerald-500" /> Strategic Ecosystem</h4>
+                      </div>
+                      <ComplexListInput
+                        label="Partnerships"
+                        items={contextData.offSite.partnerships}
+                        onChange={(items) => updateOffSite({ partnerships: items })}
+                        onRemove={(id) => updateOffSite({ partnerships: contextData.offSite.partnerships.filter((i: Partnership) => i.id !== id) })}
+                        onAdd={() => updateOffSite({ partnerships: [...contextData.offSite.partnerships, { id: uuidv4(), name: "", type: "technology", status: "active" }] })}
+                        renderItem={renderPartnership}
+                        maxHeight="none"
+                      />
+                    </div>
+                  </div>
+                </div>
               </TabsContent>
 
               {/* Knowledge Tab */}
-              <TabsContent value="knowledge" className="space-y-6 p-4 m-0">
-                <ComplexListInput 
-                  label="Competitor Monitoring"
-                  items={contextData.knowledge.competitors}
-                  onChange={(items) => updateKnowledge({ competitors: items })}
-                  onRemove={(id) => updateKnowledge({ 
-                    competitors: contextData.knowledge.competitors.filter((i: Competitor) => i.id !== id) 
-                  })}
-                  onAdd={() => updateKnowledge({
-                    competitors: [...contextData.knowledge.competitors, {
-                      id: uuidv4(),
-                      name: "",
-                      category: "direct",
-                    }]
-                  })}
-                  renderItem={renderCompetitor}
-                />
+              <TabsContent value="knowledge" className="p-6 m-0 h-full overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
+                  {/* Column 1: Market & Audit */}
+                  <div className="space-y-6">
+                    {/* Market Intel */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><BarChart3 className="h-4 w-4 text-cyan-500" /> Market Intelligence</h4>
+                      </div>
+                      <ComplexListInput
+                        label="Research & Trends"
+                        items={contextData.knowledge.marketIntelligence}
+                        onChange={(items) => updateKnowledge({ marketIntelligence: items })}
+                        onRemove={(id) => updateKnowledge({ marketIntelligence: contextData.knowledge.marketIntelligence.filter((i: MarketIntelligence) => i.id !== id) })}
+                        onAdd={() => updateKnowledge({ marketIntelligence: [...contextData.knowledge.marketIntelligence, { id: uuidv4(), title: "", source: "", type: "industry_report" }] })}
+                        renderItem={renderMarketIntel}
+                        maxHeight="none"
+                      />
+                    </div>
 
-                <ComplexListInput 
-                  label="Audience Personas"
-                  items={contextData.knowledge.audiencePersonas}
-                  onChange={(items) => updateKnowledge({ audiencePersonas: items })}
-                  onRemove={(id) => updateKnowledge({ 
-                    audiencePersonas: contextData.knowledge.audiencePersonas.filter((i: AudiencePersona) => i.id !== id) 
-                  })}
-                  onAdd={() => updateKnowledge({
-                    audiencePersonas: [...contextData.knowledge.audiencePersonas, {
-                      id: uuidv4(),
-                      name: "",
-                      description: ""
-                    }]
-                  })}
-                  renderItem={renderPersona}
-                />
+                    {/* Audience */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4 text-rose-500" /> Target Audience</h4>
+                      </div>
+                      <ComplexListInput
+                        label="Buyer Personas"
+                        items={contextData.knowledge.audiencePersonas}
+                        onChange={(items) => updateKnowledge({ audiencePersonas: items })}
+                        onRemove={(id) => updateKnowledge({ audiencePersonas: contextData.knowledge.audiencePersonas.filter((i: AudiencePersona) => i.id !== id) })}
+                        onAdd={() => updateKnowledge({ audiencePersonas: [...contextData.knowledge.audiencePersonas, { id: uuidv4(), name: "", description: "" }] })}
+                        renderItem={renderPersona}
+                        maxHeight="none"
+                      />
+                    </div>
+                  </div>
 
-                <ComplexListInput 
-                  label="Market Intelligence"
-                  items={contextData.knowledge.marketIntelligence}
-                  onChange={(items) => updateKnowledge({ marketIntelligence: items })}
-                  onRemove={(id) => updateKnowledge({ 
-                    marketIntelligence: contextData.knowledge.marketIntelligence.filter((i: MarketIntelligence) => i.id !== id) 
-                  })}
-                  onAdd={() => updateKnowledge({
-                    marketIntelligence: [...contextData.knowledge.marketIntelligence, {
-                      id: uuidv4(),
-                      title: "",
-                      source: "",
-                      type: "industry_report"
-                    }]
-                  })}
-                  renderItem={renderMarketIntel}
-                />
+                  {/* Column 2: Competitors & Landscape */}
+                  <div className="space-y-6">
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><TrendingUp className="h-4 w-4 text-red-500" /> Competitive Landscape</h4>
+                      </div>
+                      <ComplexListInput
+                        label="Competitor Monitoring"
+                        items={contextData.knowledge.competitors}
+                        onChange={(items) => updateKnowledge({ competitors: items })}
+                        onRemove={(id) => updateKnowledge({ competitors: contextData.knowledge.competitors.filter((i: Competitor) => i.id !== id) })}
+                        onAdd={() => updateKnowledge({ competitors: [...contextData.knowledge.competitors, { id: uuidv4(), name: "", category: "direct" }] })}
+                        renderItem={renderCompetitor}
+                        maxHeight="none"
+                      />
+                    </div>
+                  </div>
 
-                <SimpleArrayInput
-                  label="User Uploads (URLs)"
-                  values={contextData.knowledge.userUploads.map((p: UserUpload) => p.url || "")}
-                  onChange={(urls) => updateKnowledge({ 
-                    userUploads: urls.map(url => ({ 
-                      id: uuidv4(), 
-                      fileName: "New Upload",
-                      fileType: "other",
-                      category: "internal_doc",
-                      uploadedAt: new Date().toISOString(),
-                      url
-                    })) 
-                  })}
-                  placeholder="https://..."
-                />
+                  {/* Column 3: Internal Knowledge & Files */}
+                  <div className="space-y-6">
+                    {/* Files & Docs */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><Folder className="h-4 w-4 text-yellow-500" /> Product & Internal</h4>
+                      </div>
+                      <ComplexListInput
+                        label="Knowledge Base & Uploads"
+                        items={contextData.knowledge.userUploads}
+                        onChange={(items) => updateKnowledge({ userUploads: items })}
+                        onRemove={(id) => updateKnowledge({ userUploads: contextData.knowledge.userUploads.filter((i: UserUpload) => i.id !== id) })}
+                        onAdd={() => updateKnowledge({ userUploads: [...contextData.knowledge.userUploads, { id: uuidv4(), fileName: "", fileType: "other", category: "internal_doc", uploadedAt: new Date().toISOString() }] })}
+                        renderItem={renderUserUpload}
+                        maxHeight="none"
+                      />
+                    </div>
 
-                <div className="pt-4 border-t">
-                  <h3 className="text-sm font-semibold mb-2">Agent Generated Content</h3>
-                  <div className="text-xs text-muted-foreground bg-muted p-3 rounded-md">
-                    {contextData.knowledge.agentGenerated.length === 0 
-                      ? "No content generated yet. The agent will populate this automatically." 
-                      : `${contextData.knowledge.agentGenerated.length} items generated.`}
+                    {/* Generated Content */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><Database className="h-4 w-4 text-purple-500" /> Agent Memory</h4>
+                      </div>
+                      <div className="text-xs text-muted-foreground bg-muted/50 p-6 rounded-md border border-dashed text-center">
+                        {contextData.knowledge.agentGenerated.length === 0
+                          ? "Insights and strategies generated by the agent will appear here automatically."
+                          : `${contextData.knowledge.agentGenerated.length} items collected.`}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </TabsContent>
             </div>
-          </Tabs>
-        </div>
+          </Tabs >
+        </div >
 
-        <DialogFooter className="pt-4 border-t">
+        <DialogFooter className="pt-4 border-t shrink-0 px-6 py-4 bg-muted/30">
           <Button onClick={() => onOpenChange(false)}>Save & Close</Button>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </DialogContent >
+    </Dialog >
   );
 }
-
 
