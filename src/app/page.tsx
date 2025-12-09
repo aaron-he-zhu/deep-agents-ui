@@ -14,6 +14,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { ChatProvider, useChatContext } from "@/providers/ChatProvider";
+import { ContextProvider } from "@/providers/ContextProvider";
 import { ChatInterface } from "@/app/components/ChatInterface";
 import { LeftSidebar } from "@/app/components/LeftSidebar";
 import { RightSidebar } from "@/app/components/RightSidebar";
@@ -178,12 +179,14 @@ function HomePageInner({
         </header>
 
         <div className="flex-1 overflow-hidden pt-2">
-          <ChatProvider
-            activeAssistant={assistant}
-            onHistoryRevalidate={() => mutateThreads?.()}
-          >
-            <ChatArea assistant={assistant} />
-          </ChatProvider>
+          <ContextProvider>
+            <ChatProvider
+              activeAssistant={assistant}
+              onHistoryRevalidate={() => mutateThreads?.()}
+            >
+              <ChatArea assistant={assistant} />
+            </ChatProvider>
+          </ContextProvider>
         </div>
       </div>
     </>

@@ -13,6 +13,7 @@ import type { TodoItem } from "@/app/types/types";
 import { useClient, useActiveProvider } from "@/providers/ClientProvider";
 import { useQueryState } from "nuqs";
 import { getAuthScheme } from "@/lib/config";
+import { useContextMenu } from "@/providers/ContextProvider";
 
 export interface Suggestion {
   short: string;
@@ -45,6 +46,8 @@ export function useChat({
   const client = useClient();
   const activeProvider = useActiveProvider();
   
+  const { contextData, isContextEmpty, setWizardOpen } = useContextMenu();
+  
   const authScheme = useMemo(() => getAuthScheme(activeProvider), [activeProvider]);
 
   const stream = useStream<StateType>({
@@ -63,7 +66,19 @@ export function useChat({
 
   const sendMessage = useCallback(
     (content: string) => {
-      const newMessage: Message = { id: uuidv4(), type: "human", content };
+      // Check for context emptiness
+      if (isContextEmpty) {
+        setWizardOpen(true);
+        // Optionally add a local message to indicate why it stopped?
+        // For now, opening the wizard is a strong enough signal.
+        return;
+      }
+
+      // Prepend context data to the message
+      const contextString = JSON.stringify(contextData, null, 2);
+      const enhancedContent = `<user_context>\n${contextString}\n</user_context>\n\n${content}`;
+      
+      const newMessage: Message = { id: uuidv4(), type: "human", content: enhancedContent };
       
       // Get model config from localStorage
       const savedConfig = localStorage.getItem("standalone-config");
@@ -109,7 +124,7 @@ export function useChat({
         { messages: [newMessage] },
         {
           optimisticValues: (prev) => ({
-            messages: [...(prev.messages ?? []), newMessage],
+            messages: [...(prev.messages ?? []), { ...newMessage, content: content }], // Show original content optimistically
           }),
           config: { 
             ...(activeAssistant?.config ?? {}), 
@@ -121,7 +136,7 @@ export function useChat({
       // Update thread list immediately when sending a message
       onHistoryRevalidate?.();
     },
-    [stream, activeAssistant?.config, onHistoryRevalidate]
+    [stream, activeAssistant?.config, onHistoryRevalidate, isContextEmpty, setWizardOpen, contextData]
   );
 
   const runSingleStep = useCallback(

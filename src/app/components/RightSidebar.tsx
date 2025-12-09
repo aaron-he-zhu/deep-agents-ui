@@ -14,6 +14,9 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { FileItem } from "@/app/types/types";
 import { FileViewDialog } from "@/app/components/FileViewDialog";
+import { PlaybookDialog } from "@/app/components/PlaybookDialog";
+import { type Playbook, type PlaybookCategory } from "@/data/playbooks";
+import { useChatContext } from "@/providers/ChatProvider";
 
 interface PlaybookButton {
   id: string;
@@ -59,6 +62,11 @@ interface RightSidebarProps {
 export const RightSidebar = React.memo<RightSidebarProps>(
   ({ files, setFiles, editDisabled, onPlaybookSelect }) => {
     const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<PlaybookCategory | null>(null);
+    
+    // Get sendMessage from context
+    const { sendMessage } = useChatContext();
 
     const handleSaveFile = useCallback(
       async (fileName: string, content: string) => {
@@ -69,7 +77,27 @@ export const RightSidebar = React.memo<RightSidebarProps>(
     );
 
     const handlePlaybookClick = (playbookId: string) => {
+      setSelectedCategory(playbookId as PlaybookCategory);
+      setDialogOpen(true);
+      // Optional: still call the prop if provided
       onPlaybookSelect?.(playbookId);
+    };
+
+    const handleRunPlaybook = (playbook: Playbook, customInstructions?: string) => {
+      const prompt = `Run the "${playbook.title}" agent (${playbook.agentName}).
+        
+Category: ${playbook.category}
+Task: ${playbook.description}
+
+Auto Actions:
+${playbook.autoActions.map(a => `- ${a}`).join('\n')}
+
+Expected Outputs:
+${playbook.outputs.map(o => `- ${o}`).join('\n')}
+
+${customInstructions ? `Custom Instructions:\n${customInstructions}` : ''}`;
+      
+      sendMessage(prompt);
     };
 
     return (
@@ -241,10 +269,16 @@ export const RightSidebar = React.memo<RightSidebarProps>(
             editDisabled={editDisabled}
           />
         )}
+
+        <PlaybookDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          category={selectedCategory}
+          onRunPlaybook={handleRunPlaybook}
+        />
       </div>
     );
   }
 );
 
 RightSidebar.displayName = "RightSidebar";
-
