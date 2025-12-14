@@ -188,7 +188,255 @@ export interface CustomerReview {
   url?: string;
 }
 
+// ---------------------------
+// New Off-site Monitoring Interfaces
+// ---------------------------
+
+export interface MonitoringScope {
+  brandKeywords: string[];
+  domainName: string;
+  productKeywords: string[];
+  hashtags: string[];
+  keyPersons: string[];
+  languages: string[];
+  regions: string[];
+  requiredKeywords: string[];
+  excludedKeywords: string[];
+}
+
+export interface SocialAccount {
+  id: string;
+  platform: string;
+  accountName: string;
+  url: string;
+  isPriority: boolean;
+}
+
+export interface CommunityForum {
+  id: string;
+  platformType: string;
+  communityName: string;
+  url: string;
+  tags: string[];
+}
+
+export interface QAPlatform {
+  id: string;
+  platform: string;
+  monitoringKeywords: string[];
+}
+
+export interface MediaSource {
+  id: string;
+  name: string;
+  type: 'news' | 'media' | 'blog' | 'media_group';
+  url: string;
+}
+
+export interface VideoPlatform {
+  id: string;
+  platform: string;
+  channelUrl: string;
+  keywords: string[];
+}
+
+export interface PodcastNewsletter {
+  id: string;
+  name: string;
+  platform: string;
+  url: string;
+  type: 'podcast' | 'newsletter';
+}
+
+export interface ReviewPlatform {
+  id: string;
+  platform: string;
+  profileUrl: string;
+  fetchDetails: boolean;
+}
+
+export interface AppStore {
+  id: string;
+  platform: string;
+  appName: string;
+  storeUrl: string;
+  regions: string[];
+}
+
+export interface VerticalReviewSite {
+  id: string;
+  platformName: string;
+  pageUrl: string;
+  ratingMapping: string;
+}
+
+export interface EcommercePlatform {
+  id: string;
+  platform: string;
+  storeName: string;
+  storeUrl: string;
+  collectReviews: boolean;
+  collectQA: boolean;
+  collectRatings: boolean;
+  collectSalesRank: boolean;
+}
+
+export interface CompetitorConfig {
+  id: string;
+  name: string;
+  brandKeywords: string[];
+  domain: string;
+  socialAccounts: string[];
+  reviewLinks: string[];
+  includeInSOV: boolean;
+}
+
+export interface InfluencerAccount {
+  id: string;
+  name: string;
+  platform: string;
+  url: string;
+  role: 'kol' | 'analyst' | 'journalist' | 'media';
+  tier: '1' | '2' | '3';
+}
+
+export interface ExecutiveAccount {
+  id: string;
+  name: string;
+  title: string;
+  platform: string;
+  handle: string;
+}
+
+export interface PartnerAccount {
+  id: string;
+  companyName: string;
+  platform: string;
+  handle: string;
+}
+
+export interface ProfessionalNetwork {
+  id: string;
+  platform: string; // LinkedIn, Maimai, Blind, etc.
+  groupName: string;
+  url: string;
+}
+
+export interface SearchEngineTracking {
+  id: string;
+  engine: string; // Google, Bing, Baidu
+  keywords: string[];
+  region: string;
+  trackRanking: boolean;
+}
+
+export interface SERPCompetitor {
+  id: string;
+  keyword: string;
+  topURLs: string[];
+  trackChanges: boolean;
+}
+
+export interface DirectoryListing {
+  id: string;
+  directoryName: string; // ProductHunt, AlternativeTo, etc.
+  listingUrl: string;
+}
+
+export interface GuestPost {
+  id: string;
+  title: string;
+  publicationName: string;
+  publicationUrl: string;
+  authorName?: string;
+  publishDate?: string;
+  status: 'published' | 'pending' | 'draft';
+}
+
+export interface BacklinkSource {
+  id: string;
+  domain: string;
+  pageUrl?: string;
+  anchorText?: string;
+  type: 'editorial' | 'guest_post' | 'directory' | 'forum' | 'other';
+  doFollow: boolean;
+}
+
+export interface ExternalEvent {
+  id: string;
+  name: string;
+  type: 'conference' | 'webinar' | 'podcast_appearance' | 'workshop' | 'meetup' | 'other';
+  url?: string;
+  date?: string;
+  role: 'speaker' | 'sponsor' | 'attendee' | 'host';
+}
+
+export interface MetricsConfig {
+  trackMentionsVolume: boolean;
+  trackSentiment: boolean;
+  trackReach: boolean;
+  trackEngagement: boolean;
+  trackShareOfVoice: boolean;
+  trackReputationScore: boolean;
+  trackTopSources: boolean;
+  benchmarkPeriod?: '7d' | '30d' | '90d';
+  trackCompetitorSOV?: boolean;
+}
+
+export interface CollectionSettings {
+  frequency?: 'realtime' | 'hourly' | 'daily';
+  historicalDepth?: '7d' | '30d' | '90d' | 'custom';
+  excludeBots?: boolean;
+  verifiedOnly?: boolean;
+  minEngagement?: number;
+}
+
+export interface AlertRule {
+  id: string;
+  channel: 'email' | 'slack' | 'webhook';
+  metric: string;
+  timeWindow: '1h' | '24h' | '7d';
+  thresholdType: 'percentage' | 'absolute';
+  thresholdValue: number;
+  sourceFilters: string[];
+  silencePeriodMinutes: number;
+}
+
+export interface AlertConfig {
+  channels: ('email' | 'slack' | 'webhook')[];
+  rules: AlertRule[];
+}
+
 export interface OffSiteContext {
+  // New monitoring fields
+  monitoringScope: MonitoringScope;
+  socialAccounts: SocialAccount[];
+  executiveAccounts: ExecutiveAccount[];
+  partnerAccounts: PartnerAccount[];
+  communities: CommunityForum[];
+  qaPlatforms: QAPlatform[];
+  professionalNetworks: ProfessionalNetwork[];
+  mediaSources: MediaSource[];
+  videoPlatforms: VideoPlatform[];
+  podcastNewsletters: PodcastNewsletter[];
+  reviewPlatforms: ReviewPlatform[];
+  appStores: AppStore[];
+  verticalReviewSites: VerticalReviewSite[];
+  ecommercePlatforms: EcommercePlatform[];
+  competitorConfigs: CompetitorConfig[];
+  influencerAccounts: InfluencerAccount[];
+  searchEngineTracking: SearchEngineTracking[];
+  serpCompetitors: SERPCompetitor[];
+  directoryListings: DirectoryListing[];
+  // Earned Media fields
+  guestPosts: GuestPost[];
+  backlinks: BacklinkSource[];
+  externalEvents: ExternalEvent[];
+  // Config
+  metricsConfig: MetricsConfig;
+  alertConfig: AlertConfig;
+  collectionSettings?: CollectionSettings;
+  // Legacy fields for backwards compatibility
   officialAccounts: OfficialAccount[];
   pressReleases: PressRelease[];
   socialMediaContent: SocialMediaContent[];
@@ -297,6 +545,60 @@ export const initialContextData: ContextData = {
     team: [],
   },
   offSite: {
+    monitoringScope: {
+      brandKeywords: [],
+      domainName: '',
+      productKeywords: [],
+      hashtags: [],
+      keyPersons: [],
+      languages: [],
+      regions: [],
+      requiredKeywords: [],
+      excludedKeywords: [],
+    },
+    socialAccounts: [],
+    executiveAccounts: [],
+    partnerAccounts: [],
+    communities: [],
+    qaPlatforms: [],
+    professionalNetworks: [],
+    mediaSources: [],
+    videoPlatforms: [],
+    podcastNewsletters: [],
+    reviewPlatforms: [],
+    appStores: [],
+    verticalReviewSites: [],
+    ecommercePlatforms: [],
+    competitorConfigs: [],
+    influencerAccounts: [],
+    searchEngineTracking: [],
+    serpCompetitors: [],
+    directoryListings: [],
+    guestPosts: [],
+    backlinks: [],
+    externalEvents: [],
+    metricsConfig: {
+      trackMentionsVolume: true,
+      trackSentiment: true,
+      trackReach: false,
+      trackEngagement: false,
+      trackShareOfVoice: false,
+      trackReputationScore: false,
+      trackTopSources: false,
+      benchmarkPeriod: '30d',
+      trackCompetitorSOV: false,
+    },
+    alertConfig: {
+      channels: [],
+      rules: [],
+    },
+    collectionSettings: {
+      frequency: 'daily',
+      historicalDepth: '30d',
+      excludeBots: false,
+      verifiedOnly: false,
+      minEngagement: 0,
+    },
     officialAccounts: [],
     pressReleases: [],
     socialMediaContent: [],

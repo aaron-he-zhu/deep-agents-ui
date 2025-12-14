@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useContextMenu } from "@/providers/ContextProvider";
-import { Plus, X, Link, Briefcase, ShoppingBag, Layout, Users, Megaphone, Share2, MessageSquare, TrendingUp, Target, Globe, FileText, Rss, Map, Palette, BookOpen, Flag, AlertTriangle, Zap, Building2, Star, UserCircle, Info, HelpCircle, BarChart3, Database, Folder, Monitor, Handshake, Twitter, Instagram, Linkedin, Youtube, Github, Facebook, Newspaper, Network } from "lucide-react";
+import { Plus, X, Link, Link2, Briefcase, ShoppingBag, Layout, Users, Megaphone, Share2, MessageSquare, TrendingUp, Target, Globe, FileText, Rss, Map, Palette, BookOpen, Flag, AlertTriangle, Zap, Building2, Star, UserCircle, Info, HelpCircle, BarChart3, Database, Folder, Monitor, Handshake, Twitter, Instagram, Linkedin, Youtube, Github, Facebook, Newspaper, Network, Calendar, Mic, Video } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 import {
   LandingPage,
@@ -33,6 +33,28 @@ import {
   PressRelease,
   SocialMediaContent,
   UserUpload,
+  SocialAccount,
+  CommunityForum,
+  QAPlatform,
+  MediaSource,
+  VideoPlatform,
+  PodcastNewsletter,
+  ReviewPlatform,
+  AppStore,
+  VerticalReviewSite,
+  EcommercePlatform,
+  CompetitorConfig,
+  InfluencerAccount,
+  AlertRule,
+  ProfessionalNetwork,
+  SearchEngineTracking,
+  SERPCompetitor,
+  DirectoryListing,
+  ExecutiveAccount,
+  PartnerAccount,
+  GuestPost,
+  BacklinkSource,
+  ExternalEvent,
 } from "@/app/types/context";
 
 interface ContextWizardProps {
@@ -53,7 +75,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
     values,
     onChange,
     placeholder,
-    icon: Icon = Link,
+    icon: Icon,
     maxHeight = "150px"
   }: {
     label: string,
@@ -93,9 +115,9 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
             values.map((val, idx) => (
               <div key={idx} className="flex gap-1.5 group">
                 <div className="relative flex-1">
-                  <Icon className="absolute left-2 top-2 h-3.5 w-3.5 text-muted-foreground" />
+                  {Icon && <Icon className="absolute left-2 top-2 h-3.5 w-3.5 text-muted-foreground" />}
                   <Input
-                    className="pl-7 h-8 text-xs"
+                    className={`h-8 text-xs ${Icon ? 'pl-7' : ''}`}
                     value={val}
                     onChange={(e) => update(idx, e.target.value)}
                     placeholder={placeholder}
@@ -1139,7 +1161,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                       const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, description: e.target.value } : c);
                                       updateOnSite({ websiteContent: updatedContent });
                                     }} className="text-xs h-7 bg-background/80 flex-1" />
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                       updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                     }}><X className="h-3 w-3" /></Button>
                                   </div>
@@ -1167,7 +1189,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                       const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                       updateOnSite({ websiteContent: updatedContent });
                                     }} className="text-xs h-7 bg-background/80" />
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                       updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                     }}><X className="h-3 w-3" /></Button>
                                   </div>
@@ -1193,7 +1215,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                       const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                       updateOnSite({ websiteContent: updatedContent });
                                     }} className="text-xs h-7 bg-background/80" />
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                       updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                     }}><X className="h-3 w-3" /></Button>
                                   </div>
@@ -1367,7 +1389,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
                                   }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1394,7 +1416,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, url: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
                                   }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1421,7 +1443,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
                                   }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1451,7 +1473,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
                                   }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1478,7 +1500,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
                                   }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1505,7 +1527,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
                                   }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1728,94 +1750,170 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
 
               {/* Off-site Tab */}
               <TabsContent value="offSite" className="p-6 m-0 h-full overflow-y-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
-                  {/* Column 1: Presence & Social */}
-                  <div className="space-y-6">
-                    {/* Official Channels */}
-                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><Globe className="h-4 w-4 text-blue-500" /> Digital Presence</h4>
-                      </div>
-                      <ComplexListInput
-                        label="Official Accounts"
-                        items={contextData.offSite.officialAccounts}
-                        onChange={(items) => updateOffSite({ officialAccounts: items })}
-                        onRemove={(id) => updateOffSite({ officialAccounts: contextData.offSite.officialAccounts.filter((i: OfficialAccount) => i.id !== id) })}
-                        onAdd={() => updateOffSite({ officialAccounts: [...contextData.offSite.officialAccounts, { id: uuidv4(), platform: "twitter", accountName: "", url: "" }] })}
-                        renderItem={renderOfficialAccount}
-                        maxHeight="none"
-                      />
-                    </div>
+                <div className="flex gap-6 pb-10">
+                  {/* Left Column - 1/3 Width: Monitoring, Tracking, Alerts, Collection */}
+                  <div className="w-1/3 shrink-0 space-y-4">
 
-                    {/* Social Media & UGC */}
-                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><Share2 className="h-4 w-4 text-pink-500" /> Social Listening & UGC</h4>
+                    {/* Section 1: Monitoring Scope */}
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-4">
+                      <h3 className="text-sm font-semibold flex items-center gap-2 border-b pb-2">
+                        <Target className="h-5 w-5 text-blue-500" /> Monitoring Scope
+                      </h3>
+
+                      {/* Keywords & Signals */}
+                      <div className="space-y-3">
+                        <SimpleArrayInput label="Brand Keywords" values={contextData.offSite.monitoringScope.brandKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, brandKeywords: v } })} placeholder="Brand name, abbreviation..." maxHeight="100px" />
+                        <SimpleArrayInput label="Product Keywords" values={contextData.offSite.monitoringScope.productKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, productKeywords: v } })} placeholder="Product name..." maxHeight="100px" />
+                        <SimpleArrayInput label="Key Persons" values={contextData.offSite.monitoringScope.keyPersons} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, keyPersons: v } })} placeholder="CEO, spokesperson..." maxHeight="80px" />
+                        <SimpleArrayInput label="Hashtags" values={contextData.offSite.monitoringScope.hashtags} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, hashtags: v } })} placeholder="#CampaignName" maxHeight="80px" />
                       </div>
-                      <ComplexListInput
-                        label="Tracked Content"
-                        items={contextData.offSite.socialMediaContent}
-                        onChange={(items) => updateOffSite({ socialMediaContent: items })}
-                        onRemove={(id) => updateOffSite({ socialMediaContent: contextData.offSite.socialMediaContent.filter((i: SocialMediaContent) => i.id !== id) })}
-                        onAdd={() => updateOffSite({ socialMediaContent: [...contextData.offSite.socialMediaContent, { id: uuidv4(), platform: "twitter", type: "ugc", creatorName: "", contentUrl: "", contentType: "post" }] })}
-                        renderItem={renderSocialMediaContent}
-                        maxHeight="none"
-                      />
+
+                      {/* Filters */}
+                      <div className="space-y-3 pt-2 border-t">
+                        <SimpleArrayInput label="Required Keywords (AND)" values={contextData.offSite.monitoringScope.requiredKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, requiredKeywords: v } })} placeholder="Must co-occur..." maxHeight="80px" />
+                        <SimpleArrayInput label="Excluded Keywords" values={contextData.offSite.monitoringScope.excludedKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, excludedKeywords: v } })} placeholder="Noise exclusion..." maxHeight="80px" />
+                      </div>
+
+                      {/* Geographic & Language */}
+                      <div className="space-y-3 pt-2 border-t">
+                        <div className="grid grid-cols-2 gap-2">
+                          <SimpleArrayInput label="Regions" values={contextData.offSite.monitoringScope.regions} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, regions: v } })} placeholder="US, CN, EU..." maxHeight="80px" />
+                          <SimpleArrayInput label="Languages" values={contextData.offSite.monitoringScope.languages} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, languages: v } })} placeholder="EN, ZH..." maxHeight="80px" />
+                        </div>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Column 2: PR & Reputation */}
-                  <div className="space-y-6">
-                    {/* PR & Media */}
-                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><Newspaper className="h-4 w-4 text-purple-500" /> Public Relations</h4>
+                  {/* Right Column - 2/3 Width: MECE Layout */}
+                  <div className="flex-1 space-y-4">
+                    {/* ===== SECTION 1: OWNED PRESENCE (整行) ===== */}
+                    <div className="p-4 border rounded-lg bg-gradient-to-br from-blue-500/5 to-purple-500/5 space-y-3">
+                      <h3 className="text-sm font-semibold flex items-center gap-2 text-primary"><Building2 className="h-4 w-4 text-blue-500" /> Owned Presence</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* Official Channels */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Official Channels</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ socialAccounts: [...contextData.offSite.socialAccounts, { id: uuidv4(), platform: 'X', accountName: '', url: '', isPriority: false }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[120px] overflow-y-auto">
+                            {contextData.offSite.socialAccounts.map((a: SocialAccount) => (<div key={a.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={a.platform} onChange={(e) => updateOffSite({ socialAccounts: contextData.offSite.socialAccounts.map((x: SocialAccount) => x.id === a.id ? { ...x, platform: e.target.value } : x) })}><option>X</option><option>LinkedIn</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>TikTok</option><option>Threads</option><option>Pinterest</option><option>Podcast</option><option>Newsletter</option><option>Blog</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="URL" value={a.url} onChange={(e) => updateOffSite({ socialAccounts: contextData.offSite.socialAccounts.map((x: SocialAccount) => x.id === a.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ socialAccounts: contextData.offSite.socialAccounts.filter((x: SocialAccount) => x.id !== a.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                        {/* Executive Accounts */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Executive Accounts</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ executiveAccounts: [...(contextData.offSite.executiveAccounts || []), { id: uuidv4(), name: '', title: '', platform: 'LinkedIn', handle: '', xUrl: '', linkedinUrl: '' }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[120px] overflow-y-auto">
+                            {(contextData.offSite.executiveAccounts || []).map((e: ExecutiveAccount) => (<div key={e.id} className="flex gap-1 group text-xs items-center"><Input className="h-8 text-xs w-16" placeholder="Name" value={e.name} onChange={(ev) => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).map((x: ExecutiveAccount) => x.id === e.id ? { ...x, name: ev.target.value } : x) })} /><Input className="h-8 text-xs flex-1" placeholder="X URL" value={(e as any).xUrl || ''} onChange={(ev) => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).map((x: ExecutiveAccount) => x.id === e.id ? { ...x, xUrl: ev.target.value } as any : x) })} /><Input className="h-8 text-xs flex-1" placeholder="LinkedIn URL" value={(e as any).linkedinUrl || e.handle || ''} onChange={(ev) => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).map((x: ExecutiveAccount) => x.id === e.id ? { ...x, linkedinUrl: ev.target.value, handle: ev.target.value } as any : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).filter((x: ExecutiveAccount) => x.id !== e.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
                       </div>
-                      <ComplexListInput
-                        label="Press & Media Coverage"
-                        items={contextData.offSite.pressReleases}
-                        onChange={(items) => updateOffSite({ pressReleases: items })}
-                        onRemove={(id) => updateOffSite({ pressReleases: contextData.offSite.pressReleases.filter((i: PressRelease) => i.id !== id) })}
-                        onAdd={() => updateOffSite({ pressReleases: [...contextData.offSite.pressReleases, { id: uuidv4(), title: "", url: "", source: "", type: "press_release" }] })}
-                        renderItem={renderPressRelease}
-                        maxHeight="none"
-                      />
                     </div>
 
-                    {/* Reputation */}
-                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><MessageSquare className="h-4 w-4 text-orange-400" /> Reputation & Reviews</h4>
+                    {/* ===== ROW 1: Reviews & Community ===== */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Reviews & Listings */}
+                      <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                        <h3 className="text-sm font-semibold flex items-center gap-2"><Star className="h-4 w-4 text-yellow-500" /> Reviews & Listings</h3>
+                        {/* Reviews */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Reviews</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ reviewPlatforms: [...contextData.offSite.reviewPlatforms, { id: uuidv4(), platform: 'G2', profileUrl: '', fetchDetails: true }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[60px] overflow-y-auto">
+                            {contextData.offSite.reviewPlatforms.map((r: ReviewPlatform) => (<div key={r.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={r.platform} onChange={(e) => updateOffSite({ reviewPlatforms: contextData.offSite.reviewPlatforms.map((x: ReviewPlatform) => x.id === r.id ? { ...x, platform: e.target.value } : x) })}><option>G2</option><option>Capterra</option><option>TrustRadius</option><option>Trustpilot</option><option>Gartner</option><option>Glassdoor</option><option>Yelp</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={r.profileUrl} onChange={(e) => updateOffSite({ reviewPlatforms: contextData.offSite.reviewPlatforms.map((x: ReviewPlatform) => x.id === r.id ? { ...x, profileUrl: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ reviewPlatforms: contextData.offSite.reviewPlatforms.filter((x: ReviewPlatform) => x.id !== r.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                        {/* Directories */}
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Directories</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ directoryListings: [...(contextData.offSite.directoryListings || []), { id: uuidv4(), directoryName: '', listingUrl: '' }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[60px] overflow-y-auto">
+                            {(contextData.offSite.directoryListings || []).map((d: DirectoryListing) => (<div key={d.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={d.directoryName || ''} onChange={(e) => updateOffSite({ directoryListings: (contextData.offSite.directoryListings || []).map((x: DirectoryListing) => x.id === d.id ? { ...x, directoryName: e.target.value } : x) })}><option value="">Select...</option><option>Product Hunt</option><option>Crunchbase</option><option>AngelList</option><option>AlternativeTo</option><option>SaaSHub</option><option>SourceForge</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Listing URL" value={d.listingUrl} onChange={(e) => updateOffSite({ directoryListings: (contextData.offSite.directoryListings || []).map((x: DirectoryListing) => x.id === d.id ? { ...x, listingUrl: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ directoryListings: (contextData.offSite.directoryListings || []).filter((x: DirectoryListing) => x.id !== d.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                        {/* Storefronts */}
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Storefronts</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ ecommercePlatforms: [...contextData.offSite.ecommercePlatforms, { id: uuidv4(), platform: 'App Store', storeName: '', storeUrl: '', collectReviews: true, collectQA: false, collectRatings: true, collectSalesRank: false }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[60px] overflow-y-auto">
+                            {contextData.offSite.ecommercePlatforms.map((e: EcommercePlatform) => (<div key={e.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={e.platform} onChange={(ev) => updateOffSite({ ecommercePlatforms: contextData.offSite.ecommercePlatforms.map((x: EcommercePlatform) => x.id === e.id ? { ...x, platform: ev.target.value } : x) })}><option>App Store</option><option>Google Play</option><option>Microsoft Store</option><option>Amazon</option><option>eBay</option><option>Etsy</option><option>Walmart</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Store URL" value={e.storeUrl} onChange={(ev) => updateOffSite({ ecommercePlatforms: contextData.offSite.ecommercePlatforms.map((x: EcommercePlatform) => x.id === e.id ? { ...x, storeUrl: ev.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ ecommercePlatforms: contextData.offSite.ecommercePlatforms.filter((x: EcommercePlatform) => x.id !== e.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
                       </div>
-                      <ComplexListInput
-                        label="Customer Reviews"
-                        items={contextData.offSite.customerReviews}
-                        onChange={(items) => updateOffSite({ customerReviews: items })}
-                        onRemove={(id) => updateOffSite({ customerReviews: contextData.offSite.customerReviews.filter((i: CustomerReview) => i.id !== id) })}
-                        onAdd={() => updateOffSite({ customerReviews: [...contextData.offSite.customerReviews, { id: uuidv4(), source: "", content: "" }] })}
-                        renderItem={renderCustomerReview}
-                        maxHeight="none"
-                      />
+                      {/* Community */}
+                      <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                        <h3 className="text-sm font-semibold flex items-center gap-2"><MessageSquare className="h-4 w-4 text-blue-500" /> Community</h3>
+                        {/* Forums */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Forums</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ communities: [...contextData.offSite.communities, { id: uuidv4(), platformType: 'Reddit', communityName: '', url: '', tags: [] }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
+                            {contextData.offSite.communities.map((c: CommunityForum) => (<div key={c.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={c.platformType} onChange={(e) => updateOffSite({ communities: contextData.offSite.communities.map((x: CommunityForum) => x.id === c.id ? { ...x, platformType: e.target.value } : x) })}><option>Reddit</option><option>Discord</option><option>Slack</option><option>Telegram</option><option>GitHub</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Community URL" value={c.url} onChange={(e) => updateOffSite({ communities: contextData.offSite.communities.map((x: CommunityForum) => x.id === c.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ communities: contextData.offSite.communities.filter((x: CommunityForum) => x.id !== c.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                        {/* Q&A */}
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Q&A</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ qaPlatforms: [...contextData.offSite.qaPlatforms, { id: uuidv4(), platform: 'Stack Overflow', monitoringKeywords: [] }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[60px] overflow-y-auto">
+                            {contextData.offSite.qaPlatforms.map((q: QAPlatform) => (<div key={q.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={q.platform} onChange={(e) => updateOffSite({ qaPlatforms: contextData.offSite.qaPlatforms.map((x: QAPlatform) => x.id === q.id ? { ...x, platform: e.target.value } : x) })}><option>Stack Overflow</option><option>Quora</option><option>Reddit AMA</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile/Tag URL" value={(q as any).url || ''} onChange={(e) => updateOffSite({ qaPlatforms: contextData.offSite.qaPlatforms.map((x: QAPlatform) => x.id === q.id ? { ...x, url: e.target.value } as any : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ qaPlatforms: contextData.offSite.qaPlatforms.filter((x: QAPlatform) => x.id !== q.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                        {/* Groups */}
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Groups</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ professionalNetworks: [...(contextData.offSite.professionalNetworks || []), { id: uuidv4(), platform: 'LinkedIn', groupName: '', url: '' }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[60px] overflow-y-auto">
+                            {(contextData.offSite.professionalNetworks || []).map((p: ProfessionalNetwork) => (<div key={p.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={p.platform} onChange={(e) => updateOffSite({ professionalNetworks: (contextData.offSite.professionalNetworks || []).map((x: ProfessionalNetwork) => x.id === p.id ? { ...x, platform: e.target.value } : x) })}><option>LinkedIn</option><option>Facebook</option><option>Slack</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Group URL" value={p.url} onChange={(e) => updateOffSite({ professionalNetworks: (contextData.offSite.professionalNetworks || []).map((x: ProfessionalNetwork) => x.id === p.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ professionalNetworks: (contextData.offSite.professionalNetworks || []).filter((x: ProfessionalNetwork) => x.id !== p.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Column 3: Ecosystem */}
-                  <div className="space-y-6">
-                    {/* Partnerships */}
-                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><Handshake className="h-4 w-4 text-emerald-500" /> Strategic Ecosystem</h4>
+                    {/* ===== ROW 2: Media & KOLs ===== */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Media */}
+                      <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                        <h3 className="text-sm font-semibold flex items-center gap-2"><Newspaper className="h-4 w-4 text-purple-500" /> Media</h3>
+                        {/* Channels */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Channels</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ mediaSources: [...contextData.offSite.mediaSources, { id: uuidv4(), name: '', type: 'news', url: '' }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
+                            {contextData.offSite.mediaSources.map((m: MediaSource) => (<div key={m.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={m.type} onChange={(e) => updateOffSite({ mediaSources: contextData.offSite.mediaSources.map((x: MediaSource) => x.id === m.id ? { ...x, type: e.target.value as any } : x) })}><option value="news">News</option><option value="blog">Blog</option><option value="podcast">Podcast</option><option value="newsletter">Newsletter</option><option value="youtube">YouTube</option><option value="other">Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Channel URL" value={m.url} onChange={(e) => updateOffSite({ mediaSources: contextData.offSite.mediaSources.map((x: MediaSource) => x.id === m.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ mediaSources: contextData.offSite.mediaSources.filter((x: MediaSource) => x.id !== m.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                        {/* Coverage */}
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Coverage</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ backlinks: [...(contextData.offSite.backlinks || []), { id: uuidv4(), domain: '', type: 'editorial', doFollow: true }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
+                            {(contextData.offSite.backlinks || []).map((b: BacklinkSource) => (<div key={b.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={b.type} onChange={(e) => updateOffSite({ backlinks: (contextData.offSite.backlinks || []).map((x: BacklinkSource) => x.id === b.id ? { ...x, type: e.target.value as any } : x) })}><option value="editorial">Article</option><option value="feature">Feature</option><option value="interview">Interview</option><option value="guest_post">Guest Post</option><option value="review">Review</option><option value="mention">Mention</option><option value="other">Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Post URL" value={b.pageUrl || b.domain} onChange={(e) => updateOffSite({ backlinks: (contextData.offSite.backlinks || []).map((x: BacklinkSource) => x.id === b.id ? { ...x, pageUrl: e.target.value, domain: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ backlinks: (contextData.offSite.backlinks || []).filter((x: BacklinkSource) => x.id !== b.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                        {/* Events */}
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Events</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ externalEvents: [...(contextData.offSite.externalEvents || []), { id: uuidv4(), name: '', type: 'conference', role: 'speaker' }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
+                            {(contextData.offSite.externalEvents || []).map((ev: ExternalEvent) => (<div key={ev.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={ev.type} onChange={(e) => updateOffSite({ externalEvents: (contextData.offSite.externalEvents || []).map((x: ExternalEvent) => x.id === ev.id ? { ...x, type: e.target.value as any } : x) })}><option value="conference">Conference</option><option value="summit">Summit</option><option value="webinar">Webinar</option><option value="podcast_appearance">Podcast</option><option value="workshop">Workshop</option><option value="meetup">Meetup</option><option value="award">Award</option><option value="other">Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Event URL" value={ev.url || ''} onChange={(e) => updateOffSite({ externalEvents: (contextData.offSite.externalEvents || []).map((x: ExternalEvent) => x.id === ev.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ externalEvents: (contextData.offSite.externalEvents || []).filter((x: ExternalEvent) => x.id !== ev.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
                       </div>
-                      <ComplexListInput
-                        label="Partnerships"
-                        items={contextData.offSite.partnerships}
-                        onChange={(items) => updateOffSite({ partnerships: items })}
-                        onRemove={(id) => updateOffSite({ partnerships: contextData.offSite.partnerships.filter((i: Partnership) => i.id !== id) })}
-                        onAdd={() => updateOffSite({ partnerships: [...contextData.offSite.partnerships, { id: uuidv4(), name: "", type: "technology", status: "active" }] })}
-                        renderItem={renderPartnership}
-                        maxHeight="none"
-                      />
+                      {/* KOLs */}
+                      <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                        <h3 className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4 text-pink-500" /> KOLs</h3>
+                        {/* Creators */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Creators</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ influencerAccounts: [...contextData.offSite.influencerAccounts, { id: uuidv4(), name: '', platform: 'YouTube', url: '', role: 'kol', tier: '2' }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
+                            {contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'kol').map((i: InfluencerAccount) => (<div key={i.id} className="flex gap-1 group text-xs items-center"><select className="h-8 w-20 rounded border px-1 text-xs" value={i.platform} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, platform: e.target.value } : x) })}><option>YouTube</option><option>TikTok</option><option>Instagram</option><option>X</option><option>Twitch</option><option>Substack</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={i.url} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.filter((x: InfluencerAccount) => x.id !== i.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                        {/* Experts */}
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Experts</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ influencerAccounts: [...contextData.offSite.influencerAccounts, { id: uuidv4(), name: '', platform: 'Analyst', url: '', role: 'analyst', tier: '2' }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
+                            {contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'analyst').map((i: InfluencerAccount) => (<div key={i.id} className="flex gap-1 group text-xs items-center"><select className="h-8 w-20 rounded border px-1 text-xs" value={i.platform} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, platform: e.target.value } : x) })}><option>Analyst</option><option>Consultant</option><option>Speaker</option><option>Author</option><option>Researcher</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={i.url} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.filter((x: InfluencerAccount) => x.id !== i.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                        {/* Press */}
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Press</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ influencerAccounts: [...contextData.offSite.influencerAccounts, { id: uuidv4(), name: '', platform: 'Journalist', url: '', role: 'media', tier: '2' }] })}><Plus className="h-3 w-3" /></Button></div>
+                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
+                            {contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'journalist' || i.role === 'media').map((i: InfluencerAccount) => (<div key={i.id} className="flex gap-1 group text-xs items-center"><select className="h-8 w-20 rounded border px-1 text-xs" value={i.platform} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, platform: e.target.value } : x) })}><option>Journalist</option><option>Editor</option><option>Columnist</option><option>Blogger</option><option>Podcaster</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={i.url} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.filter((x: InfluencerAccount) => x.id !== i.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
+
                   </div>
                 </div>
               </TabsContent>

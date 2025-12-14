@@ -80,18 +80,18 @@ export function ContextProvider({ children }: { children: React.ReactNode }) {
   // Check if context is effectively empty
   const isContextEmpty = React.useMemo(() => {
     const { onSite, offSite, knowledge } = contextData;
-    
-    const hasOnSite = 
+
+    const hasOnSite =
       !!onSite.brandInfo.name ||
-      onSite.landingPages.length > 0 || 
+      onSite.landingPages.length > 0 ||
       onSite.blogPosts.length > 0;
-      
-    const hasOffSite = 
-      offSite.officialAccounts.length > 0 || 
+
+    const hasOffSite =
+      offSite.officialAccounts.length > 0 ||
       offSite.pressReleases.length > 0;
-      
-    const hasKnowledge = 
-      knowledge.competitors.length > 0 || 
+
+    const hasKnowledge =
+      knowledge.competitors.length > 0 ||
       knowledge.userUploads.length > 0;
 
     return !hasOnSite && !hasOffSite && !hasKnowledge;

@@ -253,26 +253,37 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
     const onSiteRealTotal = onSiteCounts.brand + onSiteCounts.pages + onSiteCounts.landing + onSiteCounts.blog + onSiteCounts.hero + onSiteCounts.problem + onSiteCounts.audience + onSiteCounts.useCases + onSiteCounts.industries + onSiteCounts.products + onSiteCounts.socialProof + onSiteCounts.team + onSiteCounts.about + onSiteCounts.faq + onSiteCounts.contact;
 
     const offSiteCounts = {
-      // Digital Presence
-      osChannels: contextData.offSite.officialAccounts?.length || 0,
-      osSocial: contextData.offSite.socialMediaContent?.length || 0,
-      get presence() { return this.osChannels + this.osSocial; },
+      // Owned Presence
+      osOfficialChannels: contextData.offSite.socialAccounts?.length || 0,
+      osExecutiveAccounts: contextData.offSite.executiveAccounts?.length || 0,
+      get ownedPresence() { return this.osOfficialChannels + this.osExecutiveAccounts; },
 
-      // PR
-      osPROnly: (contextData.offSite.pressReleases?.filter((p: any) => p.type === "press_release").length || 0),
-      osMedia: (contextData.offSite.pressReleases?.filter((p: any) => p.type !== "press_release").length || 0),
-      get pr() { return this.osPROnly + this.osMedia; },
+      // Reviews & Listings
+      osReviews: contextData.offSite.reviewPlatforms?.length || 0,
+      osDirectories: contextData.offSite.directoryListings?.length || 0,
+      osStorefronts: contextData.offSite.ecommercePlatforms?.length || 0,
+      get reviewsListings() { return this.osReviews + this.osDirectories + this.osStorefronts; },
 
-      // Reputation
-      osReviews: contextData.offSite.customerReviews?.length || 0,
-      get reputation() { return this.osReviews; },
+      // Community
+      osForums: contextData.offSite.communities?.length || 0,
+      osQA: contextData.offSite.qaPlatforms?.length || 0,
+      osGroups: contextData.offSite.professionalNetworks?.length || 0,
+      get community() { return this.osForums + this.osQA + this.osGroups; },
 
-      // Ecosystem
-      osPartners: contextData.offSite.partnerships?.length || 0,
-      get ecosystem() { return this.osPartners; },
+      // Media
+      osMediaChannels: contextData.offSite.mediaSources?.length || 0,
+      osCoverage: contextData.offSite.backlinks?.length || 0,
+      osEvents: contextData.offSite.externalEvents?.length || 0,
+      get media() { return this.osMediaChannels + this.osCoverage + this.osEvents; },
+
+      // KOLs
+      osCreators: contextData.offSite.influencerAccounts?.filter((i: any) => i.role === 'kol').length || 0,
+      osExperts: contextData.offSite.influencerAccounts?.filter((i: any) => i.role === 'analyst').length || 0,
+      osPress: contextData.offSite.influencerAccounts?.filter((i: any) => i.role === 'journalist' || i.role === 'media').length || 0,
+      get kols() { return this.osCreators + this.osExperts + this.osPress; },
     };
     // Correct total calculation
-    const offSiteTotal = offSiteCounts.presence + offSiteCounts.pr + offSiteCounts.reputation + offSiteCounts.ecosystem;
+    const offSiteTotal = offSiteCounts.ownedPresence + offSiteCounts.reviewsListings + offSiteCounts.community + offSiteCounts.media + offSiteCounts.kols;
 
     const knowledgeCounts = {
       // Market Intel
@@ -424,22 +435,33 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
                       icon={Globe}
                       onClick={() => openWizard("offSite")}
                     >
-                      <TreeItem label="Digital Presence" count={offSiteCounts.presence} icon={Share2} level={1} onClick={() => openWizard("offSite")}>
-                        <TreeItem label="Official Accounts" count={offSiteCounts.osChannels} icon={Globe} level={2} />
-                        <TreeItem label="Social Listening" count={offSiteCounts.osSocial} icon={MessageSquare} level={2} />
+                      <TreeItem label="Owned Presence" count={offSiteCounts.ownedPresence} icon={Share2} level={1} onClick={() => openWizard("offSite")}>
+                        <TreeItem label="Official Channels" count={offSiteCounts.osOfficialChannels} icon={Globe} level={2} />
+                        <TreeItem label="Executive Accounts" count={offSiteCounts.osExecutiveAccounts} icon={User} level={2} />
                       </TreeItem>
 
-                      <TreeItem label="Public Relations" count={offSiteCounts.pr} icon={Newspaper} level={1} onClick={() => openWizard("offSite")}>
-                        <TreeItem label="Press Releases" count={offSiteCounts.osPROnly} icon={FileText} level={2} />
-                        <TreeItem label="Media Coverage" count={offSiteCounts.osMedia} icon={Megaphone} level={2} />
+                      <TreeItem label="Reviews & Listings" count={offSiteCounts.reviewsListings} icon={Star} level={1} onClick={() => openWizard("offSite")}>
+                        <TreeItem label="Reviews" count={offSiteCounts.osReviews} icon={MessageSquare} level={2} />
+                        <TreeItem label="Directories" count={offSiteCounts.osDirectories} icon={Folder} level={2} />
+                        <TreeItem label="Storefronts" count={offSiteCounts.osStorefronts} icon={ShoppingBag} level={2} />
                       </TreeItem>
 
-                      <TreeItem label="Reputation" count={offSiteCounts.reputation} icon={Star} level={1} onClick={() => openWizard("offSite")}>
-                        <TreeItem label="Customer Reviews" count={offSiteCounts.osReviews} icon={MessageSquare} level={2} />
+                      <TreeItem label="Community" count={offSiteCounts.community} icon={Users} level={1} onClick={() => openWizard("offSite")}>
+                        <TreeItem label="Forums" count={offSiteCounts.osForums} icon={MessageSquare} level={2} />
+                        <TreeItem label="Q&A" count={offSiteCounts.osQA} icon={HelpCircle} level={2} />
+                        <TreeItem label="Groups" count={offSiteCounts.osGroups} icon={Users} level={2} />
                       </TreeItem>
 
-                      <TreeItem label="Strategic Ecosystem" count={offSiteCounts.ecosystem} icon={Handshake} level={1} onClick={() => openWizard("offSite")}>
-                        <TreeItem label="Partnerships" count={offSiteCounts.osPartners} icon={Briefcase} level={2} />
+                      <TreeItem label="Media" count={offSiteCounts.media} icon={Newspaper} level={1} onClick={() => openWizard("offSite")}>
+                        <TreeItem label="Channels" count={offSiteCounts.osMediaChannels} icon={Megaphone} level={2} />
+                        <TreeItem label="Coverage" count={offSiteCounts.osCoverage} icon={FileText} level={2} />
+                        <TreeItem label="Events" count={offSiteCounts.osEvents} icon={Briefcase} level={2} />
+                      </TreeItem>
+
+                      <TreeItem label="KOLs" count={offSiteCounts.kols} icon={Target} level={1} onClick={() => openWizard("offSite")}>
+                        <TreeItem label="Creators" count={offSiteCounts.osCreators} icon={Users} level={2} />
+                        <TreeItem label="Experts" count={offSiteCounts.osExperts} icon={User} level={2} />
+                        <TreeItem label="Press" count={offSiteCounts.osPress} icon={Newspaper} level={2} />
                       </TreeItem>
                     </TreeItem>
 
