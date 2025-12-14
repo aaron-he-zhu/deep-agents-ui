@@ -149,7 +149,7 @@ export function PlaybookDialog({
                   </div>
                   <div className="space-y-2">
                     <div className="font-medium text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <BarChart className="h-3 w-3" /> Artefacts
+                      <BarChart className="h-3 w-3" /> Artifacts
                     </div>
                     <ul className="space-y-1">
                       {selectedPlaybook.outputs.map((output, i) => (
@@ -265,7 +265,7 @@ export function PlaybookDialog({
                     </div>
                     <div className="space-y-1.5">
                       <div className="font-medium text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                        <BarChart className="h-3 w-3" /> Artefacts
+                        <BarChart className="h-3 w-3" /> Artifacts
                       </div>
                       <div className="text-foreground line-clamp-2">
                         {playbook.outputs.slice(0, 2).join(", ")}...

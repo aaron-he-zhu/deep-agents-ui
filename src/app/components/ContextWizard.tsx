@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useContextMenu } from "@/providers/ContextProvider";
-import { Plus, X, Link, Link2, Briefcase, ShoppingBag, Layout, Users, Megaphone, Share2, MessageSquare, TrendingUp, Target, Globe, FileText, Rss, Map, Palette, BookOpen, Flag, AlertTriangle, Zap, Building2, Star, UserCircle, Info, HelpCircle, BarChart3, Database, Folder, Monitor, Handshake, Twitter, Instagram, Linkedin, Youtube, Github, Facebook, Newspaper, Network, Calendar, Mic, Video } from "lucide-react";
+import { Plus, X, Link, Link2, Briefcase, ShoppingBag, Layout, Users, Megaphone, Share2, MessageSquare, TrendingUp, Target, Globe, FileText, Rss, Map, Palette, BookOpen, Flag, AlertTriangle, Zap, Building2, Star, UserCircle, Info, HelpCircle, BarChart3, Database, Folder, Monitor, Handshake, Twitter, Instagram, Linkedin, Youtube, Github, Facebook, Newspaper, Network, Calendar, Mic, Video, Save, Cloud, Upload } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 import {
   LandingPage,
@@ -76,7 +76,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
     onChange,
     placeholder,
     icon: Icon,
-    maxHeight = "150px"
+    maxHeight = "none"
   }: {
     label: string,
     values: string[],
@@ -106,10 +106,10 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
         <div className="space-y-1.5" style={maxHeight === "none" ? {} : { maxHeight, overflowY: "auto" }}>
           {values.length === 0 ? (
             <div
-              className="flex items-center justify-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50 transition-colors text-xs text-muted-foreground"
+              className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50"
               onClick={add}
             >
-              Click + to add
+              Click + to add{label ? ` ${label.toLowerCase()}` : ''}
             </div>
           ) : (
             values.map((val, idx) => (
@@ -142,7 +142,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
     onAdd,
     onRemove,
     onChange,
-    maxHeight = "300px"
+    maxHeight = "none"
   }: {
     label: string;
     items: T[];
@@ -169,10 +169,10 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
           {
             items.length === 0 ? (
               <div
-                className="flex items-center justify-center py-4 border border-dashed rounded-md cursor-pointer hover:bg-accent/50 transition-colors text-xs text-muted-foreground"
+                className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50"
                 onClick={onAdd}
               >
-                Click + to add
+                Click + to add{label ? ` ${label.toLowerCase()}` : ''}
               </div>
             ) : (
               items.map((item, idx) => (
@@ -272,8 +272,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                 <div className="text-xs text-muted-foreground/60 text-center py-1 border border-dashed rounded cursor-pointer hover:bg-accent/30" onClick={addFeature}>+</div>
               ) : (item.features || []).map((f, idx) => (
                 <div key={idx} className="flex gap-1 group">
-                  <Input value={f} onChange={(e) => updateFeature(idx, e.target.value)} placeholder="Feature..." className="text-xs h-6 px-2" />
-                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removeFeature(idx)}><X className="h-2.5 w-2.5" /></Button>
+                  <Input value={f} onChange={(e) => updateFeature(idx, e.target.value)} placeholder="Feature..." className="text-xs h-8 px-2" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removeFeature(idx)}><X className="h-3 w-3" /></Button>
                 </div>
               ))}
             </div>
@@ -290,8 +290,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                 <div className="text-xs text-muted-foreground/60 text-center py-1 border border-dashed rounded cursor-pointer hover:bg-accent/30" onClick={addBenefit}>+</div>
               ) : (item.benefits || []).map((b, idx) => (
                 <div key={idx} className="flex gap-1 group">
-                  <Input value={b} onChange={(e) => updateBenefit(idx, e.target.value)} placeholder="Benefit..." className="text-xs h-6 px-2" />
-                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removeBenefit(idx)}><X className="h-2.5 w-2.5" /></Button>
+                  <Input value={b} onChange={(e) => updateBenefit(idx, e.target.value)} placeholder="Benefit..." className="text-xs h-8 px-2" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removeBenefit(idx)}><X className="h-3 w-3" /></Button>
                 </div>
               ))}
             </div>
@@ -308,8 +308,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                 <div className="text-xs text-muted-foreground/60 text-center py-1 border border-dashed rounded cursor-pointer hover:bg-accent/30" onClick={addStep}>+</div>
               ) : (item.howItWorks || []).map((s, idx) => (
                 <div key={idx} className="flex gap-1 group">
-                  <Input value={s} onChange={(e) => updateStep(idx, e.target.value)} placeholder={`Step ${idx + 1}...`} className="text-xs h-6 px-2" />
-                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removeStep(idx)}><X className="h-2.5 w-2.5" /></Button>
+                  <Input value={s} onChange={(e) => updateStep(idx, e.target.value)} placeholder={`Step ${idx + 1}...`} className="text-xs h-8 px-2" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removeStep(idx)}><X className="h-3 w-3" /></Button>
                 </div>
               ))}
             </div>
@@ -326,9 +326,9 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                 <div className="text-xs text-muted-foreground/60 text-center py-1 border border-dashed rounded cursor-pointer hover:bg-accent/30" onClick={addPlan}>+</div>
               ) : (item.pricingPlans || []).map((plan, idx) => (
                 <div key={idx} className="flex gap-1 group">
-                  <Input value={plan.name} onChange={(e) => updatePlan(idx, "name", e.target.value)} placeholder="Plan..." className="text-xs h-6 px-1 w-1/2" />
-                  <Input value={plan.price} onChange={(e) => updatePlan(idx, "price", e.target.value)} placeholder="$0/mo" className="text-xs h-6 px-1 w-1/2" />
-                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removePlan(idx)}><X className="h-2.5 w-2.5" /></Button>
+                  <Input value={plan.name} onChange={(e) => updatePlan(idx, "name", e.target.value)} placeholder="Plan..." className="text-xs h-8 px-1 w-1/2" />
+                  <Input value={plan.price} onChange={(e) => updatePlan(idx, "price", e.target.value)} placeholder="$0/mo" className="text-xs h-8 px-1 w-1/2" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => removePlan(idx)}><X className="h-3 w-3" /></Button>
                 </div>
               ))}
             </div>
@@ -764,16 +764,16 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
         <DialogHeader className="px-6 py-4 border-b shrink-0 bg-muted/30">
           <DialogTitle>Context Wizard</DialogTitle>
           <DialogDescription>
-            Provide comprehensive context to help the agent understand your brand, market, and assets.
+            Define your brand identity, products, team, competitive positioning, and upload supporting knowledge to power smarter agent decisions.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden flex flex-col min-h-0">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="flex-1 flex flex-col min-h-0">
-            <TabsList className="grid w-full grid-cols-3 shrink-0">
-              <TabsTrigger value="onSite" className="flex items-center gap-2"><Network className="h-4 w-4" /> On-site</TabsTrigger>
-              <TabsTrigger value="offSite" className="flex items-center gap-2"><Globe className="h-4 w-4" /> Off-site</TabsTrigger>
-              <TabsTrigger value="knowledge" className="flex items-center gap-2"><BookOpen className="h-4 w-4" /> Knowledge</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 shrink-0 h-11 p-1 bg-muted/80">
+              <TabsTrigger value="onSite" className="flex items-center gap-2 font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm"><Network className="h-4 w-4" /> On-site</TabsTrigger>
+              <TabsTrigger value="offSite" className="flex items-center gap-2 font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm"><Globe className="h-4 w-4" /> Off-site</TabsTrigger>
+              <TabsTrigger value="knowledge" className="flex items-center gap-2 font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm"><BookOpen className="h-4 w-4" /> Knowledge</TabsTrigger>
             </TabsList>
 
             <div className="flex-1 overflow-y-auto min-h-0">
@@ -785,7 +785,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     {/* Brand Assets - Expanded */}
                     <div className="p-4 border rounded-lg bg-card/50 space-y-4">
                       <h3 className="text-sm font-semibold flex items-center gap-2 border-b pb-2">
-                        <Palette className="h-5 w-5 text-purple-500" /> Brand Assets
+                        <Palette className="h-5 w-5 text-muted-foreground" /> Brand Assets
                       </h3>
                       <div className="grid gap-3">
                         {/* Homepage Meta Info */}
@@ -828,7 +828,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                 placeholder="https://... (1200x630)"
                                 value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#meta-og-image")?.name || ""}
                                 onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#meta-og-image"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#meta-og-image", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
-                                className="text-xs h-7"
+                                className="text-xs h-8"
                               />
                             </div>
                             <div>
@@ -837,7 +837,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                 placeholder="https://... (32x32)"
                                 value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#meta-favicon")?.name || ""}
                                 onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#meta-favicon"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#meta-favicon", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
-                                className="text-xs h-7"
+                                className="text-xs h-8"
                               />
                             </div>
                           </div>
@@ -849,25 +849,25 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                               placeholder="Full Logo (Light)"
                               value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-logo")?.name || ""}
                               onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-logo"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-logo", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
-                              className="text-xs h-7"
+                              className="text-xs h-8"
                             />
                             <Input
                               placeholder="Full Logo (Dark)"
                               value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-logo-dark")?.name || ""}
                               onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-logo-dark"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-logo-dark", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
-                              className="text-xs h-7"
+                              className="text-xs h-8"
                             />
                             <Input
                               placeholder="Icon Only (Light)"
                               value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-logo-icon")?.name || ""}
                               onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-logo-icon"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-logo-icon", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
-                              className="text-xs h-7"
+                              className="text-xs h-8"
                             />
                             <Input
                               placeholder="Icon Only (Dark)"
                               value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-logo-icon-dark")?.name || ""}
                               onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-logo-icon-dark"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-logo-icon-dark", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
-                              className="text-xs h-7"
+                              className="text-xs h-8"
                             />
                           </div>
                         </div>
@@ -878,25 +878,25 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                               placeholder="Primary (Light): #3B82F6"
                               value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-color-primary")?.name || ""}
                               onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-color-primary"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-color-primary", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
-                              className="text-xs h-7"
+                              className="text-xs h-8"
                             />
                             <Input
                               placeholder="Primary (Dark): #60A5FA"
                               value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-color-primary-dark")?.name || ""}
                               onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-color-primary-dark"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-color-primary-dark", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
-                              className="text-xs h-7"
+                              className="text-xs h-8"
                             />
                             <Input
                               placeholder="Secondary (Light): #10B981"
                               value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-color-secondary")?.name || ""}
                               onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-color-secondary"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-color-secondary", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
-                              className="text-xs h-7"
+                              className="text-xs h-8"
                             />
                             <Input
                               placeholder="Secondary (Dark): #34D399"
                               value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#brand-color-secondary-dark")?.name || ""}
                               onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#brand-color-secondary-dark"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#brand-color-secondary-dark", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }}
-                              className="text-xs h-7"
+                              className="text-xs h-8"
                             />
                           </div>
                         </div>
@@ -942,7 +942,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     {/* Key Website Pages */}
                     <div className="p-4 border rounded-lg bg-card/50 space-y-4">
                       <h3 className="text-sm font-semibold flex items-center gap-2 border-b pb-2">
-                        <Layout className="h-4 w-4 text-slate-500" /> Key Website Pages
+                        <Layout className="h-4 w-4 text-muted-foreground" /> Key Website Pages
                       </h3>
 
                       {/* Row 1: Core Pages */}
@@ -951,19 +951,19 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         <div className="grid grid-cols-4 gap-3">
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Home</Label>
-                            <Input placeholder="https://..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "home")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "home"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Homepage", url: e.target.value, type: "home" as const }] }); }} className="text-xs h-7" />
+                            <Input placeholder="https://..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "home")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "home"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Homepage", url: e.target.value, type: "home" as const }] }); }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">About</Label>
-                            <Input placeholder="/about" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "about")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "about"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "About", url: e.target.value, type: "about" as const }] }); }} className="text-xs h-7" />
+                            <Input placeholder="/about" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "about")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "about"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "About", url: e.target.value, type: "about" as const }] }); }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Contact</Label>
-                            <Input placeholder="/contact" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-contact")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-contact"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-contact", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="/contact" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-contact")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-contact"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-contact", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Careers</Label>
-                            <Input placeholder="/careers" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "career")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "career"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Careers", url: e.target.value, type: "career" as const }] }); }} className="text-xs h-7" />
+                            <Input placeholder="/careers" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "career")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "career"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Careers", url: e.target.value, type: "career" as const }] }); }} className="text-xs h-8" />
                           </div>
                         </div>
                       </div>
@@ -974,19 +974,19 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         <div className="grid grid-cols-4 gap-3">
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Products</Label>
-                            <Input placeholder="/products" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-products")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-products"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-products", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="/products" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-products")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-products"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-products", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Features</Label>
-                            <Input placeholder="/features" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-features")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-features"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-features", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="/features" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-features")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-features"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-features", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Pricing</Label>
-                            <Input placeholder="/pricing" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "pricing")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "pricing"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Pricing", url: e.target.value, type: "pricing" as const }] }); }} className="text-xs h-7" />
+                            <Input placeholder="/pricing" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "pricing")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "pricing"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Pricing", url: e.target.value, type: "pricing" as const }] }); }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Solutions</Label>
-                            <Input placeholder="/solutions" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-solutions")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-solutions"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-solutions", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="/solutions" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-solutions")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-solutions"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-solutions", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                         </div>
                       </div>
@@ -997,19 +997,19 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         <div className="grid grid-cols-4 gap-3">
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Blog</Label>
-                            <Input placeholder="/blog" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-blog")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-blog"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-blog", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="/blog" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-blog")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-blog"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-blog", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Docs</Label>
-                            <Input placeholder="/docs" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "documentation")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "documentation"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Docs", url: e.target.value, type: "documentation" as const }] }); }} className="text-xs h-7" />
+                            <Input placeholder="/docs" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "documentation")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "documentation"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Docs", url: e.target.value, type: "documentation" as const }] }); }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">FAQ</Label>
-                            <Input placeholder="/faq" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "faq")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "faq"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "FAQ", url: e.target.value, type: "faq" as const }] }); }} className="text-xs h-7" />
+                            <Input placeholder="/faq" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "faq")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "faq"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "FAQ", url: e.target.value, type: "faq" as const }] }); }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Cases</Label>
-                            <Input placeholder="/case-studies" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "case_study")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "case_study"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Case Studies", url: e.target.value, type: "case_study" as const }] }); }} className="text-xs h-7" />
+                            <Input placeholder="/case-studies" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "case_study")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "case_study"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Case Studies", url: e.target.value, type: "case_study" as const }] }); }} className="text-xs h-8" />
                           </div>
                         </div>
                       </div>
@@ -1020,19 +1020,19 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         <div className="grid grid-cols-4 gap-3">
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Terms</Label>
-                            <Input placeholder="/terms" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "legal")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "legal"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Legal", url: e.target.value, type: "legal" as const }] }); }} className="text-xs h-7" />
+                            <Input placeholder="/terms" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.type === "legal")?.url || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "legal"); updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: "Legal", url: e.target.value, type: "legal" as const }] }); }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Privacy</Label>
-                            <Input placeholder="/privacy" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-privacy")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-privacy"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-privacy", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="/privacy" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-privacy")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-privacy"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-privacy", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Changes</Label>
-                            <Input placeholder="/changelog" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-changelog")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-changelog"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-changelog", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="/changelog" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-changelog")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-changelog"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-changelog", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Status</Label>
-                            <Input placeholder="/status" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-status")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-status"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-status", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="/status" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#page-status")?.name || ""} onChange={(e) => { const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url !== "#page-status"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#page-status", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                         </div>
                       </div>
@@ -1041,8 +1041,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     {/* Landing Pages & Campaigns - Collapsible for large lists */}
                     <div className="p-4 border rounded-lg bg-card/50 space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold flex items-center gap-2">
-                          <Megaphone className="h-4 w-4 text-orange-500" /> Landing Pages <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.landingPages || []).length})</span>
+                        <h3 className="text-sm font-semibold flex items-center gap-2 border-b pb-2">
+                          <Megaphone className="h-4 w-4 text-muted-foreground" /> Landing Pages <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.landingPages || []).length})</span>
                         </h3>
                         <div className="flex items-center gap-1">
                           <Button variant="ghost" size="icon" className="h-6 w-6" title="Import from Sitemap XML" onClick={() => {
@@ -1062,8 +1062,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         </div>
                       </div>
                       {contextData.onSite.landingPages.length === 0 ? (
-                        <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ landingPages: [...contextData.onSite.landingPages, { id: uuidv4(), name: "", url: "", type: "campaign", status: "active", createdAt: new Date().toISOString() }] })}>
-                          Click + to add
+                        <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ landingPages: [...contextData.onSite.landingPages, { id: uuidv4(), name: "", url: "", type: "campaign", status: "active", createdAt: new Date().toISOString() }] })}>
+                          Click + to add landing pages
                         </div>
                       ) : (
                         <div className="space-y-1.5">
@@ -1082,8 +1082,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     {/* Blog & Resources - Collapsible for large lists */}
                     <div className="p-4 border rounded-lg bg-card/50 space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold flex items-center gap-2">
-                          <BookOpen className="h-4 w-4 text-emerald-500" /> Blog & Resources <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.blogPosts || []).length})</span>
+                        <h3 className="text-sm font-semibold flex items-center gap-2 border-b pb-2">
+                          <BookOpen className="h-4 w-4 text-muted-foreground" /> Blog & Resources <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.blogPosts || []).length})</span>
                         </h3>
                         <div className="flex items-center gap-1">
                           <Button variant="ghost" size="icon" className="h-6 w-6" title="Import from RSS Feed" onClick={() => {
@@ -1103,8 +1103,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         </div>
                       </div>
                       {contextData.onSite.blogPosts.length === 0 ? (
-                        <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ blogPosts: [...contextData.onSite.blogPosts, { id: uuidv4(), url: "", title: "", status: "published" }] })}>
-                          Click + to add
+                        <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ blogPosts: [...contextData.onSite.blogPosts, { id: uuidv4(), url: "", title: "", status: "published" }] })}>
+                          Click + to add blog posts
                         </div>
                       ) : (
                         <div className="space-y-1.5">
@@ -1125,9 +1125,9 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                   <div className="flex-1 space-y-4">
 
                     {/* ===== SECTION 1: HERO & VALUE PROP ===== */}
-                    <div className="p-5 border rounded-lg bg-gradient-to-br from-primary/5 to-primary/10">
-                      <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-primary">
-                        <Flag className="h-5 w-5 text-indigo-500" /> Hero Section
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <h3 className="text-sm font-semibold flex items-center gap-2">
+                        <Flag className="h-4 w-4 text-muted-foreground" /> Hero Section
                       </h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-3">
@@ -1147,7 +1147,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                             </div>
                             <div className="space-y-1.5">
                               {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#cta").length === 0 ? (
-                                <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#cta", type: "other" as const, description: "" }] })}>
+                                <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#cta", type: "other" as const, description: "" }] })}>
                                   Click + to add CTA
                                 </div>
                               ) : (
@@ -1156,12 +1156,12 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                     <Input placeholder="Button text..." value={item.name} onChange={(e) => {
                                       const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                       updateOnSite({ websiteContent: updatedContent });
-                                    }} className="text-xs h-7 bg-background/80 w-1/3" />
+                                    }} className="text-xs h-8 bg-background/80 w-1/3" />
                                     <Input placeholder="URL: /signup or https://..." value={item.description || ""} onChange={(e) => {
                                       const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, description: e.target.value } : c);
                                       updateOnSite({ websiteContent: updatedContent });
-                                    }} className="text-xs h-7 bg-background/80 flex-1" />
-                                    <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    }} className="text-xs h-8 bg-background/80 flex-1" />
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                       updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                     }}><X className="h-3 w-3" /></Button>
                                   </div>
@@ -1179,8 +1179,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                             </div>
                             <div className="space-y-1.5">
                               {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#hero-media").length === 0 ? (
-                                <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#hero-media", type: "other" as const }] })}>
-                                  Click + to add
+                                <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#hero-media", type: "other" as const }] })}>
+                                  Click + to add media
                                 </div>
                               ) : (
                                 (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#hero-media").map((item: WebsiteContent) => (
@@ -1188,8 +1188,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                     <Input placeholder="https://... (image or video URL)" value={item.name} onChange={(e) => {
                                       const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                       updateOnSite({ websiteContent: updatedContent });
-                                    }} className="text-xs h-7 bg-background/80" />
-                                    <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    }} className="text-xs h-8 bg-background/80" />
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                       updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                     }}><X className="h-3 w-3" /></Button>
                                   </div>
@@ -1205,8 +1205,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                             </div>
                             <div className="space-y-1.5">
                               {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#metric").length === 0 ? (
-                                <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#metric", type: "other" as const }] })}>
-                                  Click + to add
+                                <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#metric", type: "other" as const }] })}>
+                                  Click + to add metrics
                                 </div>
                               ) : (
                                 (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#metric").map((item: WebsiteContent) => (
@@ -1214,8 +1214,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                     <Input placeholder="e.g. 10K+ users / 99.9% uptime / $2M saved / 500+ reviews / 50+ countries" value={item.name} onChange={(e) => {
                                       const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                       updateOnSite({ websiteContent: updatedContent });
-                                    }} className="text-xs h-7 bg-background/80" />
-                                    <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                    }} className="text-xs h-8 bg-background/80" />
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                       updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                     }}><X className="h-3 w-3" /></Button>
                                   </div>
@@ -1231,7 +1231,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     <div className="grid grid-cols-2 gap-4">
                       <div className="p-4 border rounded-lg bg-card/50 space-y-3">
                         <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-semibold flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-red-500" /> Problem Statement {(contextData.onSite.websiteContent || []).filter(c => c.url === "#problem").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#problem").length})</span>}</h4>
+                          <h4 className="text-sm font-semibold flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-muted-foreground" /> Problem Statement {(contextData.onSite.websiteContent || []).filter(c => c.url === "#problem").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#problem").length})</span>}</h4>
                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
                             updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#problem", type: "other" as const }] });
                           }}>
@@ -1240,7 +1240,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         </div>
                         <div className="space-y-1.5">
                           {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#problem").length === 0 ? (
-                            <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#problem", type: "other" as const }] })}>
+                            <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#problem", type: "other" as const }] })}>
                               Click + to add pain points
                             </div>
                           ) : (
@@ -1260,7 +1260,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                       </div>
                       <div className="p-4 border rounded-lg bg-card/50 space-y-3">
                         <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4 text-blue-500" /> Who We Serve {(contextData.onSite.websiteContent || []).filter(c => c.url === "#audience").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#audience").length})</span>}</h4>
+                          <h4 className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /> Who We Serve {(contextData.onSite.websiteContent || []).filter(c => c.url === "#audience").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#audience").length})</span>}</h4>
                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
                             updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#audience", type: "other" as const }] });
                           }}>
@@ -1269,7 +1269,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         </div>
                         <div className="space-y-1.5">
                           {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#audience").length === 0 ? (
-                            <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#audience", type: "other" as const }] })}>
+                            <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#audience", type: "other" as const }] })}>
                               Click + to add target audiences
                             </div>
                           ) : (
@@ -1293,7 +1293,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     <div className="grid grid-cols-2 gap-4">
                       <div className="p-4 border rounded-lg bg-card/50 space-y-3">
                         <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-semibold flex items-center gap-2"><Zap className="h-4 w-4 text-yellow-500" /> Use Cases {(contextData.onSite.websiteContent || []).filter(c => c.url === "#use-case").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#use-case").length})</span>}</h4>
+                          <h4 className="text-sm font-semibold flex items-center gap-2"><Zap className="h-4 w-4 text-muted-foreground" /> Use Cases {(contextData.onSite.websiteContent || []).filter(c => c.url === "#use-case").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#use-case").length})</span>}</h4>
                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
                             updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#use-case", type: "other" as const }] });
                           }}>
@@ -1302,7 +1302,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         </div>
                         <div className="space-y-1.5">
                           {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#use-case").length === 0 ? (
-                            <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#use-case", type: "other" as const }] })}>
+                            <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#use-case", type: "other" as const }] })}>
                               Click + to add use cases
                             </div>
                           ) : (
@@ -1322,7 +1322,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                       </div>
                       <div className="p-4 border rounded-lg bg-card/50 space-y-3">
                         <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4 text-cyan-500" /> Industries {(contextData.onSite.websiteContent || []).filter(c => c.url === "#industry").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#industry").length})</span>}</h4>
+                          <h4 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4 text-muted-foreground" /> Industries {(contextData.onSite.websiteContent || []).filter(c => c.url === "#industry").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.url === "#industry").length})</span>}</h4>
                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
                             updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#industry", type: "other" as const }] });
                           }}>
@@ -1331,7 +1331,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         </div>
                         <div className="space-y-1.5">
                           {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#industry").length === 0 ? (
-                            <div className="text-xs text-muted-foreground text-center py-3 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#industry", type: "other" as const }] })}>
+                            <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#industry", type: "other" as const }] })}>
                               Click + to add industries
                             </div>
                           ) : (
@@ -1354,20 +1354,20 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     {/* ===== SECTION 3: SOLUTION / PRODUCTS ===== */}
                     <div className="p-4 border rounded-lg bg-card/50">
                       <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><ShoppingBag className="h-4 w-4 text-green-600" /> Products & Services {contextData.onSite.productsServices.length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({contextData.onSite.productsServices.length})</span>}</h4>
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><ShoppingBag className="h-4 w-4 text-muted-foreground" /> Products & Services {contextData.onSite.productsServices.length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({contextData.onSite.productsServices.length})</span>}</h4>
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateOnSite({ productsServices: [...contextData.onSite.productsServices, { id: uuidv4(), name: "", type: "product" }] })}>
                             <Plus className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </div>
-                      <ComplexListInput label="" items={contextData.onSite.productsServices} onChange={(items) => updateOnSite({ productsServices: items })} onRemove={(id) => updateOnSite({ productsServices: contextData.onSite.productsServices.filter((i: ProductService) => i.id !== id) })} onAdd={() => updateOnSite({ productsServices: [...contextData.onSite.productsServices, { id: uuidv4(), name: "", type: "product" }] })} renderItem={renderProductService} maxHeight="none" />
+                      <ComplexListInput label="products & services" items={contextData.onSite.productsServices} onChange={(items) => updateOnSite({ productsServices: items })} onRemove={(id) => updateOnSite({ productsServices: contextData.onSite.productsServices.filter((i: ProductService) => i.id !== id) })} onAdd={() => updateOnSite({ productsServices: [...contextData.onSite.productsServices, { id: uuidv4(), name: "", type: "product" }] })} renderItem={renderProductService} maxHeight="none" />
                     </div>
 
 
                     {/* ===== SECTION 6: SOCIAL PROOF & TRUST ===== */}
                     <div className="p-4 border rounded-lg bg-card/50 space-y-4">
-                      <h4 className="text-sm font-semibold flex items-center gap-2"><Star className="h-4 w-4 text-amber-500" /> Social Proof & Trust</h4>
+                      <h4 className="text-sm font-semibold flex items-center gap-2"><Star className="h-4 w-4 text-muted-foreground" /> Social Proof & Trust</h4>
                       {/* Row 1: Testimonials, Case Studies, Trust Badges */}
                       <div className="grid grid-cols-3 gap-3">
                         <div className="space-y-2">
@@ -1380,7 +1380,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                           <div className="space-y-1.5">
                             {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "testimonial").length === 0 ? (
                               <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "", type: "testimonial" as const }] })}>
-                                Click + to add
+                                Click + to add testimonials
                               </div>
                             ) : (
                               (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "testimonial").map((item: WebsiteContent) => (
@@ -1388,8 +1388,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                   <Input placeholder='"Quote..."' value={item.name} onChange={(e) => {
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
-                                  }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  }} className="text-xs h-8" />
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1407,7 +1407,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                           <div className="space-y-1.5">
                             {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "case_study").length === 0 ? (
                               <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "Case Study", url: "", type: "case_study" as const }] })}>
-                                Click + to add
+                                Click + to add case studies
                               </div>
                             ) : (
                               (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "case_study").map((item: WebsiteContent) => (
@@ -1415,8 +1415,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                   <Input placeholder="URL..." value={item.url} onChange={(e) => {
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, url: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
-                                  }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  }} className="text-xs h-8" />
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1434,7 +1434,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                           <div className="space-y-1.5">
                             {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#logo").length === 0 ? (
                               <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#logo", type: "other" as const }] })}>
-                                Click + to add
+                                Click + to add logos
                               </div>
                             ) : (
                               (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#logo").map((item: WebsiteContent) => (
@@ -1442,8 +1442,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                   <Input placeholder="Company..." value={item.name} onChange={(e) => {
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
-                                  }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  }} className="text-xs h-8" />
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1464,7 +1464,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                           <div className="space-y-1.5">
                             {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#award").length === 0 ? (
                               <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#award", type: "other" as const }] })}>
-                                Click + to add
+                                Click + to add awards
                               </div>
                             ) : (
                               (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#award").map((item: WebsiteContent) => (
@@ -1472,8 +1472,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                   <Input placeholder="ISO 27001 / G2 Leader..." value={item.name} onChange={(e) => {
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
-                                  }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  }} className="text-xs h-8" />
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1491,7 +1491,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                           <div className="space-y-1.5">
                             {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#guarantee").length === 0 ? (
                               <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#guarantee", type: "other" as const }] })}>
-                                Click + to add
+                                Click + to add guarantees
                               </div>
                             ) : (
                               (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#guarantee").map((item: WebsiteContent) => (
@@ -1499,8 +1499,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                   <Input placeholder="30-day refund / 99.9% SLA..." value={item.name} onChange={(e) => {
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
-                                  }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  }} className="text-xs h-8" />
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1518,7 +1518,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                           <div className="space-y-1.5">
                             {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#integration").length === 0 ? (
                               <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ websiteContent: [...contextData.onSite.websiteContent, { id: uuidv4(), name: "", url: "#integration", type: "other" as const }] })}>
-                                Click + to add
+                                Click + to add integrations
                               </div>
                             ) : (
                               (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.url === "#integration").map((item: WebsiteContent) => (
@@ -1526,8 +1526,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                   <Input placeholder="Slack / Salesforce / Zapier..." value={item.name} onChange={(e) => {
                                     const updatedContent = contextData.onSite.websiteContent.map((c: WebsiteContent) => c.id === item.id ? { ...c, name: e.target.value } : c);
                                     updateOnSite({ websiteContent: updatedContent });
-                                  }} className="text-xs h-7" />
-                                  <Button variant="ghost" size="icon" className="h-8 w-7 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  }} className="text-xs h-8" />
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     updateOnSite({ websiteContent: (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.id !== item.id) });
                                   }}><X className="h-3 w-3" /></Button>
                                 </div>
@@ -1542,17 +1542,17 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     <div className="grid grid-cols-2 gap-4">
                       <div className="p-4 border rounded-lg bg-card/50">
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="text-sm font-semibold flex items-center gap-2"><UserCircle className="h-4 w-4 text-violet-500" /> Leadership Team {contextData.onSite.team.length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({contextData.onSite.team.length})</span>}</h4>
+                          <h4 className="text-sm font-semibold flex items-center gap-2"><UserCircle className="h-4 w-4 text-muted-foreground" /> Leadership Team {contextData.onSite.team.length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({contextData.onSite.team.length})</span>}</h4>
                           <div className="flex items-center gap-2">
                             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateOnSite({ team: [...contextData.onSite.team, { id: uuidv4(), name: "", role: "" }] })}>
                               <Plus className="h-3.5 w-3.5" />
                             </Button>
                           </div>
                         </div>
-                        <ComplexListInput label="" items={contextData.onSite.team} onChange={(items) => updateOnSite({ team: items })} onRemove={(id) => updateOnSite({ team: contextData.onSite.team.filter((i: TeamMember) => i.id !== id) })} onAdd={() => updateOnSite({ team: [...contextData.onSite.team, { id: uuidv4(), name: "", role: "" }] })} renderItem={renderTeamMember} maxHeight="none" />
+                        <ComplexListInput label="team members" items={contextData.onSite.team} onChange={(items) => updateOnSite({ team: items })} onRemove={(id) => updateOnSite({ team: contextData.onSite.team.filter((i: TeamMember) => i.id !== id) })} onAdd={() => updateOnSite({ team: [...contextData.onSite.team, { id: uuidv4(), name: "", role: "" }] })} renderItem={renderTeamMember} maxHeight="none" />
                       </div>
                       <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><Info className="h-4 w-4 text-teal-500" /> About Us</h4>
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><Info className="h-4 w-4 text-muted-foreground" /> About Us</h4>
                         <div className="space-y-2">
                           <div>
                             <Label className="text-xs text-muted-foreground mb-1 block">Company Story</Label>
@@ -1576,8 +1576,8 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                             </div>
                             <div className="space-y-1">
                               {(contextData.onSite.brandInfo.coreValues || []).length === 0 ? (
-                                <div className="text-xs text-muted-foreground/60 text-center py-1 border border-dashed rounded cursor-pointer hover:bg-accent/30" onClick={() => updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, coreValues: [""] } })}>
-                                  Click + to add
+                                <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, coreValues: [""] } })}>
+                                  Click + to add core values
                                 </div>
                               ) : (contextData.onSite.brandInfo.coreValues || []).map((val, idx) => (
                                 <div key={idx} className="flex gap-1 group">
@@ -1585,11 +1585,11 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                                     const newValues = [...(contextData.onSite.brandInfo.coreValues || [])];
                                     newValues[idx] = e.target.value;
                                     updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, coreValues: newValues } });
-                                  }} placeholder="e.g. Integrity, Innovation..." className="text-xs h-6" />
-                                  <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
+                                  }} placeholder="e.g. Integrity, Innovation..." className="text-xs h-8" />
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 shrink-0" onClick={() => {
                                     const newValues = (contextData.onSite.brandInfo.coreValues || []).filter((_, i) => i !== idx);
                                     updateOnSite({ brandInfo: { ...contextData.onSite.brandInfo, coreValues: newValues } });
-                                  }}><X className="h-2.5 w-2.5" /></Button>
+                                  }}><X className="h-3 w-3" /></Button>
                                 </div>
                               ))}
                             </div>
@@ -1601,7 +1601,7 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     {/* ===== SECTION 9: FAQ ===== */}
                     <div className="p-4 border rounded-lg bg-card/50 space-y-3">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><HelpCircle className="h-4 w-4 text-rose-500" /> FAQ {(contextData.onSite.websiteContent || []).filter(c => c.type === "faq").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.type === "faq").length})</span>}</h4>
+                        <h4 className="text-sm font-semibold flex items-center gap-2"><HelpCircle className="h-4 w-4 text-muted-foreground" /> FAQ {(contextData.onSite.websiteContent || []).filter(c => c.type === "faq").length > 0 && <span className="text-xs text-muted-foreground/60 font-medium">({(contextData.onSite.websiteContent || []).filter(c => c.type === "faq").length})</span>}</h4>
                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => {
                           const faqContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "faq");
                           const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "faq");
@@ -1612,7 +1612,13 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                       </div>
                       <div className="space-y-3">
                         {(contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "faq").length === 0 ? (
-                          <p className="text-xs text-muted-foreground text-center py-4">No FAQs added yet. Click "Add FAQ" to start.</p>
+                          <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => {
+                            const faqContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "faq");
+                            const otherContent = (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type !== "faq");
+                            updateOnSite({ websiteContent: [...otherContent, ...faqContent, { id: uuidv4(), name: "", url: "", type: "faq" as const }] });
+                          }}>
+                            Click + to add FAQs
+                          </div>
                         ) : (
                           (contextData.onSite.websiteContent || []).filter((c: WebsiteContent) => c.type === "faq").map((faq: WebsiteContent, idx: number) => (
                             <div key={faq.id} className="p-3 border rounded-lg bg-background/50 space-y-2 group">
@@ -1666,15 +1672,15 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         <div className="grid grid-cols-3 gap-3">
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">General Email</Label>
-                            <Input placeholder="contact@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-email")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-email"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-email", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="contact@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-email")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-email"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-email", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Sales Email</Label>
-                            <Input placeholder="sales@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-sales")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-sales"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-sales", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="sales@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-sales")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-sales"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-sales", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Phone</Label>
-                            <Input placeholder="+1 (555) 123-4567" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-phone")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-phone"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-phone", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="+1 (555) 123-4567" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-phone")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-phone"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-phone", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                         </div>
                       </div>
@@ -1685,15 +1691,15 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         <div className="grid grid-cols-3 gap-3">
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">HQ Address</Label>
-                            <Input placeholder="123 Main St, City, Country" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-address")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-address"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-address", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="123 Main St, City, Country" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-address")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-address"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-address", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Business Hours</Label>
-                            <Input placeholder="Mon-Fri 9am-5pm EST" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-hours")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-hours"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-hours", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="Mon-Fri 9am-5pm EST" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-hours")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-hours"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-hours", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Timezone</Label>
-                            <Input placeholder="UTC-5 / EST / PST..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-timezone")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-timezone"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-timezone", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="UTC-5 / EST / PST..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-timezone")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-timezone"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-timezone", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                         </div>
                       </div>
@@ -1704,19 +1710,19 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         <div className="grid grid-cols-4 gap-3">
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Help Center</Label>
-                            <Input placeholder="help.company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-support")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-support"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-support", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="help.company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-support")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-support"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-support", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Live Chat</Label>
-                            <Input placeholder="Intercom / Zendesk..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#support-chat")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#support-chat"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#support-chat", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="Intercom / Zendesk..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#support-chat")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#support-chat"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#support-chat", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Support Email</Label>
-                            <Input placeholder="support@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#support-ticket")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#support-ticket"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#support-ticket", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="support@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#support-ticket")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#support-ticket"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#support-ticket", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Community</Label>
-                            <Input placeholder="Discord / Slack..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#support-community")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#support-community"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#support-community", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="Discord / Slack..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#support-community")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#support-community"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#support-community", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                         </div>
                       </div>
@@ -1727,19 +1733,19 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                         <div className="grid grid-cols-4 gap-3">
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Press / Media</Label>
-                            <Input placeholder="press@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-press")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-press"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-press", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="press@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-press")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-press"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-press", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Partnerships</Label>
-                            <Input placeholder="partners@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-partners")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-partners"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-partners", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="partners@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-partners")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-partners"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-partners", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Careers</Label>
-                            <Input placeholder="careers@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-careers")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-careers"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-careers", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="careers@company.com" value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-careers")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-careers"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-careers", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                           <div>
                             <Label className="text-xs text-muted-foreground/70 mb-0.5 block">Newsletter</Label>
-                            <Input placeholder="https://..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-newsletter")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-newsletter"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-newsletter", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-7" />
+                            <Input placeholder="https://..." value={contextData.onSite.websiteContent.find((c: WebsiteContent) => c.url === "#contact-newsletter")?.name || ""} onChange={(e) => { const otherContent = contextData.onSite.websiteContent.filter((c: WebsiteContent) => c.url !== "#contact-newsletter"); if (e.target.value) { updateOnSite({ websiteContent: [...otherContent, { id: uuidv4(), name: e.target.value, url: "#contact-newsletter", type: "other" as const }] }); } else { updateOnSite({ websiteContent: otherContent }); } }} className="text-xs h-8" />
                           </div>
                         </div>
                       </div>
@@ -1757,28 +1763,28 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     {/* Section 1: Monitoring Scope */}
                     <div className="p-4 border rounded-lg bg-card/50 space-y-4">
                       <h3 className="text-sm font-semibold flex items-center gap-2 border-b pb-2">
-                        <Target className="h-5 w-5 text-blue-500" /> Monitoring Scope
+                        <Target className="h-5 w-5 text-muted-foreground" /> Monitoring Scope
                       </h3>
 
                       {/* Keywords & Signals */}
                       <div className="space-y-3">
-                        <SimpleArrayInput label="Brand Keywords" values={contextData.offSite.monitoringScope.brandKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, brandKeywords: v } })} placeholder="Brand name, abbreviation..." maxHeight="100px" />
-                        <SimpleArrayInput label="Product Keywords" values={contextData.offSite.monitoringScope.productKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, productKeywords: v } })} placeholder="Product name..." maxHeight="100px" />
-                        <SimpleArrayInput label="Key Persons" values={contextData.offSite.monitoringScope.keyPersons} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, keyPersons: v } })} placeholder="CEO, spokesperson..." maxHeight="80px" />
-                        <SimpleArrayInput label="Hashtags" values={contextData.offSite.monitoringScope.hashtags} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, hashtags: v } })} placeholder="#CampaignName" maxHeight="80px" />
+                        <SimpleArrayInput label="Brand Keywords" values={contextData.offSite.monitoringScope.brandKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, brandKeywords: v } })} placeholder="Brand name, abbreviation..." maxHeight="none" />
+                        <SimpleArrayInput label="Product Keywords" values={contextData.offSite.monitoringScope.productKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, productKeywords: v } })} placeholder="Product name..." maxHeight="none" />
+                        <SimpleArrayInput label="Key Persons" values={contextData.offSite.monitoringScope.keyPersons} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, keyPersons: v } })} placeholder="CEO, spokesperson..." maxHeight="none" />
+                        <SimpleArrayInput label="Hashtags" values={contextData.offSite.monitoringScope.hashtags} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, hashtags: v } })} placeholder="#CampaignName" maxHeight="none" />
                       </div>
 
                       {/* Filters */}
-                      <div className="space-y-3 pt-2 border-t">
-                        <SimpleArrayInput label="Required Keywords (AND)" values={contextData.offSite.monitoringScope.requiredKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, requiredKeywords: v } })} placeholder="Must co-occur..." maxHeight="80px" />
-                        <SimpleArrayInput label="Excluded Keywords" values={contextData.offSite.monitoringScope.excludedKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, excludedKeywords: v } })} placeholder="Noise exclusion..." maxHeight="80px" />
+                      <div className="space-y-3 pt-2">
+                        <SimpleArrayInput label="Required Keywords (AND)" values={contextData.offSite.monitoringScope.requiredKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, requiredKeywords: v } })} placeholder="Must co-occur..." maxHeight="none" />
+                        <SimpleArrayInput label="Excluded Keywords" values={contextData.offSite.monitoringScope.excludedKeywords} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, excludedKeywords: v } })} placeholder="Noise exclusion..." maxHeight="none" />
                       </div>
 
                       {/* Geographic & Language */}
-                      <div className="space-y-3 pt-2 border-t">
+                      <div className="space-y-3 pt-2">
                         <div className="grid grid-cols-2 gap-2">
-                          <SimpleArrayInput label="Regions" values={contextData.offSite.monitoringScope.regions} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, regions: v } })} placeholder="US, CN, EU..." maxHeight="80px" />
-                          <SimpleArrayInput label="Languages" values={contextData.offSite.monitoringScope.languages} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, languages: v } })} placeholder="EN, ZH..." maxHeight="80px" />
+                          <SimpleArrayInput label="Regions" values={contextData.offSite.monitoringScope.regions} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, regions: v } })} placeholder="US, CN, EU..." maxHeight="none" />
+                          <SimpleArrayInput label="Languages" values={contextData.offSite.monitoringScope.languages} onChange={(v) => updateOffSite({ monitoringScope: { ...contextData.offSite.monitoringScope, languages: v } })} placeholder="EN, ZH..." maxHeight="none" />
                         </div>
                       </div>
                     </div>
@@ -1786,21 +1792,33 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                   {/* Right Column - 2/3 Width: MECE Layout */}
                   <div className="flex-1 space-y-4">
                     {/* ===== SECTION 1: OWNED PRESENCE (整行) ===== */}
-                    <div className="p-4 border rounded-lg bg-gradient-to-br from-blue-500/5 to-purple-500/5 space-y-3">
-                      <h3 className="text-sm font-semibold flex items-center gap-2 text-primary"><Building2 className="h-4 w-4 text-blue-500" /> Owned Presence</h3>
+                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
+                      <h3 className="text-sm font-semibold flex items-center gap-2"><Building2 className="h-4 w-4 text-muted-foreground" /> Owned Presence</h3>
                       <div className="grid grid-cols-2 gap-4">
                         {/* Official Channels */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Official Channels</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ socialAccounts: [...contextData.offSite.socialAccounts, { id: uuidv4(), platform: 'X', accountName: '', url: '', isPriority: false }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[120px] overflow-y-auto">
-                            {contextData.offSite.socialAccounts.map((a: SocialAccount) => (<div key={a.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={a.platform} onChange={(e) => updateOffSite({ socialAccounts: contextData.offSite.socialAccounts.map((x: SocialAccount) => x.id === a.id ? { ...x, platform: e.target.value } : x) })}><option>X</option><option>LinkedIn</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>TikTok</option><option>Threads</option><option>Pinterest</option><option>Podcast</option><option>Newsletter</option><option>Blog</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="URL" value={a.url} onChange={(e) => updateOffSite({ socialAccounts: contextData.offSite.socialAccounts.map((x: SocialAccount) => x.id === a.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ socialAccounts: contextData.offSite.socialAccounts.filter((x: SocialAccount) => x.id !== a.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {contextData.offSite.socialAccounts.length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ socialAccounts: [...contextData.offSite.socialAccounts, { id: uuidv4(), platform: 'X', accountName: '', url: '', isPriority: false }] })}>
+                                Click + to add channels
+                              </div>
+                            ) : (
+                              contextData.offSite.socialAccounts.map((a: SocialAccount) => (<div key={a.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={a.platform} onChange={(e) => updateOffSite({ socialAccounts: contextData.offSite.socialAccounts.map((x: SocialAccount) => x.id === a.id ? { ...x, platform: e.target.value } : x) })}><option>X</option><option>LinkedIn</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>TikTok</option><option>Threads</option><option>Pinterest</option><option>Podcast</option><option>Newsletter</option><option>Blog</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="URL" value={a.url} onChange={(e) => updateOffSite({ socialAccounts: contextData.offSite.socialAccounts.map((x: SocialAccount) => x.id === a.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ socialAccounts: contextData.offSite.socialAccounts.filter((x: SocialAccount) => x.id !== a.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                         {/* Executive Accounts */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Executive Accounts</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ executiveAccounts: [...(contextData.offSite.executiveAccounts || []), { id: uuidv4(), name: '', title: '', platform: 'LinkedIn', handle: '', xUrl: '', linkedinUrl: '' }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[120px] overflow-y-auto">
-                            {(contextData.offSite.executiveAccounts || []).map((e: ExecutiveAccount) => (<div key={e.id} className="flex gap-1 group text-xs items-center"><Input className="h-8 text-xs w-16" placeholder="Name" value={e.name} onChange={(ev) => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).map((x: ExecutiveAccount) => x.id === e.id ? { ...x, name: ev.target.value } : x) })} /><Input className="h-8 text-xs flex-1" placeholder="X URL" value={(e as any).xUrl || ''} onChange={(ev) => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).map((x: ExecutiveAccount) => x.id === e.id ? { ...x, xUrl: ev.target.value } as any : x) })} /><Input className="h-8 text-xs flex-1" placeholder="LinkedIn URL" value={(e as any).linkedinUrl || e.handle || ''} onChange={(ev) => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).map((x: ExecutiveAccount) => x.id === e.id ? { ...x, linkedinUrl: ev.target.value, handle: ev.target.value } as any : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).filter((x: ExecutiveAccount) => x.id !== e.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {(contextData.offSite.executiveAccounts || []).length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ executiveAccounts: [...(contextData.offSite.executiveAccounts || []), { id: uuidv4(), name: '', title: '', platform: 'LinkedIn', handle: '', xUrl: '', linkedinUrl: '' }] })}>
+                                Click + to add executives
+                              </div>
+                            ) : (
+                              (contextData.offSite.executiveAccounts || []).map((e: ExecutiveAccount) => (<div key={e.id} className="flex gap-1 group text-xs items-center"><Input className="h-8 text-xs w-16" placeholder="Name" value={e.name} onChange={(ev) => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).map((x: ExecutiveAccount) => x.id === e.id ? { ...x, name: ev.target.value } : x) })} /><Input className="h-8 text-xs flex-1" placeholder="X URL" value={(e as any).xUrl || ''} onChange={(ev) => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).map((x: ExecutiveAccount) => x.id === e.id ? { ...x, xUrl: ev.target.value } as any : x) })} /><Input className="h-8 text-xs flex-1" placeholder="LinkedIn URL" value={(e as any).linkedinUrl || e.handle || ''} onChange={(ev) => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).map((x: ExecutiveAccount) => x.id === e.id ? { ...x, linkedinUrl: ev.target.value, handle: ev.target.value } as any : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ executiveAccounts: (contextData.offSite.executiveAccounts || []).filter((x: ExecutiveAccount) => x.id !== e.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1810,51 +1828,75 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     <div className="grid grid-cols-2 gap-4">
                       {/* Reviews & Listings */}
                       <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                        <h3 className="text-sm font-semibold flex items-center gap-2"><Star className="h-4 w-4 text-yellow-500" /> Reviews & Listings</h3>
+                        <h3 className="text-sm font-semibold flex items-center gap-2"><Star className="h-4 w-4 text-muted-foreground" /> Reviews & Listings</h3>
                         {/* Reviews */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Reviews</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ reviewPlatforms: [...contextData.offSite.reviewPlatforms, { id: uuidv4(), platform: 'G2', profileUrl: '', fetchDetails: true }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[60px] overflow-y-auto">
-                            {contextData.offSite.reviewPlatforms.map((r: ReviewPlatform) => (<div key={r.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={r.platform} onChange={(e) => updateOffSite({ reviewPlatforms: contextData.offSite.reviewPlatforms.map((x: ReviewPlatform) => x.id === r.id ? { ...x, platform: e.target.value } : x) })}><option>G2</option><option>Capterra</option><option>TrustRadius</option><option>Trustpilot</option><option>Gartner</option><option>Glassdoor</option><option>Yelp</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={r.profileUrl} onChange={(e) => updateOffSite({ reviewPlatforms: contextData.offSite.reviewPlatforms.map((x: ReviewPlatform) => x.id === r.id ? { ...x, profileUrl: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ reviewPlatforms: contextData.offSite.reviewPlatforms.filter((x: ReviewPlatform) => x.id !== r.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {contextData.offSite.reviewPlatforms.length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ reviewPlatforms: [...contextData.offSite.reviewPlatforms, { id: uuidv4(), platform: 'G2', profileUrl: '', fetchDetails: true }] })}>Click + to add reviews</div>
+                            ) : (
+                              contextData.offSite.reviewPlatforms.map((r: ReviewPlatform) => (<div key={r.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={r.platform} onChange={(e) => updateOffSite({ reviewPlatforms: contextData.offSite.reviewPlatforms.map((x: ReviewPlatform) => x.id === r.id ? { ...x, platform: e.target.value } : x) })}><option>G2</option><option>Capterra</option><option>TrustRadius</option><option>Trustpilot</option><option>Gartner</option><option>Glassdoor</option><option>Yelp</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={r.profileUrl} onChange={(e) => updateOffSite({ reviewPlatforms: contextData.offSite.reviewPlatforms.map((x: ReviewPlatform) => x.id === r.id ? { ...x, profileUrl: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ reviewPlatforms: contextData.offSite.reviewPlatforms.filter((x: ReviewPlatform) => x.id !== r.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                         {/* Directories */}
-                        <div className="space-y-2 pt-2 border-t">
+                        <div className="space-y-2 pt-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Directories</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ directoryListings: [...(contextData.offSite.directoryListings || []), { id: uuidv4(), directoryName: '', listingUrl: '' }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[60px] overflow-y-auto">
-                            {(contextData.offSite.directoryListings || []).map((d: DirectoryListing) => (<div key={d.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={d.directoryName || ''} onChange={(e) => updateOffSite({ directoryListings: (contextData.offSite.directoryListings || []).map((x: DirectoryListing) => x.id === d.id ? { ...x, directoryName: e.target.value } : x) })}><option value="">Select...</option><option>Product Hunt</option><option>Crunchbase</option><option>AngelList</option><option>AlternativeTo</option><option>SaaSHub</option><option>SourceForge</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Listing URL" value={d.listingUrl} onChange={(e) => updateOffSite({ directoryListings: (contextData.offSite.directoryListings || []).map((x: DirectoryListing) => x.id === d.id ? { ...x, listingUrl: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ directoryListings: (contextData.offSite.directoryListings || []).filter((x: DirectoryListing) => x.id !== d.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {(contextData.offSite.directoryListings || []).length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ directoryListings: [...(contextData.offSite.directoryListings || []), { id: uuidv4(), directoryName: '', listingUrl: '' }] })}>Click + to add directories</div>
+                            ) : (
+                              (contextData.offSite.directoryListings || []).map((d: DirectoryListing) => (<div key={d.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={d.directoryName || ''} onChange={(e) => updateOffSite({ directoryListings: (contextData.offSite.directoryListings || []).map((x: DirectoryListing) => x.id === d.id ? { ...x, directoryName: e.target.value } : x) })}><option value="">Select...</option><option>Product Hunt</option><option>Crunchbase</option><option>AngelList</option><option>AlternativeTo</option><option>SaaSHub</option><option>SourceForge</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Listing URL" value={d.listingUrl} onChange={(e) => updateOffSite({ directoryListings: (contextData.offSite.directoryListings || []).map((x: DirectoryListing) => x.id === d.id ? { ...x, listingUrl: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ directoryListings: (contextData.offSite.directoryListings || []).filter((x: DirectoryListing) => x.id !== d.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                         {/* Storefronts */}
-                        <div className="space-y-2 pt-2 border-t">
+                        <div className="space-y-2 pt-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Storefronts</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ ecommercePlatforms: [...contextData.offSite.ecommercePlatforms, { id: uuidv4(), platform: 'App Store', storeName: '', storeUrl: '', collectReviews: true, collectQA: false, collectRatings: true, collectSalesRank: false }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[60px] overflow-y-auto">
-                            {contextData.offSite.ecommercePlatforms.map((e: EcommercePlatform) => (<div key={e.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={e.platform} onChange={(ev) => updateOffSite({ ecommercePlatforms: contextData.offSite.ecommercePlatforms.map((x: EcommercePlatform) => x.id === e.id ? { ...x, platform: ev.target.value } : x) })}><option>App Store</option><option>Google Play</option><option>Microsoft Store</option><option>Amazon</option><option>eBay</option><option>Etsy</option><option>Walmart</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Store URL" value={e.storeUrl} onChange={(ev) => updateOffSite({ ecommercePlatforms: contextData.offSite.ecommercePlatforms.map((x: EcommercePlatform) => x.id === e.id ? { ...x, storeUrl: ev.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ ecommercePlatforms: contextData.offSite.ecommercePlatforms.filter((x: EcommercePlatform) => x.id !== e.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {contextData.offSite.ecommercePlatforms.length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ ecommercePlatforms: [...contextData.offSite.ecommercePlatforms, { id: uuidv4(), platform: 'App Store', storeName: '', storeUrl: '', collectReviews: true, collectQA: false, collectRatings: true, collectSalesRank: false }] })}>Click + to add storefronts</div>
+                            ) : (
+                              contextData.offSite.ecommercePlatforms.map((e: EcommercePlatform) => (<div key={e.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={e.platform} onChange={(ev) => updateOffSite({ ecommercePlatforms: contextData.offSite.ecommercePlatforms.map((x: EcommercePlatform) => x.id === e.id ? { ...x, platform: ev.target.value } : x) })}><option>App Store</option><option>Google Play</option><option>Microsoft Store</option><option>Amazon</option><option>eBay</option><option>Etsy</option><option>Walmart</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Store URL" value={e.storeUrl} onChange={(ev) => updateOffSite({ ecommercePlatforms: contextData.offSite.ecommercePlatforms.map((x: EcommercePlatform) => x.id === e.id ? { ...x, storeUrl: ev.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ ecommercePlatforms: contextData.offSite.ecommercePlatforms.filter((x: EcommercePlatform) => x.id !== e.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                       </div>
                       {/* Community */}
                       <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                        <h3 className="text-sm font-semibold flex items-center gap-2"><MessageSquare className="h-4 w-4 text-blue-500" /> Community</h3>
+                        <h3 className="text-sm font-semibold flex items-center gap-2"><MessageSquare className="h-4 w-4 text-muted-foreground" /> Community</h3>
                         {/* Forums */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Forums</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ communities: [...contextData.offSite.communities, { id: uuidv4(), platformType: 'Reddit', communityName: '', url: '', tags: [] }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
-                            {contextData.offSite.communities.map((c: CommunityForum) => (<div key={c.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={c.platformType} onChange={(e) => updateOffSite({ communities: contextData.offSite.communities.map((x: CommunityForum) => x.id === c.id ? { ...x, platformType: e.target.value } : x) })}><option>Reddit</option><option>Discord</option><option>Slack</option><option>Telegram</option><option>GitHub</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Community URL" value={c.url} onChange={(e) => updateOffSite({ communities: contextData.offSite.communities.map((x: CommunityForum) => x.id === c.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ communities: contextData.offSite.communities.filter((x: CommunityForum) => x.id !== c.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {contextData.offSite.communities.length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ communities: [...contextData.offSite.communities, { id: uuidv4(), platformType: 'Reddit', communityName: '', url: '', tags: [] }] })}>Click + to add forums</div>
+                            ) : (
+                              contextData.offSite.communities.map((c: CommunityForum) => (<div key={c.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={c.platformType} onChange={(e) => updateOffSite({ communities: contextData.offSite.communities.map((x: CommunityForum) => x.id === c.id ? { ...x, platformType: e.target.value } : x) })}><option>Reddit</option><option>Discord</option><option>Slack</option><option>Telegram</option><option>GitHub</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Community URL" value={c.url} onChange={(e) => updateOffSite({ communities: contextData.offSite.communities.map((x: CommunityForum) => x.id === c.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ communities: contextData.offSite.communities.filter((x: CommunityForum) => x.id !== c.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                         {/* Q&A */}
-                        <div className="space-y-2 pt-2 border-t">
+                        <div className="space-y-2 pt-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Q&A</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ qaPlatforms: [...contextData.offSite.qaPlatforms, { id: uuidv4(), platform: 'Stack Overflow', monitoringKeywords: [] }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[60px] overflow-y-auto">
-                            {contextData.offSite.qaPlatforms.map((q: QAPlatform) => (<div key={q.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={q.platform} onChange={(e) => updateOffSite({ qaPlatforms: contextData.offSite.qaPlatforms.map((x: QAPlatform) => x.id === q.id ? { ...x, platform: e.target.value } : x) })}><option>Stack Overflow</option><option>Quora</option><option>Reddit AMA</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile/Tag URL" value={(q as any).url || ''} onChange={(e) => updateOffSite({ qaPlatforms: contextData.offSite.qaPlatforms.map((x: QAPlatform) => x.id === q.id ? { ...x, url: e.target.value } as any : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ qaPlatforms: contextData.offSite.qaPlatforms.filter((x: QAPlatform) => x.id !== q.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {contextData.offSite.qaPlatforms.length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ qaPlatforms: [...contextData.offSite.qaPlatforms, { id: uuidv4(), platform: 'Stack Overflow', monitoringKeywords: [] }] })}>Click + to add Q&A</div>
+                            ) : (
+                              contextData.offSite.qaPlatforms.map((q: QAPlatform) => (<div key={q.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={q.platform} onChange={(e) => updateOffSite({ qaPlatforms: contextData.offSite.qaPlatforms.map((x: QAPlatform) => x.id === q.id ? { ...x, platform: e.target.value } : x) })}><option>Stack Overflow</option><option>Quora</option><option>Reddit AMA</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile/Tag URL" value={(q as any).url || ''} onChange={(e) => updateOffSite({ qaPlatforms: contextData.offSite.qaPlatforms.map((x: QAPlatform) => x.id === q.id ? { ...x, url: e.target.value } as any : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ qaPlatforms: contextData.offSite.qaPlatforms.filter((x: QAPlatform) => x.id !== q.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                         {/* Groups */}
-                        <div className="space-y-2 pt-2 border-t">
+                        <div className="space-y-2 pt-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Groups</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ professionalNetworks: [...(contextData.offSite.professionalNetworks || []), { id: uuidv4(), platform: 'LinkedIn', groupName: '', url: '' }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[60px] overflow-y-auto">
-                            {(contextData.offSite.professionalNetworks || []).map((p: ProfessionalNetwork) => (<div key={p.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={p.platform} onChange={(e) => updateOffSite({ professionalNetworks: (contextData.offSite.professionalNetworks || []).map((x: ProfessionalNetwork) => x.id === p.id ? { ...x, platform: e.target.value } : x) })}><option>LinkedIn</option><option>Facebook</option><option>Slack</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Group URL" value={p.url} onChange={(e) => updateOffSite({ professionalNetworks: (contextData.offSite.professionalNetworks || []).map((x: ProfessionalNetwork) => x.id === p.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ professionalNetworks: (contextData.offSite.professionalNetworks || []).filter((x: ProfessionalNetwork) => x.id !== p.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {(contextData.offSite.professionalNetworks || []).length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ professionalNetworks: [...(contextData.offSite.professionalNetworks || []), { id: uuidv4(), platform: 'LinkedIn', groupName: '', url: '' }] })}>Click + to add groups</div>
+                            ) : (
+                              (contextData.offSite.professionalNetworks || []).map((p: ProfessionalNetwork) => (<div key={p.id} className="flex gap-1 group text-xs"><select className="h-8 w-24 rounded border px-1 text-xs" value={p.platform} onChange={(e) => updateOffSite({ professionalNetworks: (contextData.offSite.professionalNetworks || []).map((x: ProfessionalNetwork) => x.id === p.id ? { ...x, platform: e.target.value } : x) })}><option>LinkedIn</option><option>Facebook</option><option>Slack</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Group URL" value={p.url} onChange={(e) => updateOffSite({ professionalNetworks: (contextData.offSite.professionalNetworks || []).map((x: ProfessionalNetwork) => x.id === p.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ professionalNetworks: (contextData.offSite.professionalNetworks || []).filter((x: ProfessionalNetwork) => x.id !== p.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1864,51 +1906,75 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                     <div className="grid grid-cols-2 gap-4">
                       {/* Media */}
                       <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                        <h3 className="text-sm font-semibold flex items-center gap-2"><Newspaper className="h-4 w-4 text-purple-500" /> Media</h3>
+                        <h3 className="text-sm font-semibold flex items-center gap-2"><Newspaper className="h-4 w-4 text-muted-foreground" /> Media</h3>
                         {/* Channels */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Channels</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ mediaSources: [...contextData.offSite.mediaSources, { id: uuidv4(), name: '', type: 'news', url: '' }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
-                            {contextData.offSite.mediaSources.map((m: MediaSource) => (<div key={m.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={m.type} onChange={(e) => updateOffSite({ mediaSources: contextData.offSite.mediaSources.map((x: MediaSource) => x.id === m.id ? { ...x, type: e.target.value as any } : x) })}><option value="news">News</option><option value="blog">Blog</option><option value="podcast">Podcast</option><option value="newsletter">Newsletter</option><option value="youtube">YouTube</option><option value="other">Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Channel URL" value={m.url} onChange={(e) => updateOffSite({ mediaSources: contextData.offSite.mediaSources.map((x: MediaSource) => x.id === m.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ mediaSources: contextData.offSite.mediaSources.filter((x: MediaSource) => x.id !== m.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {contextData.offSite.mediaSources.length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ mediaSources: [...contextData.offSite.mediaSources, { id: uuidv4(), name: '', type: 'news', url: '' }] })}>Click + to add channels</div>
+                            ) : (
+                              contextData.offSite.mediaSources.map((m: MediaSource) => (<div key={m.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={m.type} onChange={(e) => updateOffSite({ mediaSources: contextData.offSite.mediaSources.map((x: MediaSource) => x.id === m.id ? { ...x, type: e.target.value as any } : x) })}><option value="news">News</option><option value="blog">Blog</option><option value="podcast">Podcast</option><option value="newsletter">Newsletter</option><option value="youtube">YouTube</option><option value="other">Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Channel URL" value={m.url} onChange={(e) => updateOffSite({ mediaSources: contextData.offSite.mediaSources.map((x: MediaSource) => x.id === m.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ mediaSources: contextData.offSite.mediaSources.filter((x: MediaSource) => x.id !== m.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                         {/* Coverage */}
-                        <div className="space-y-2 pt-2 border-t">
+                        <div className="space-y-2 pt-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Coverage</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ backlinks: [...(contextData.offSite.backlinks || []), { id: uuidv4(), domain: '', type: 'editorial', doFollow: true }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
-                            {(contextData.offSite.backlinks || []).map((b: BacklinkSource) => (<div key={b.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={b.type} onChange={(e) => updateOffSite({ backlinks: (contextData.offSite.backlinks || []).map((x: BacklinkSource) => x.id === b.id ? { ...x, type: e.target.value as any } : x) })}><option value="editorial">Article</option><option value="feature">Feature</option><option value="interview">Interview</option><option value="guest_post">Guest Post</option><option value="review">Review</option><option value="mention">Mention</option><option value="other">Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Post URL" value={b.pageUrl || b.domain} onChange={(e) => updateOffSite({ backlinks: (contextData.offSite.backlinks || []).map((x: BacklinkSource) => x.id === b.id ? { ...x, pageUrl: e.target.value, domain: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ backlinks: (contextData.offSite.backlinks || []).filter((x: BacklinkSource) => x.id !== b.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {(contextData.offSite.backlinks || []).length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ backlinks: [...(contextData.offSite.backlinks || []), { id: uuidv4(), domain: '', type: 'editorial', doFollow: true }] })}>Click + to add coverage</div>
+                            ) : (
+                              (contextData.offSite.backlinks || []).map((b: BacklinkSource) => (<div key={b.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={b.type} onChange={(e) => updateOffSite({ backlinks: (contextData.offSite.backlinks || []).map((x: BacklinkSource) => x.id === b.id ? { ...x, type: e.target.value as any } : x) })}><option value="editorial">Article</option><option value="feature">Feature</option><option value="interview">Interview</option><option value="guest_post">Guest Post</option><option value="review">Review</option><option value="mention">Mention</option><option value="other">Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Post URL" value={b.pageUrl || b.domain} onChange={(e) => updateOffSite({ backlinks: (contextData.offSite.backlinks || []).map((x: BacklinkSource) => x.id === b.id ? { ...x, pageUrl: e.target.value, domain: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ backlinks: (contextData.offSite.backlinks || []).filter((x: BacklinkSource) => x.id !== b.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                         {/* Events */}
-                        <div className="space-y-2 pt-2 border-t">
+                        <div className="space-y-2 pt-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Events</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ externalEvents: [...(contextData.offSite.externalEvents || []), { id: uuidv4(), name: '', type: 'conference', role: 'speaker' }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
-                            {(contextData.offSite.externalEvents || []).map((ev: ExternalEvent) => (<div key={ev.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={ev.type} onChange={(e) => updateOffSite({ externalEvents: (contextData.offSite.externalEvents || []).map((x: ExternalEvent) => x.id === ev.id ? { ...x, type: e.target.value as any } : x) })}><option value="conference">Conference</option><option value="summit">Summit</option><option value="webinar">Webinar</option><option value="podcast_appearance">Podcast</option><option value="workshop">Workshop</option><option value="meetup">Meetup</option><option value="award">Award</option><option value="other">Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Event URL" value={ev.url || ''} onChange={(e) => updateOffSite({ externalEvents: (contextData.offSite.externalEvents || []).map((x: ExternalEvent) => x.id === ev.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ externalEvents: (contextData.offSite.externalEvents || []).filter((x: ExternalEvent) => x.id !== ev.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {(contextData.offSite.externalEvents || []).length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ externalEvents: [...(contextData.offSite.externalEvents || []), { id: uuidv4(), name: '', type: 'conference', role: 'speaker' }] })}>Click + to add events</div>
+                            ) : (
+                              (contextData.offSite.externalEvents || []).map((ev: ExternalEvent) => (<div key={ev.id} className="flex gap-1 group text-xs"><select className="h-8 w-20 rounded border px-1 text-xs" value={ev.type} onChange={(e) => updateOffSite({ externalEvents: (contextData.offSite.externalEvents || []).map((x: ExternalEvent) => x.id === ev.id ? { ...x, type: e.target.value as any } : x) })}><option value="conference">Conference</option><option value="summit">Summit</option><option value="webinar">Webinar</option><option value="podcast_appearance">Podcast</option><option value="workshop">Workshop</option><option value="meetup">Meetup</option><option value="award">Award</option><option value="other">Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Event URL" value={ev.url || ''} onChange={(e) => updateOffSite({ externalEvents: (contextData.offSite.externalEvents || []).map((x: ExternalEvent) => x.id === ev.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ externalEvents: (contextData.offSite.externalEvents || []).filter((x: ExternalEvent) => x.id !== ev.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                       </div>
                       {/* KOLs */}
                       <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                        <h3 className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4 text-pink-500" /> KOLs</h3>
+                        <h3 className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /> KOLs</h3>
                         {/* Creators */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Creators</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ influencerAccounts: [...contextData.offSite.influencerAccounts, { id: uuidv4(), name: '', platform: 'YouTube', url: '', role: 'kol', tier: '2' }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
-                            {contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'kol').map((i: InfluencerAccount) => (<div key={i.id} className="flex gap-1 group text-xs items-center"><select className="h-8 w-20 rounded border px-1 text-xs" value={i.platform} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, platform: e.target.value } : x) })}><option>YouTube</option><option>TikTok</option><option>Instagram</option><option>X</option><option>Twitch</option><option>Substack</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={i.url} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.filter((x: InfluencerAccount) => x.id !== i.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'kol').length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ influencerAccounts: [...contextData.offSite.influencerAccounts, { id: uuidv4(), name: '', platform: 'YouTube', url: '', role: 'kol', tier: '2' }] })}>Click + to add creators</div>
+                            ) : (
+                              contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'kol').map((i: InfluencerAccount) => (<div key={i.id} className="flex gap-1 group text-xs items-center"><select className="h-8 w-20 rounded border px-1 text-xs" value={i.platform} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, platform: e.target.value } : x) })}><option>YouTube</option><option>TikTok</option><option>Instagram</option><option>X</option><option>Twitch</option><option>Substack</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={i.url} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.filter((x: InfluencerAccount) => x.id !== i.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                         {/* Experts */}
-                        <div className="space-y-2 pt-2 border-t">
+                        <div className="space-y-2 pt-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Experts</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ influencerAccounts: [...contextData.offSite.influencerAccounts, { id: uuidv4(), name: '', platform: 'Analyst', url: '', role: 'analyst', tier: '2' }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
-                            {contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'analyst').map((i: InfluencerAccount) => (<div key={i.id} className="flex gap-1 group text-xs items-center"><select className="h-8 w-20 rounded border px-1 text-xs" value={i.platform} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, platform: e.target.value } : x) })}><option>Analyst</option><option>Consultant</option><option>Speaker</option><option>Author</option><option>Researcher</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={i.url} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.filter((x: InfluencerAccount) => x.id !== i.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'analyst').length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ influencerAccounts: [...contextData.offSite.influencerAccounts, { id: uuidv4(), name: '', platform: 'Analyst', url: '', role: 'analyst', tier: '2' }] })}>Click + to add experts</div>
+                            ) : (
+                              contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'analyst').map((i: InfluencerAccount) => (<div key={i.id} className="flex gap-1 group text-xs items-center"><select className="h-8 w-20 rounded border px-1 text-xs" value={i.platform} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, platform: e.target.value } : x) })}><option>Analyst</option><option>Consultant</option><option>Speaker</option><option>Author</option><option>Researcher</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={i.url} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.filter((x: InfluencerAccount) => x.id !== i.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                         {/* Press */}
-                        <div className="space-y-2 pt-2 border-t">
+                        <div className="space-y-2 pt-2">
                           <div className="flex items-center justify-between"><Label className="text-xs text-muted-foreground">Press</Label><Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => updateOffSite({ influencerAccounts: [...contextData.offSite.influencerAccounts, { id: uuidv4(), name: '', platform: 'Journalist', url: '', role: 'media', tier: '2' }] })}><Plus className="h-3 w-3" /></Button></div>
-                          <div className="space-y-1 max-h-[80px] overflow-y-auto">
-                            {contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'journalist' || i.role === 'media').map((i: InfluencerAccount) => (<div key={i.id} className="flex gap-1 group text-xs items-center"><select className="h-8 w-20 rounded border px-1 text-xs" value={i.platform} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, platform: e.target.value } : x) })}><option>Journalist</option><option>Editor</option><option>Columnist</option><option>Blogger</option><option>Podcaster</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={i.url} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.filter((x: InfluencerAccount) => x.id !== i.id) })}><X className="h-3 w-3" /></Button></div>))}
+                          <div className="space-y-1">
+                            {contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'journalist' || i.role === 'media').length === 0 ? (
+                              <div className="text-xs text-muted-foreground text-center py-2 border border-dashed rounded-md cursor-pointer hover:bg-accent/50" onClick={() => updateOffSite({ influencerAccounts: [...contextData.offSite.influencerAccounts, { id: uuidv4(), name: '', platform: 'Journalist', url: '', role: 'media', tier: '2' }] })}>Click + to add press</div>
+                            ) : (
+                              contextData.offSite.influencerAccounts.filter((i: InfluencerAccount) => i.role === 'journalist' || i.role === 'media').map((i: InfluencerAccount) => (<div key={i.id} className="flex gap-1 group text-xs items-center"><select className="h-8 w-20 rounded border px-1 text-xs" value={i.platform} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, platform: e.target.value } : x) })}><option>Journalist</option><option>Editor</option><option>Columnist</option><option>Blogger</option><option>Podcaster</option><option>Other</option></select><Input className="h-8 text-xs flex-1" placeholder="Profile URL" value={i.url} onChange={(e) => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.map((x: InfluencerAccount) => x.id === i.id ? { ...x, url: e.target.value } : x) })} /><Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={() => updateOffSite({ influencerAccounts: contextData.offSite.influencerAccounts.filter((x: InfluencerAccount) => x.id !== i.id) })}><X className="h-3 w-3" /></Button></div>))
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1918,92 +1984,294 @@ export function ContextWizard({ open, onOpenChange, defaultTab = "onSite" }: Con
                 </div>
               </TabsContent>
 
-              {/* Knowledge Tab */}
+              {/* Knowledge Tab - NotebookLM Style */}
               <TabsContent value="knowledge" className="p-6 m-0 h-full overflow-y-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
-                  {/* Column 1: Market & Audit */}
-                  <div className="space-y-6">
-                    {/* Market Intel */}
-                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><BarChart3 className="h-4 w-4 text-cyan-500" /> Market Intelligence</h4>
-                      </div>
-                      <ComplexListInput
-                        label="Research & Trends"
-                        items={contextData.knowledge.marketIntelligence}
-                        onChange={(items) => updateKnowledge({ marketIntelligence: items })}
-                        onRemove={(id) => updateKnowledge({ marketIntelligence: contextData.knowledge.marketIntelligence.filter((i: MarketIntelligence) => i.id !== id) })}
-                        onAdd={() => updateKnowledge({ marketIntelligence: [...contextData.knowledge.marketIntelligence, { id: uuidv4(), title: "", source: "", type: "industry_report" }] })}
-                        renderItem={renderMarketIntel}
-                        maxHeight="none"
-                      />
+                <div className="space-y-6 pb-10">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <BookOpen className="h-5 w-5 text-primary" /> Knowledge Base
+                        <span className="text-sm font-normal text-muted-foreground">({(contextData.knowledge.sources || []).length}/{contextData.knowledge.sourceLimit || 50})</span>
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Add files, links, and notes to give the agent deeper context about your business.
+                      </p>
                     </div>
-
-                    {/* Audience */}
-                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4 text-rose-500" /> Target Audience</h4>
+                  </div>
+                  {/* Upload Zone */}
+                  <div
+                    className="border-2 border-dashed border-muted-foreground/25 rounded-xl p-10 text-center hover:border-primary/50 hover:bg-accent/30 transition-all cursor-pointer"
+                    onClick={() => {
+                      // Trigger file input - placeholder for now
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.multiple = true;
+                      input.accept = '.pdf,.txt,.md,.doc,.docx,.csv,.mp3,.wav,.png,.jpg,.jpeg,.webp,.mp4,.webm';
+                      input.onchange = (e) => {
+                        const files = (e.target as HTMLInputElement).files;
+                        if (files) {
+                          Array.from(files).forEach(file => {
+                            const fileExt = file.name.split('.').pop()?.toLowerCase() || 'file';
+                            const newSource = {
+                              id: uuidv4(),
+                              title: file.name,
+                              type: 'uploaded' as const,
+                              sourceType: fileExt as any,
+                              addedAt: new Date().toISOString(),
+                              category: 'internal_doc' as const,
+                            };
+                            updateKnowledge({ sources: [...(contextData.knowledge.sources || []), newSource] });
+                          });
+                        }
+                      };
+                      input.click();
+                    }}
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Upload className="h-6 w-6 text-primary" />
                       </div>
-                      <ComplexListInput
-                        label="Buyer Personas"
-                        items={contextData.knowledge.audiencePersonas}
-                        onChange={(items) => updateKnowledge({ audiencePersonas: items })}
-                        onRemove={(id) => updateKnowledge({ audiencePersonas: contextData.knowledge.audiencePersonas.filter((i: AudiencePersona) => i.id !== id) })}
-                        onAdd={() => updateKnowledge({ audiencePersonas: [...contextData.knowledge.audiencePersonas, { id: uuidv4(), name: "", description: "" }] })}
-                        renderItem={renderPersona}
-                        maxHeight="none"
-                      />
+                      <div>
+                        <p className="font-medium">Upload sources</p>
+                        <p className="text-sm text-muted-foreground">Drag & drop or <span className="text-primary underline">choose file</span> to upload</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground/70 mt-2">
+                        Supported: PDF, TXT, MD, DOCX, XLSX, PPTX, CSV, JSON, HTML, XML, RTF, PNG, JPG, GIF, WEBP, MP3, MP4, WAV, WEBM
+                      </p>
                     </div>
                   </div>
 
-                  {/* Column 2: Competitors & Landscape */}
-                  <div className="space-y-6">
-                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><TrendingUp className="h-4 w-4 text-red-500" /> Competitive Landscape</h4>
+                  {/* Quick Add Methods */}
+                  <div className="grid grid-cols-4 gap-4">
+                    {/* Link Button */}
+                    <div className="border rounded-lg p-4 bg-card/50 hover:bg-accent/30 transition-colors cursor-pointer"
+                      onClick={() => {
+                        const url = prompt('Enter URL (webpage, YouTube, GitHub, or Google Scholar):');
+                        if (url) {
+                          let sourceType: 'webpage' | 'youtube' | 'github' | 'google_scholar' = 'webpage';
+                          if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                            sourceType = 'youtube';
+                          } else if (url.includes('github.com')) {
+                            sourceType = 'github';
+                          } else if (url.includes('scholar.google')) {
+                            sourceType = 'google_scholar';
+                          }
+                          const newSource = {
+                            id: uuidv4(),
+                            title: url.length > 50 ? url.substring(0, 50) + '...' : url,
+                            type: 'linked' as const,
+                            sourceType: sourceType,
+                            url: url,
+                            addedAt: new Date().toISOString(),
+                          };
+                          updateKnowledge({ sources: [...(contextData.knowledge.sources || []), newSource] });
+                        }
+                      }}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Link2 className="h-5 w-5 text-muted-foreground" />
+                          <p className="font-medium text-sm">Link</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">e.g., Webpage, YouTube, GitHub, Scholar...</p>
                       </div>
-                      <ComplexListInput
-                        label="Competitor Monitoring"
-                        items={contextData.knowledge.competitors}
-                        onChange={(items) => updateKnowledge({ competitors: items })}
-                        onRemove={(id) => updateKnowledge({ competitors: contextData.knowledge.competitors.filter((i: Competitor) => i.id !== id) })}
-                        onAdd={() => updateKnowledge({ competitors: [...contextData.knowledge.competitors, { id: uuidv4(), name: "", category: "direct" }] })}
-                        renderItem={renderCompetitor}
-                        maxHeight="none"
-                      />
+                    </div>
+
+                    {/* Paste Button */}
+                    <div className="border rounded-lg p-4 bg-card/50 hover:bg-accent/30 transition-colors cursor-pointer"
+                      onClick={() => {
+                        const pasteType = prompt('Paste type (plain_text / markdown / rich_text / code):');
+                        if (pasteType && ['plain_text', 'markdown', 'rich_text', 'code'].includes(pasteType.toLowerCase().replace(' ', '_'))) {
+                          const text = prompt('Paste your content:');
+                          if (text) {
+                            const newSource = {
+                              id: uuidv4(),
+                              title: text.length > 40 ? text.substring(0, 40) + '...' : text,
+                              type: 'pasted' as const,
+                              sourceType: pasteType.toLowerCase().replace(' ', '_') as any,
+                              content: text,
+                              addedAt: new Date().toISOString(),
+                            };
+                            updateKnowledge({ sources: [...(contextData.knowledge.sources || []), newSource] });
+                          }
+                        }
+                      }}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-muted-foreground" />
+                          <p className="font-medium text-sm">Paste</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">e.g., Plain Text, Rich Text, Markdown, Code...</p>
+                      </div>
+                    </div>
+
+                    {/* Cloud & Notes Button */}
+                    <div className="border rounded-lg p-4 bg-card/50 hover:bg-accent/30 transition-colors cursor-pointer"
+                      onClick={() => {
+                        const service = prompt('Enter service (google_drive / onedrive / notion / obsidian):');
+                        if (service && ['google_drive', 'onedrive', 'notion', 'obsidian'].includes(service.toLowerCase().replace(' ', '_'))) {
+                          const url = prompt(`Enter ${service} file or page URL:`);
+                          if (url) {
+                            const newSource = {
+                              id: uuidv4(),
+                              title: url.length > 50 ? url.substring(0, 50) + '...' : url,
+                              type: 'imported' as const,
+                              sourceType: service.toLowerCase().replace(' ', '_') as any,
+                              url: url,
+                              addedAt: new Date().toISOString(),
+                            };
+                            updateKnowledge({ sources: [...(contextData.knowledge.sources || []), newSource] });
+                          }
+                        }
+                      }}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Cloud className="h-5 w-5 text-muted-foreground" />
+                          <p className="font-medium text-sm">Cloud & Notes</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">e.g., Google Drive, OneDrive, Notion, Obsidian...</p>
+                      </div>
+                    </div>
+
+                    {/* Saved Artifacts Button */}
+                    <div className="border rounded-lg p-4 bg-card/50 hover:bg-accent/30 transition-colors cursor-pointer opacity-60"
+                      title="Saved artifacts from agent research will appear here"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Save className="h-5 w-5 text-muted-foreground" />
+                          <p className="font-medium text-sm">Saved Artifacts</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">e.g., Competitors, FAQs, Keywords, Sitemap...</p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Column 3: Internal Knowledge & Files */}
-                  <div className="space-y-6">
-                    {/* Files & Docs */}
-                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><Folder className="h-4 w-4 text-yellow-500" /> Product & Internal</h4>
+                  {/* Source Cards - Kanban Layout */}
+                  <div className="space-y-3">
+                    <Label className="text-xs text-muted-foreground">Added Sources</Label>
+                    <div className="grid grid-cols-5 gap-4">
+                      {/* Uploaded Column */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 pb-2 border-b">
+                          <Upload className="h-4 w-4 text-primary" />
+                          <span className="text-xs font-medium">Uploaded</span>
+                          <span className="text-xs text-muted-foreground">({(contextData.knowledge.sources || []).filter((s: any) => s.type === 'uploaded').length})</span>
+                        </div>
+                        <div className="space-y-1">
+                          {(contextData.knowledge.sources || []).filter((s: any) => s.type === 'uploaded').length === 0 ? (
+                            <p className="text-xs text-muted-foreground/60 py-2">No uploaded files</p>
+                          ) : (contextData.knowledge.sources || []).filter((s: any) => s.type === 'uploaded').map((source: any) => (
+                            <div key={source.id} className="group flex items-center gap-2 py-1 px-2 rounded hover:bg-accent/30 transition-colors">
+                              <span className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono shrink-0">.{source.sourceType || 'file'}</span>
+                              <span className="text-xs truncate flex-1" title={source.title}>{source.title}</span>
+                              <Button variant="ghost" size="icon" className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                onClick={() => updateKnowledge({ sources: (contextData.knowledge.sources || []).filter((s: any) => s.id !== source.id) })}>
+                                <X className="h-2.5 w-2.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <ComplexListInput
-                        label="Knowledge Base & Uploads"
-                        items={contextData.knowledge.userUploads}
-                        onChange={(items) => updateKnowledge({ userUploads: items })}
-                        onRemove={(id) => updateKnowledge({ userUploads: contextData.knowledge.userUploads.filter((i: UserUpload) => i.id !== id) })}
-                        onAdd={() => updateKnowledge({ userUploads: [...contextData.knowledge.userUploads, { id: uuidv4(), fileName: "", fileType: "other", category: "internal_doc", uploadedAt: new Date().toISOString() }] })}
-                        renderItem={renderUserUpload}
-                        maxHeight="none"
-                      />
-                    </div>
 
-                    {/* Generated Content */}
-                    <div className="p-4 border rounded-lg bg-card/50 space-y-3">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-semibold flex items-center gap-2"><Database className="h-4 w-4 text-purple-500" /> Agent Memory</h4>
+                      {/* Linked Column */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 pb-2 border-b">
+                          <Link2 className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs font-medium">Linked</span>
+                          <span className="text-xs text-muted-foreground">({(contextData.knowledge.sources || []).filter((s: any) => s.type === 'linked').length})</span>
+                        </div>
+                        <div className="space-y-1">
+                          {(contextData.knowledge.sources || []).filter((s: any) => s.type === 'linked').length === 0 ? (
+                            <p className="text-xs text-muted-foreground/60 py-2">No linked URLs</p>
+                          ) : (contextData.knowledge.sources || []).filter((s: any) => s.type === 'linked').map((source: any) => (
+                            <div key={source.id} className="group flex items-center gap-2 py-1 px-2 rounded hover:bg-accent/30 transition-colors">
+                              <span className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono shrink-0">{source.sourceType || 'link'}</span>
+                              <span className="text-xs truncate flex-1" title={source.title}>{source.title}</span>
+                              <Button variant="ghost" size="icon" className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                onClick={() => updateKnowledge({ sources: (contextData.knowledge.sources || []).filter((s: any) => s.id !== source.id) })}>
+                                <X className="h-2.5 w-2.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground bg-muted/50 p-6 rounded-md border border-dashed text-center">
-                        {contextData.knowledge.agentGenerated.length === 0
-                          ? "Insights and strategies generated by the agent will appear here automatically."
-                          : `${contextData.knowledge.agentGenerated.length} items collected.`}
+
+                      {/* Pasted Column */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 pb-2 border-b">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs font-medium">Pasted</span>
+                          <span className="text-xs text-muted-foreground">({(contextData.knowledge.sources || []).filter((s: any) => s.type === 'pasted').length})</span>
+                        </div>
+                        <div className="space-y-1">
+                          {(contextData.knowledge.sources || []).filter((s: any) => s.type === 'pasted').length === 0 ? (
+                            <p className="text-xs text-muted-foreground/60 py-2">No pasted content</p>
+                          ) : (contextData.knowledge.sources || []).filter((s: any) => s.type === 'pasted').map((source: any) => (
+                            <div key={source.id} className="group flex items-center gap-2 py-1 px-2 rounded hover:bg-accent/30 transition-colors">
+                              <span className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono shrink-0">{source.sourceType || 'txt'}</span>
+                              <span className="text-xs truncate flex-1" title={source.title}>{source.title}</span>
+                              <Button variant="ghost" size="icon" className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                onClick={() => updateKnowledge({ sources: (contextData.knowledge.sources || []).filter((s: any) => s.id !== source.id) })}>
+                                <X className="h-2.5 w-2.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Imported Column */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 pb-2 border-b">
+                          <Cloud className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs font-medium">Imported</span>
+                          <span className="text-xs text-muted-foreground">({(contextData.knowledge.sources || []).filter((s: any) => s.type === 'imported').length})</span>
+                        </div>
+                        <div className="space-y-1">
+                          {(contextData.knowledge.sources || []).filter((s: any) => s.type === 'imported').length === 0 ? (
+                            <p className="text-xs text-muted-foreground/60 py-2">No cloud imports</p>
+                          ) : (contextData.knowledge.sources || []).filter((s: any) => s.type === 'imported').map((source: any) => (
+                            <div key={source.id} className="group flex items-center gap-2 py-1 px-2 rounded hover:bg-accent/30 transition-colors">
+                              <span className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono shrink-0">{source.sourceType || 'cloud'}</span>
+                              <span className="text-xs truncate flex-1" title={source.title}>{source.title}</span>
+                              <Button variant="ghost" size="icon" className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                onClick={() => updateKnowledge({ sources: (contextData.knowledge.sources || []).filter((s: any) => s.id !== source.id) })}>
+                                <X className="h-2.5 w-2.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Saved Column */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 pb-2 border-b">
+                          <Save className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs font-medium">Saved</span>
+                          <span className="text-xs text-muted-foreground">({(contextData.knowledge.sources || []).filter((s: any) => s.type === 'saved').length})</span>
+                        </div>
+                        <div className="space-y-1">
+                          {(contextData.knowledge.sources || []).filter((s: any) => s.type === 'saved').length === 0 ? (
+                            <p className="text-xs text-muted-foreground/60 py-2">No saved artifacts</p>
+                          ) : (contextData.knowledge.sources || []).filter((s: any) => s.type === 'saved').map((source: any) => (
+                            <div key={source.id} className="group flex items-center gap-2 py-1 px-2 rounded hover:bg-accent/30 transition-colors">
+                              <span className="text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground font-mono shrink-0">{source.sourceType || 'saved'}</span>
+                              <span className="text-xs truncate flex-1" title={source.title}>{source.title}</span>
+                              <Button variant="ghost" size="icon" className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                onClick={() => updateKnowledge({ sources: (contextData.knowledge.sources || []).filter((s: any) => s.id !== source.id) })}>
+                                <X className="h-2.5 w-2.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
+
+
                 </div>
               </TabsContent>
             </div>

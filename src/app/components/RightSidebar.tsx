@@ -136,7 +136,7 @@ ${customInstructions ? `Custom Instructions:\n${customInstructions}` : ''}`;
             </div>
           </div>
 
-          {/* Artefacts Module - Bottom Section (fills remaining space) */}
+          {/* Artifacts Module - Bottom Section (fills remaining space) */}
           {(() => {
             // Filter out internal large_tool_results files
             const visibleFiles = Object.keys(files).filter(
@@ -153,11 +153,11 @@ ${customInstructions ? `Custom Instructions:\n${customInstructions}` : ''}`;
             };
             
             return (
-          <div className="group/artefacts flex min-h-0 flex-1 flex-col">
+          <div className="group/artifacts flex min-h-0 flex-1 flex-col">
             <div className="flex h-12 flex-shrink-0 items-center gap-2 px-4 border-b border-border bg-muted/30">
               <FileText size={16} className="text-muted-foreground" />
               <span className="text-sm font-semibold tracking-wide">
-                Artefacts
+                Artifacts
               </span>
               {visibleFiles.length > 0 && (
                 <span className="rounded-full bg-[#2F6868] px-2 py-0.5 text-xs font-medium text-white">
@@ -183,7 +183,7 @@ ${customInstructions ? `Custom Instructions:\n${customInstructions}` : ''}`;
                       URL.revokeObjectURL(url);
                     });
                   }}
-                  className="ml-auto rounded p-1 opacity-0 transition-opacity hover:bg-muted group-hover/artefacts:opacity-100"
+                  className="ml-auto rounded p-1 opacity-0 transition-opacity hover:bg-muted group-hover/artifacts:opacity-100"
                   title="Download All"
                 >
                   <FolderDown size={16} className="text-muted-foreground" />
@@ -195,7 +195,7 @@ ${customInstructions ? `Custom Instructions:\n${customInstructions}` : ''}`;
               {visibleFiles.length === 0 ? (
                 <div className="flex h-full items-center justify-center px-4 pb-4">
                   <p className="text-xs text-muted-foreground">
-                    No artefacts created yet
+                    No artifacts created yet
                   </p>
                 </div>
               ) : (

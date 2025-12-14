@@ -47,6 +47,9 @@ import {
   Handshake,
   BarChart3,
   Folder,
+  Upload,
+  Cloud,
+  Save,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -286,25 +289,14 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
     const offSiteTotal = offSiteCounts.ownedPresence + offSiteCounts.reviewsListings + offSiteCounts.community + offSiteCounts.media + offSiteCounts.kols;
 
     const knowledgeCounts = {
-      // Market Intel
-      kReports: (contextData.knowledge.marketIntelligence?.filter((m: any) => m.type !== "news").length || 0),
-      kNews: (contextData.knowledge.marketIntelligence?.filter((m: any) => m.type === "news").length || 0),
-      kPersonas: contextData.knowledge.audiencePersonas?.length || 0,
-      get market() { return this.kReports + this.kNews + this.kPersonas; },
-
-      // Competitive
-      kCompetitors: contextData.knowledge.competitors?.length || 0,
-      get competitive() { return this.kCompetitors; },
-
-      // Internal
-      kUploads: contextData.knowledge.userUploads?.length || 0,
-      get internal() { return this.kUploads; },
-
-      // Memory
-      kGenerated: contextData.knowledge.agentGenerated?.length || 0,
-      get memory() { return this.kGenerated; },
+      uploaded: contextData.knowledge.sources?.filter((s: any) => s.type === 'uploaded').length || 0,
+      linked: contextData.knowledge.sources?.filter((s: any) => s.type === 'linked').length || 0,
+      pasted: contextData.knowledge.sources?.filter((s: any) => s.type === 'pasted').length || 0,
+      imported: contextData.knowledge.sources?.filter((s: any) => s.type === 'imported').length || 0,
+      saved: contextData.knowledge.sources?.filter((s: any) => s.type === 'saved').length || 0,
+      get total() { return this.uploaded + this.linked + this.pasted + this.imported + this.saved; }
     };
-    const knowledgeTotal = knowledgeCounts.market + knowledgeCounts.competitive + knowledgeCounts.internal + knowledgeCounts.memory;
+    const knowledgeTotal = knowledgeCounts.total;
 
     // Merge local todos
     const displayTodos = useMemo(() => {
@@ -472,22 +464,11 @@ export const LeftSidebar = React.memo<LeftSidebarProps>(
                       icon={BookOpen}
                       onClick={() => openWizard("knowledge")}
                     >
-                      <TreeItem label="Market Intelligence" count={knowledgeCounts.market} icon={BarChart3} level={1} onClick={() => openWizard("knowledge")}>
-                        <TreeItem label="Research & Trends" count={knowledgeCounts.kReports} icon={TrendingUp} level={2} />
-                        <TreeItem label="Target Audience" count={knowledgeCounts.kPersonas} icon={Users} level={2} />
-                      </TreeItem>
-
-                      <TreeItem label="Competitive Landscape" count={knowledgeCounts.competitive} icon={TrendingUp} level={1} onClick={() => openWizard("knowledge")}>
-                        <TreeItem label="Competitors" count={knowledgeCounts.kCompetitors} icon={Target} level={2} />
-                      </TreeItem>
-
-                      <TreeItem label="Product & Internal" count={knowledgeCounts.internal} icon={Folder} level={1} onClick={() => openWizard("knowledge")}>
-                        <TreeItem label="Files & Uploads" count={knowledgeCounts.kUploads} icon={File} level={2} />
-                      </TreeItem>
-
-                      <TreeItem label="Agent Memory" count={knowledgeCounts.memory} icon={Database} level={1} onClick={() => openWizard("knowledge")}>
-                        <TreeItem label="Generated Insights" count={knowledgeCounts.kGenerated} icon={Cpu} level={2} />
-                      </TreeItem>
+                      <TreeItem label="Uploaded" count={knowledgeCounts.uploaded} icon={Upload} level={1} onClick={() => openWizard("knowledge")} />
+                      <TreeItem label="Linked" count={knowledgeCounts.linked} icon={LinkIcon} level={1} onClick={() => openWizard("knowledge")} />
+                      <TreeItem label="Pasted" count={knowledgeCounts.pasted} icon={FileText} level={1} onClick={() => openWizard("knowledge")} />
+                      <TreeItem label="Cloud & Notes" count={knowledgeCounts.imported} icon={Cloud} level={1} onClick={() => openWizard("knowledge")} />
+                      <TreeItem label="Saved Artifacts" count={knowledgeCounts.saved} icon={Save} level={1} onClick={() => openWizard("knowledge")} />
                     </TreeItem>
                   </div>
                 </div>

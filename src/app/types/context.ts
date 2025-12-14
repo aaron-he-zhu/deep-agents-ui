@@ -508,7 +508,26 @@ export interface AudiencePersona {
   buyingBehavior?: string;
 }
 
+// NotebookLM-style unified source type
+export interface KnowledgeSource {
+  id: string;
+  title: string;
+  type: "uploaded" | "linked" | "pasted" | "imported" | "saved";
+  sourceType?: "pdf" | "doc" | "txt" | "md" | "csv" | "image" | "audio" | "video" | "webpage" | "youtube" | "github" | "google_scholar" | "google_drive" | "onedrive" | "notion" | "obsidian" | "plain_text" | "markdown" | "rich_text" | "code" | "copied_text" | "other";
+  url?: string;
+  content?: string;
+  summary?: string;
+  addedAt: string;
+  category?: "market_research" | "user_research" | "brand_guideline" | "competitor_analysis" | "internal_doc" | "report" | "data_set" | "other";
+  tags?: string[];
+  isSaved?: boolean;  // For agent-generated content that user saved
+}
+
 export interface KnowledgeContext {
+  // New unified sources array (NotebookLM style)
+  sources: KnowledgeSource[];
+  sourceLimit: number;
+  // Legacy fields for backwards compatibility
   competitors: Competitor[];
   audiencePersonas: AudiencePersona[];
   marketIntelligence: MarketIntelligence[];
@@ -606,6 +625,8 @@ export const initialContextData: ContextData = {
     customerReviews: [],
   },
   knowledge: {
+    sources: [],
+    sourceLimit: 50,
     competitors: [],
     audiencePersonas: [],
     marketIntelligence: [],
